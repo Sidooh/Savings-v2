@@ -1,25 +1,35 @@
 import express, { Express, json, urlencoded } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import 'express-async-errors';
 import log from './utils/logger';
+import routes from './routes';
+import { errorHandler } from '@nabz.tickets/common';
 
 class App {
-    //  Initialize our express app
     public app: Express;
     public port: number;
 
     constructor(port: number) {
+        /** --------------------------------    INIT APP
+         * */
         this.port = port;
         this.app = express();
 
-        this.#initMiddleware();
-    }
-
-    #initMiddleware(): void {
+        /** --------------------------------    INIT APP MIDDLEWARE
+         * */
         this.app.use(cors());
         this.app.use(helmet());
         this.app.use(json());
         this.app.use(urlencoded({ extended: false }));
+
+        /** --------------------------------    INIT API ROUTES
+         * */
+        this.app.use('/api', routes)
+
+        /** --------------------------------    INIT ERROR HANDLER
+         * */
+        this.app.use(errorHandler);
     }
 
     listen(): void {
