@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { AppDataSource } from "./data-source";
 import log from './utils/logger';
 import App from './app';
-import validateEnv from './utils/validateEnv';
+import validateEnv from './utils/validate.env';
 
 validateEnv();
 
