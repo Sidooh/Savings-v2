@@ -8,15 +8,6 @@ import { SavingsAccount } from './entities/models/SavingsAccount';
 validateEnv();
 
 AppDataSource.initialize().then(async () => {
-    // console.log("Inserting a new user into the database...")
-    // const user = new User()
-    // user.firstName = "Timber"
-    // user.lastName = "Saw"
-    // user.age = 25
-
-    // await AppDataSource.manager.save(user)
-    // console.log("Saved a new user with id: " + user.id)
-
     console.log("Loading accounts from the database...")
     const accounts = await AppDataSource.manager.find(SavingsAccount)
     console.log("Loaded accounts: ", accounts)
