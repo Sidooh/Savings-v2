@@ -8,10 +8,14 @@
       "typeorm": "typeorm-ts-node-commonjs"
    },
    "dependencies": {
+      "@nabz.tickets/common": "^1.0.14",
       "cors": "^2.8.5",
       "envalid": "^7.3.1",
       "express": "^4.17.3",
+      "express-async-errors": "^3.1.1",
+      "express-group-router": "^2.1.0",
       "helmet": "^5.0.2",
+      "joi": "^17.6.0",
       "mysql2": "^2.3.3",
       "reflect-metadata": "^0.1.13",
       "typeorm": "0.3.5",
