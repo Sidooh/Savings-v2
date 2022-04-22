@@ -11,11 +11,11 @@ export class Group extends BaseEntity {
     @Column({length: 20, default: GroupType.DEFAULT})
     type: GroupType;
 
-    @Column({type: 'decimal', default: 0})
-    amount: number;
-
-    @Column({type: 'decimal', default: 0})
+    @Column({ type: 'decimal', default: 0, scale: 4 })
     balance: number;
+
+    @Column({ type: 'decimal', default: 0, scale: 4 })
+    interest: number;
 
     @Column({length: 20, default: Frequency.MONTHLY})
     frequency: Frequency;

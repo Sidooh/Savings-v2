@@ -3041,15 +3041,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typeorm-polymorphic@npm:^0.0.10":
-  version: 0.0.10
-  resolution: "typeorm-polymorphic@npm:0.0.10"
-  peerDependencies:
-    typeorm: ^0.2.29
-  checksum: 49aa86f6447765882622c71fc46ef96a676354e867b78a610ba7d12183f1e26a23d63e9755fc01bf8626d5553c0a8282cec03d177175c3017e57c1d27f7b182a
-  languageName: node
-  linkType: hard
-
 "typeorm-sample@workspace:.":
   version: 0.0.0-use.local
   resolution: "typeorm-sample@workspace:."
@@ -3071,7 +3062,6 @@ __metadata:
     ts-node: 10.7.0
     typeorm: 0.3.5
     typeorm-naming-strategies: ^4.1.0
-    typeorm-polymorphic: ^0.0.10
     typescript: 4.5.2
     winston: ^3.7.2
     winston-slack-webhook-transport: ^2.1.0

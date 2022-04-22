@@ -5,7 +5,8 @@
    "type": "commonjs",
    "scripts": {
       "start": "nodemon src/index.ts",
-      "typeorm": "typeorm-ts-node-commonjs"
+      "typeorm": "typeorm-ts-node-commonjs",
+      "build": "tsc -p ."
    },
    "dependencies": {
       "@nabz.tickets/common": "^1.0.14",
@@ -20,7 +21,6 @@
       "reflect-metadata": "^0.1.13",
       "typeorm": "0.3.5",
       "typeorm-naming-strategies": "^4.1.0",
-      "typeorm-polymorphic": "^0.0.10",
       "winston": "^3.7.2",
       "winston-slack-webhook-transport": "^2.1.0"
    },

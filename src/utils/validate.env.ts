@@ -14,7 +14,7 @@ export default function validateEnv(): void {
         DB_DATABASE: str(),
         DB_HOST: str({default: '127.0.0.7'}),
 
-        SLACK_HOOK_URL: url(),
+        SLACK_HOOK_URL: url({default: null}),
         SLACK_LOGGING: str({
             default: 'disabled',
             choices: ["enabled", "disabled"]

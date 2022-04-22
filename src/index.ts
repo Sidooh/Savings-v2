@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { AppDataSource } from "./data-source";
+import { AppDataSource } from "./entities/data-source";
 import log from './utils/logger';
 import App from './app';
 import validateEnv from './utils/validate.env';

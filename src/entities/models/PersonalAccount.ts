@@ -1,8 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from './BaseEntity';
 import { PersonalAccountType, Status } from '../../utils/enums';
-import { PolymorphicChildren } from 'typeorm-polymorphic';
-import { SubTransaction } from './SubTransaction';
+import { PersonalAccountTransaction } from './PersonalAccountTransaction';
 
 @Entity('personal_accounts')
 export class PersonalAccount extends BaseEntity {
@@ -15,6 +14,9 @@ export class PersonalAccount extends BaseEntity {
     @Column({type: 'decimal', default: 0})
     amount: number;
 
+    @Column({ type: 'decimal', default: 0, scale: 4 })
+    interest: number;
+
     @Column({unsigned: true})
     duration: number;
 
@@ -24,6 +26,6 @@ export class PersonalAccount extends BaseEntity {
     @Column({type: 'bigint', unsigned: true})
     account_id;
 
-    @PolymorphicChildren(() => SubTransaction, {eager: false})
-    sub_transactions: SubTransaction[];
+    @OneToMany(() => PersonalAccountTransaction, (transaction) => transaction.sub_transactions)
+    transactions: PersonalAccountTransaction[];
 }

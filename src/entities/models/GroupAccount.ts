@@ -1,13 +1,15 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { BaseEntity } from './BaseEntity';
 import { Group } from './Group';
-import { PolymorphicChildren } from 'typeorm-polymorphic';
-import { SubTransaction } from './SubTransaction';
+import { GroupAccountTransaction } from './GroupAccountTransaction';
 
 @Entity('group_accounts')
 export class GroupAccount extends BaseEntity {
-    @Column({type: 'decimal', default: 0})
+    @Column({type: 'decimal', default: 0, scale: 4})
     balance: number;
+
+    @Column({type: 'decimal', default: 0, scale: 4})
+    interest: number;
 
     @Column({type: 'bigint', unsigned: true})
     account_id;
@@ -15,6 +17,6 @@ export class GroupAccount extends BaseEntity {
     @ManyToOne(() => Group, group => group.group_accounts, {cascade: true})
     group: Group;
 
-    @PolymorphicChildren(() => SubTransaction, {eager: false})
-    sub_transactions: SubTransaction[];
+    @OneToMany(() => GroupAccountTransaction, (transaction) => transaction.sub_transactions)
+    transactions: GroupAccountTransaction[];
 }
