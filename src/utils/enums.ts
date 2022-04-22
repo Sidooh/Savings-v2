@@ -1,43 +1,47 @@
 export enum Status {
-    PENDING = 'pending',
-    INACTIVE = 'inactive',
-    FAILED = 'failed',
+    PENDING = 'PENDING',
+    INACTIVE = 'INACTIVE',
+    FAILED = 'FAILED',
 
-    ACTIVE = 'active',
-    VERIFIED = 'verified',
+    ACTIVE = 'ACTIVE',
+    VERIFIED = 'VERIFIED',
 
-    COMPLETED = 'completed',
+    COMPLETED = 'COMPLETED',
 }
 
 export enum Frequency {
-    DAILY = 'daily',
-    WEEKLY = 'weekly',
-    MONTHLY = 'monthly',
-    YEARLY = 'yearly',
+    DAILY = 'DAILY',
+    WEEKLY = 'WEEKLY',
+    MONTHLY = 'MONTHLY',
+    YEARLY = 'YEARLY',
+}
+
+export enum Duration {
+    YEAR = 12,
 }
 
 export enum SavingsAccountType {
-    PERSONAL = 'personal',
-    GROUP = 'group',
+    PERSONAL = 'PERSONAL',
+    GROUP = 'GROUP',
 }
 
 export enum GroupType {
-    DEFAULT = 'default',
-    CLUB_SIDOOH = 'club_sidooh',
-    ENTERPRISE = 'enterprise',
-    AGENT = 'agent',
+    DEFAULT = 'DEFAULT',
+    CLUB_SIDOOH = 'CLUB_SIDOOH',
+    ENTERPRISE = 'ENTERPRISE',
+    AGENT = 'AGENT',
 }
 
 export enum PersonalAccountType {
-    GOAL = 'goat',
-    EMERGENCY = 'emergency',
-    RETIREMENT = 'retirement',
-    MONTHLY_INCOME = 'monthly_income',
+    GOAL = 'GOAL',
+    EMERGENCY = 'EMERGENCY',
+    RETIREMENT = 'RETIREMENT',
+    MONTHLY_INCOME = 'MONTHLY_INCOME',
 
-    INTEREST = 'interest',
+    INTEREST = 'INTEREST',
 }
 
 export enum TransactionType {
-    CREDIT = 'credit',
-    DEBIT = 'debit',
+    CREDIT = 'CREDIT',
+    DEBIT = 'DEBIT',
 }

@@ -5,9 +5,11 @@ import { GroupAccount } from './models/GroupAccount';
 import { PersonalAccountTransaction } from './models/PersonalAccountTransaction';
 import { PersonalAccount } from './models/PersonalAccount';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import { PersonalAccountSubTransaction } from './models/PersonalAccountSubTransaction';
+import { PersonalCollectiveInvestment } from './models/PersonalCollectiveInvestment';
 import { GroupAccountTransaction } from './models/GroupAccountTransaction';
-import { GroupAccountSubTransaction } from './models/GroupAccountSubTransaction';
+import { GroupCollectiveInvestment } from './models/GroupCollectiveInvestment';
+import { PersonalSubInvestment } from './models/PersonalSubInvestment';
+import { GroupSubInvestment } from './models/GroupSubInvestment';
 
 export const AppDataSource = new DataSource({
     type: "mysql",
@@ -22,10 +24,13 @@ export const AppDataSource = new DataSource({
         Group,
         GroupAccount,
         GroupAccountTransaction,
-        GroupAccountSubTransaction,
+        GroupCollectiveInvestment,
+        GroupSubInvestment,
+
         PersonalAccount,
         PersonalAccountTransaction,
-        PersonalAccountSubTransaction
+        PersonalCollectiveInvestment,
+        PersonalSubInvestment
     ],
     migrations: [],
     subscribers: [],

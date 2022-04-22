@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from './BaseEntity';
-import { PersonalAccountType, Status } from '../../utils/enums';
+import { Duration, Frequency, PersonalAccountType, Status } from '../../utils/enums';
 import { PersonalAccountTransaction } from './PersonalAccountTransaction';
 
 @Entity('personal_accounts')
@@ -11,21 +11,24 @@ export class PersonalAccount extends BaseEntity {
     @Column({nullable: true})
     description: string;
 
-    @Column({type: 'decimal', default: 0})
-    amount: number;
+    @Column({type: 'decimal', default: 0, precision:10, scale: 4})
+    balance: number;
 
-    @Column({ type: 'decimal', default: 0, scale: 4 })
+    @Column({type: 'decimal', default: 0, precision:10, scale: 4})
     interest: number;
 
-    @Column({unsigned: true})
-    duration: number;
+    @Column({type: 'tinyint', unsigned: true, nullable: true})
+    duration: Duration;
 
-    @Column({length: 20, default: Status.PENDING})
+    @Column({length: 20, default: Frequency.MONTHLY})
+    frequency: Frequency;
+
+    @Column({length: 20, default: Status.INACTIVE})
     status: Status;
 
     @Column({type: 'bigint', unsigned: true})
     account_id;
 
-    @OneToMany(() => PersonalAccountTransaction, (transaction) => transaction.sub_transactions)
+    @OneToMany(() => PersonalAccountTransaction, (transaction) => transaction.personal_account)
     transactions: PersonalAccountTransaction[];
 }

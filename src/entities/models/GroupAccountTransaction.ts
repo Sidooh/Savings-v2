@@ -1,7 +1,7 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { BaseEntity } from './BaseEntity';
-import { TransactionType } from '../../utils/enums';
-import { GroupAccountSubTransaction } from './GroupAccountSubTransaction';
+import { Status, TransactionType } from '../../utils/enums';
+import { GroupAccount } from './GroupAccount';
 
 @Entity('group_account_transactions')
 export class GroupAccountTransaction extends BaseEntity {
@@ -11,6 +11,15 @@ export class GroupAccountTransaction extends BaseEntity {
     @Column()
     description: string;
 
-    @OneToMany(() => GroupAccountSubTransaction, (subTransaction) => subTransaction.transaction)
-    sub_transactions: GroupAccountSubTransaction[];
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
+    amount: number;
+
+    @Column({length: 20, default: Status.PENDING})
+    status: Status;
+
+    @Column({type: 'bigint', unsigned: true})
+    group_account_id;
+
+    @ManyToOne(() => GroupAccount, (groupAccount) => groupAccount.transactions)
+    group_account;
 }

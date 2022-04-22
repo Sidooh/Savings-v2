@@ -1,7 +1,7 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { BaseEntity } from './BaseEntity';
-import { TransactionType } from '../../utils/enums';
-import { PersonalAccountSubTransaction } from './PersonalAccountSubTransaction';
+import { Status, TransactionType } from '../../utils/enums';
+import { PersonalAccount } from './PersonalAccount';
 
 @Entity('personal_account_transactions')
 export class PersonalAccountTransaction extends BaseEntity {
@@ -11,6 +11,15 @@ export class PersonalAccountTransaction extends BaseEntity {
     @Column()
     description: string;
 
-    @OneToMany(() => PersonalAccountSubTransaction, (subTransaction) => subTransaction.transaction)
-    sub_transactions: PersonalAccountSubTransaction[];
+    @Column({ type: 'decimal', default: 0, precision: 10, scale: 4 })
+    amount: number;
+
+    @Column({length: 20, default: Status.PENDING})
+    status: Status;
+
+    @Column({type: 'bigint', unsigned: true})
+    personal_account_id;
+
+    @ManyToOne(() => PersonalAccount, (personalAccount) => personalAccount.transactions)
+    personal_account;
 }

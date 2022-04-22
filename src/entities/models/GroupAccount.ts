@@ -5,18 +5,21 @@ import { GroupAccountTransaction } from './GroupAccountTransaction';
 
 @Entity('group_accounts')
 export class GroupAccount extends BaseEntity {
-    @Column({type: 'decimal', default: 0, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
     balance: number;
 
-    @Column({type: 'decimal', default: 0, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
     interest: number;
 
     @Column({type: 'bigint', unsigned: true})
     account_id;
 
+    @Column({type: 'bigint', unsigned: true})
+    group_id;
+
     @ManyToOne(() => Group, group => group.group_accounts, {cascade: true})
     group: Group;
 
-    @OneToMany(() => GroupAccountTransaction, (transaction) => transaction.sub_transactions)
+    @OneToMany(() => GroupAccountTransaction, (transaction) => transaction.group_account)
     transactions: GroupAccountTransaction[];
 }
