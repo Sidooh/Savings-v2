@@ -36,8 +36,8 @@ export default class GroupController {
     static deposit = async ({body}: Request, res: Response) => {
         const {amount, account_id, group_id} = body
 
-        const balance = await Repo.deposit(amount, account_id, group_id)
+        const balances = await Repo.deposit(amount, group_id, account_id)
 
-        res.send({balance})
+        res.send(balances)
     };
 }

@@ -1,5 +1,8 @@
 import { Group } from '../entities/models/Group';
-import { NotFoundError } from '@nabz.tickets/common';
+import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
+import { Description, TransactionType } from '../utils/enums';
+import { GroupAccount } from '../entities/models/GroupAccount';
+import { NotFoundError } from '../exceptions/not-found.err';
 
 export const GroupRepository = {
     index: async (withGroupAccounts = null) => {
@@ -48,8 +51,22 @@ export const GroupRepository = {
     },
 
     deposit: async (amount: number, groupId: number, accountId: number) => {
-        const group = await Group.findOneBy({id: groupId});
+        const group = await Group.findOne({where: {id: groupId}, relations: {group_accounts: true}});
+        const groupAccount = group?.group_accounts.find(acc => acc.account_id == accountId);
 
-        return group;
+        if (!group) throw new NotFoundError("Group Not Found!");
+        if (!groupAccount) throw new NotFoundError("Group Account Not Found!");
+
+        const transaction = await GroupAccountTransaction.save({
+            amount,
+            description: Description.ACCOUNT_DEPOSIT,
+            group_account_id: groupAccount.id,
+            type: TransactionType.CREDIT
+        });
+
+        await GroupAccount.getRepository().increment({group_id: groupId, account_id: accountId}, 'balance', amount);
+        await Group.getRepository().increment({id:groupId}, 'balance', amount);
+
+        return transaction;
     }
 };

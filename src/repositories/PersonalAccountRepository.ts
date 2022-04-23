@@ -1,5 +1,5 @@
 import { PersonalAccount } from '../entities/models/PersonalAccount';
-import { NotFoundError } from '@nabz.tickets/common';
+import { NotFoundError } from '../exceptions/not-found.err';
 
 export const PersonalAccountRepository = {
     index: async () => {
