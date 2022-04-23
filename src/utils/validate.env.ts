@@ -1,4 +1,4 @@
-import { cleanEnv, port, str, url } from 'envalid';
+import { cleanEnv, num, port, str, url } from 'envalid';
 
 export default function validateEnv(): void {
     cleanEnv(process.env, {
@@ -18,6 +18,8 @@ export default function validateEnv(): void {
         SLACK_LOGGING: str({
             default: 'disabled',
             choices: ["enabled", "disabled"]
-        })
+        }),
+
+        MIN_FREQUENCY_AMOUNT: num({default: 20})
     });
 }

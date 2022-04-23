@@ -28,20 +28,27 @@ export const GroupRepository = {
     },
 
     store: async (body) => {
-        const {name, amount, frequency, account_id} = body;
+        const {name, target_amount, frequency_amount, frequency, account_id, min_frequency_amount} = body;
 
         let group = await Group.findOne({
             where: {name, group_accounts: {account_id}},
             relations: {group_accounts: true}
         });
 
-        if (!group) group = await Group.save({name, amount, frequency, group_accounts: [{account_id}]});
+        if (!group) group = await Group.save({
+            name,
+            target_amount,
+            frequency_amount,
+            frequency,
+            settings: {min_frequency_amount},
+            group_accounts: [{account_id}]
+        });
 
         return group;
     },
 
     deposit: async (amount: number, groupId: number, accountId: number) => {
-        const group = await Group.findOneBy({id: groupId})
+        const group = await Group.findOneBy({id: groupId});
 
         return group;
     }

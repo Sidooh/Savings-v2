@@ -12,7 +12,10 @@ export class Group extends BaseEntity {
     type: GroupType;
 
     @Column({type: 'bigint', default: 0})
-    amount: number;
+    target_amount: number;
+
+    @Column({type: 'bigint', default: 0})
+    frequency_amount: number;
 
     @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
     balance: number;
@@ -28,6 +31,9 @@ export class Group extends BaseEntity {
 
     @Column({length: 20, default: Status.INACTIVE})
     status: Status;
+
+    @Column({type: 'json', nullable: true})
+    settings: { min_frequency_amount: number };
 
     @OneToMany(() => GroupAccount, (groupAccount) => groupAccount.group, {
         cascade: true

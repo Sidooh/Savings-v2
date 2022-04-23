@@ -5,8 +5,10 @@ export const GroupRequest = {
     store: Joi.object({
         account_id: Joi.number().integer().required(),
         name: Joi.string().required(),
-        amount: Joi.number().integer().min(1000).required(),
         frequency: Joi.string().valid(...Object.values(Frequency).map(f => f)),
+        frequency_amount: Joi.number().integer().min(20),
+        target_amount: Joi.number().integer().min(20),
+        min_frequency_amount: Joi.number().integer().min(Number(process.env.MIN_FREQUENCY_AMOUNT || 20)),
     }),
 
     deposit: Joi.object({
