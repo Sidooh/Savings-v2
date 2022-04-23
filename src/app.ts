@@ -25,7 +25,7 @@ class App {
 
         /** --------------------------------    INIT API ROUTES
          * */
-        this.app.use('/api', routes)
+        this.app.use('/api/v1', routes)
 
         /** --------------------------------    INIT ERROR HANDLER
          * */

@@ -1,15 +1,14 @@
-import RouteGroup from 'express-group-router';
-import SavingsAccountController from './http/controllers/SavingsAccountController';
-import { SavingsAccountRequest } from './http/requests/SavingsAccount.request';
+import { Router } from 'express';
+import RouteGroup from 'express-route-grouping';
+import PersonalAccountController from './http/controllers/PersonalAccountController';
+import { PersonalAccountRequest } from './http/requests/PersonalAccount.request';
 import { validate } from './http/middleware/validate.middleware';
 
-const router = new RouteGroup();
+const router = new RouteGroup('/', Router());
 
-router.group('/savings-accounts', router => {
-    router.get('/', SavingsAccountController.index)
-    router.post('/', [validate(SavingsAccountRequest.store)], SavingsAccountController.store)
-    router.put('/update', SavingsAccountController.update)
-    router.delete('/delete', SavingsAccountController.destroy)
+router.group('/personal-accounts', router => {
+    router.get('/', PersonalAccountController.index)
+    router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store)
 })
 
-export default router.init()
+export default router.export()

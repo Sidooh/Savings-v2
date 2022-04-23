@@ -5,22 +5,25 @@ import { PersonalAccountTransaction } from './PersonalAccountTransaction';
 
 @Entity('personal_accounts')
 export class PersonalAccount extends BaseEntity {
-    @Column({length: 20, default: PersonalAccountType.GOAL})
+    @Column({length: 20})
     type: PersonalAccountType;
 
     @Column({nullable: true})
     description: string;
 
-    @Column({type: 'decimal', default: 0, precision:10, scale: 4})
+    @Column({type: 'bigint', default: 0})
+    amount: number;
+
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
     balance: number;
 
-    @Column({type: 'decimal', default: 0, precision:10, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
     interest: number;
 
     @Column({type: 'tinyint', unsigned: true, nullable: true})
     duration: Duration;
 
-    @Column({length: 20, default: Frequency.MONTHLY})
+    @Column({length: 20, nullable: true})
     frequency: Frequency;
 
     @Column({length: 20, default: Status.INACTIVE})
