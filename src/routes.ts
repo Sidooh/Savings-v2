@@ -19,6 +19,8 @@ router.group('/personal-accounts', router => {
     router.get('/', PersonalAccountController.index);
     router.get('/:id', PersonalAccountController.getById);
     router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
+
+    router.post('/deposit', validate(PersonalAccountRequest.deposit), PersonalAccountController.deposit);
 });
 
 router.group('/group-accounts', router => {

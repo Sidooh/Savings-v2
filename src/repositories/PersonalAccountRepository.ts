@@ -1,5 +1,7 @@
 import { PersonalAccount } from '../entities/models/PersonalAccount';
 import { NotFoundError } from '../exceptions/not-found.err';
+import { Description, TransactionType } from '../utils/enums';
+import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
 
 export const PersonalAccountRepository = {
     index: async () => {
@@ -50,5 +52,22 @@ export const PersonalAccountRepository = {
         });
 
         return personalAccount;
+    },
+
+    deposit: async (amount: number, personalAccId: number, accountId: number) => {
+        const personalAcc = await PersonalAccount.findOneBy({id: personalAccId, account_id: accountId});
+
+        if (!personalAcc) throw new NotFoundError("Personal Account Not Found!");
+
+        const transaction = await PersonalAccountTransaction.save({
+            amount,
+            description: Description.ACCOUNT_DEPOSIT,
+            personal_account_id: personalAccId,
+            type: TransactionType.CREDIT
+        });
+
+        await PersonalAccount.getRepository().increment({id: personalAccId, account_id: accountId}, 'balance', amount);
+
+        return transaction;
     }
 };

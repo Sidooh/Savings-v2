@@ -29,4 +29,12 @@ export default class PersonalAccountController {
 
         res.send(personalAcc);
     };
+
+    static deposit = async ({body}: Request, res: Response) => {
+        const {amount, account_id, personal_account_id} = body
+
+        const transaction = await Repo.deposit(amount, personal_account_id, account_id)
+
+        res.send(transaction)
+    };
 }

@@ -13,5 +13,11 @@ export const PersonalAccountRequest = {
             is: PersonalAccountType.GOAL,
             then: Joi.required()
         })
+    }),
+
+    deposit: Joi.object({
+        account_id: Joi.number().integer().required(),
+        personal_account_id: Joi.number().integer().required(),
+        amount: Joi.number().integer().min(10).required(),
     })
 };
