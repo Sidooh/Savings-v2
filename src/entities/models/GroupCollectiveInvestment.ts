@@ -21,6 +21,6 @@ export class GroupCollectiveInvestment extends BaseEntity {
 
     @OneToMany(() => GroupSubInvestment, (groupSubInvestment) => {
         return groupSubInvestment.group_collective_investment;
-    })
+    }, {cascade: true,})
     group_sub_investments: GroupSubInvestment[];
 }

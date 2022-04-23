@@ -1,9 +1,10 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, Index, OneToMany } from "typeorm";
 import { BaseEntity } from './BaseEntity';
 import { Duration, Frequency, PersonalAccountType, Status } from '../../utils/enums';
 import { PersonalAccountTransaction } from './PersonalAccountTransaction';
 
 @Entity('personal_accounts')
+@Index(["type", "account_id", "description"], {unique: true})
 export class PersonalAccount extends BaseEntity {
     @Column({length: 20})
     type: PersonalAccountType;
@@ -32,6 +33,8 @@ export class PersonalAccount extends BaseEntity {
     @Column({type: 'bigint', unsigned: true})
     account_id;
 
-    @OneToMany(() => PersonalAccountTransaction, (transaction) => transaction.personal_account)
+    @OneToMany(() => PersonalAccountTransaction, (transaction) => {
+        return transaction.personal_account;
+    }, {cascade: true})
     transactions: PersonalAccountTransaction[];
 }

@@ -1,9 +1,10 @@
-import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, Index, ManyToOne, OneToMany } from "typeorm";
 import { BaseEntity } from './BaseEntity';
 import { Group } from './Group';
 import { GroupAccountTransaction } from './GroupAccountTransaction';
 
 @Entity('group_accounts')
+@Index(["account_id", "group_id"], {unique: true})
 export class GroupAccount extends BaseEntity {
     @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
     balance: number;
@@ -17,9 +18,11 @@ export class GroupAccount extends BaseEntity {
     @Column({type: 'bigint', unsigned: true})
     group_id;
 
-    @ManyToOne(() => Group, group => group.group_accounts, {cascade: true})
+    @ManyToOne(() => Group, group => group.group_accounts)
     group: Group;
 
-    @OneToMany(() => GroupAccountTransaction, (transaction) => transaction.group_account)
+    @OneToMany(() => GroupAccountTransaction, (transaction) => transaction.group_account, {
+        cascade: true,
+    })
     transactions: GroupAccountTransaction[];
 }

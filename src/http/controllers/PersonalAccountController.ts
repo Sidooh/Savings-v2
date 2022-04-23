@@ -21,4 +21,34 @@ export default class PersonalAccountController {
 
         res.send(personalAcc);
     };
+
+    static show = async (req: Request, res: Response) => {
+        const {id} = req.params;
+
+        const personalAcc = await PersonalAccount.findOne({
+            where: {id: Number(id)},
+            select: [
+                'id', 'type', 'description', 'amount',
+                'balance', 'interest', 'duration',
+                'status', 'account_id', 'created_at'
+            ]
+        });
+
+        res.send(personalAcc);
+    };
+
+    static getByAccountId = async ({params}: Request, res: Response) => {
+        const {accountId} = params;
+
+        const personalAcc = await PersonalAccount.find({
+            where: {account_id: Number(accountId)},
+            select: [
+                'id', 'type', 'description', 'amount',
+                'balance', 'interest', 'duration',
+                'status', 'account_id', 'created_at'
+            ]
+        });
+
+        res.send(personalAcc);
+    };
 }
