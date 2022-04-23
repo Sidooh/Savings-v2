@@ -26,10 +26,18 @@ export default class GroupController {
     };
 
     static getByAccountId = async ({params}: Request, res: Response) => {
-        const {accountId} = params
+        const {accountId} = params;
 
-        const groups = await Repo.getByAccountId(accountId)
+        const groups = await Repo.getByAccountId(accountId);
 
-        res.send(groups)
+        res.send(groups);
+    };
+
+    static deposit = async ({body}: Request, res: Response) => {
+        const {amount, account_id, group_id} = body
+
+        const balance = await Repo.deposit(amount, account_id, group_id)
+
+        res.send({balance})
     };
 }

@@ -4,7 +4,7 @@ import helmet from "helmet";
 import 'express-async-errors';
 import log from './utils/logger';
 import routes from './routes';
-import { errorHandler } from '@nabz.tickets/common';
+import { ErrorMiddleware } from './http/middleware/error.middleware';
 
 class App {
     public app: Express;
@@ -21,15 +21,15 @@ class App {
         this.app.use(cors());
         this.app.use(helmet());
         this.app.use(json());
-        this.app.use(urlencoded({ extended: false }));
+        this.app.use(urlencoded({extended: false}));
 
         /** --------------------------------    INIT API ROUTES
          * */
-        this.app.use('/api/v1', routes)
+        this.app.use('/api/v1', routes);
 
         /** --------------------------------    INIT ERROR HANDLER
          * */
-        this.app.use(errorHandler);
+        this.app.use(ErrorMiddleware);
     }
 
     listen(): void {

@@ -30,6 +30,8 @@ router.group('/groups', router => {
     router.get('/', GroupController.index);
     router.get('/:id', GroupController.getById);
 
+    router.post('/deposit', validate(GroupRequest.deposit), GroupController.deposit);
+
     router.group('/:groupId/accounts', router => {
         router.post('/', validate(GroupAccountRequest.store), GroupAccountController.store);
         router.get('/:accountId', GroupAccountController.getByAccountId);

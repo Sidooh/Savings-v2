@@ -38,5 +38,11 @@ export const GroupRepository = {
         if (!group) group = await Group.save({name, amount, frequency, group_accounts: [{account_id}]});
 
         return group;
+    },
+
+    deposit: async (amount: number, groupId: number, accountId: number) => {
+        const group = await Group.findOneBy({id: groupId})
+
+        return group;
     }
 };
