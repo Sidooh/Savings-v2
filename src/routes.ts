@@ -11,25 +11,29 @@ import GroupAccountController from './http/controllers/GroupAccountController';
 const router = new RouteGroup('/', Router());
 
 router.group('/accounts', router => {
-    router.get('/:accountId/personal-accounts', PersonalAccountController.getByAccountId)
-})
+    router.get('/:accountId/personal-accounts', PersonalAccountController.getByAccountId);
+    router.get('/:accountId/groups', GroupController.getByAccountId);
+});
 
 router.group('/personal-accounts', router => {
-    router.get('/', PersonalAccountController.index)
-    router.get('/:id', PersonalAccountController.show)
-    router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store)
+    router.get('/', PersonalAccountController.index);
+    router.get('/:id', PersonalAccountController.getById);
+    router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
+});
+
+router.group('/group-accounts', router => {
+    router.get('/:id', GroupAccountController.getById)
 })
 
 router.group('/groups', router => {
-    router.post('/', validate(GroupRequest.store), GroupController.store)
-    router.get('/', GroupController.index)
-    router.get('/:id', GroupController.show)
+    router.post('/', validate(GroupRequest.store), GroupController.store);
+    router.get('/', GroupController.index);
+    router.get('/:id', GroupController.getById);
 
     router.group('/:groupId/accounts', router => {
-        router.post('/', validate(GroupAccountRequest.store), GroupAccountController.store)
-        router.get('/', GroupAccountController.index)
-        router.get('/:accountId', GroupAccountController.show)
-    })
-})
+        router.post('/', validate(GroupAccountRequest.store), GroupAccountController.store);
+        router.get('/:accountId', GroupAccountController.getByAccountId);
+    });
+});
 
-export default router.export()
+export default router.export();

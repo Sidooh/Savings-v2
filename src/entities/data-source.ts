@@ -20,6 +20,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: true,
     logging: false,
+    // dropSchema:true,
     entities: [
         Group,
         GroupAccount,

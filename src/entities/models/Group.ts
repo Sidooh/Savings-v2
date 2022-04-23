@@ -30,7 +30,7 @@ export class Group extends BaseEntity {
     status: Status;
 
     @OneToMany(() => GroupAccount, (groupAccount) => groupAccount.group, {
-        cascade: true,
+        cascade: true
     })
     group_accounts: GroupAccount[];
 }

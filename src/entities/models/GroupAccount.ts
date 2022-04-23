@@ -18,7 +18,7 @@ export class GroupAccount extends BaseEntity {
     @Column({type: 'bigint', unsigned: true})
     group_id;
 
-    @ManyToOne(() => Group, group => group.group_accounts)
+    @ManyToOne(() => Group, group => group.group_accounts, {onDelete:'CASCADE'})
     group: Group;
 
     @OneToMany(() => GroupAccountTransaction, (transaction) => transaction.group_account, {

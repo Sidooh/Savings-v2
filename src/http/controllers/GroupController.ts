@@ -1,38 +1,35 @@
 import { Request, Response } from 'express';
-import { Group } from '../../entities/models/Group';
+import { GroupRepository as Repo } from '../../repositories/GroupRepository';
 
 export default class GroupController {
     static index = async (req: Request, res: Response) => {
-        const {with_members} = req.query;
+        const {with_group_accounts} = req.query;
 
-        const groups = await Group.find({
-            select: ['id', 'name', 'balance', 'interest', 'created_at'],
-            relations: {
-                group_accounts: Boolean(with_members)
-            }
-        });
+        const groups = await Repo.index(with_group_accounts);
 
         res.send(groups);
     };
 
     static store = async ({body}: Request, res: Response) => {
-        const {name, amount, frequency, account_id} = body;
-
-        const group = await Group.save({name, amount, frequency, group_accounts: [{account_id}]});
+        const group = await Repo.store(body);
 
         res.send(group);
     };
 
-    static show = async (req: Request, res: Response) => {
-        const {with_members} = req.query;
+    static getById = async (req: Request, res: Response) => {
+        const {with_group_accounts} = req.query;
         const {id} = req.params;
 
-        const groups = await Group.findOne({
-            where: {id: Number(id)},
-            select: ['id', 'name', 'balance', 'interest', 'created_at'],
-            relations: {group_accounts: Boolean(with_members)}
-        });
+        const group = await Repo.getById(id, with_group_accounts);
 
-        res.send(groups);
+        res.send(group);
+    };
+
+    static getByAccountId = async ({params}: Request, res: Response) => {
+        const {accountId} = params
+
+        const groups = await Repo.getByAccountId(accountId)
+
+        res.send(groups)
     };
 }

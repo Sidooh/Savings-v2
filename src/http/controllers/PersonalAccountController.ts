@@ -1,38 +1,23 @@
 import { Request, Response } from 'express';
-import { PersonalAccount } from '../../entities/models/PersonalAccount';
+import { PersonalAccountRepository as Repo } from '../../repositories/PersonalAccountRepository';
 
 export default class PersonalAccountController {
     static index = async (req: Request, res: Response) => {
-        const personalAccounts = await PersonalAccount.find({
-            select: [
-                'id', 'type', 'description', 'amount',
-                'balance', 'interest', 'duration',
-                'status', 'account_id', 'created_at'
-            ]
-        });
+        const personalAccounts = await Repo.index();
 
         res.send(personalAccounts);
     };
 
     static store = async ({body}: Request, res: Response) => {
-        const {account_id, type, amount, duration, frequency, description} = body;
-
-        const personalAcc = await PersonalAccount.save({account_id, type, amount, duration, frequency, description});
+        const personalAcc = await Repo.store(body);
 
         res.send(personalAcc);
     };
 
-    static show = async (req: Request, res: Response) => {
+    static getById = async (req: Request, res: Response) => {
         const {id} = req.params;
 
-        const personalAcc = await PersonalAccount.findOne({
-            where: {id: Number(id)},
-            select: [
-                'id', 'type', 'description', 'amount',
-                'balance', 'interest', 'duration',
-                'status', 'account_id', 'created_at'
-            ]
-        });
+        const personalAcc = await Repo.getById(id);
 
         res.send(personalAcc);
     };
@@ -40,14 +25,7 @@ export default class PersonalAccountController {
     static getByAccountId = async ({params}: Request, res: Response) => {
         const {accountId} = params;
 
-        const personalAcc = await PersonalAccount.find({
-            where: {account_id: Number(accountId)},
-            select: [
-                'id', 'type', 'description', 'amount',
-                'balance', 'interest', 'duration',
-                'status', 'account_id', 'created_at'
-            ]
-        });
+        const personalAcc = await Repo.getByAccountId(accountId)
 
         res.send(personalAcc);
     };

@@ -9,7 +9,6 @@
       "build": "tsc -p ."
    },
    "dependencies": {
-      "@nabz.tickets/common": "^1.0.14",
       "cors": "^2.8.5",
       "envalid": "^7.3.1",
       "express": "^4.17.3",
