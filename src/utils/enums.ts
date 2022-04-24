@@ -49,5 +49,5 @@ export enum TransactionType {
 
 export enum Description {
     ACCOUNT_DEPOSIT = 'Account Deposit',
-    DEBIT = 'DEBIT',
+    ACCOUNT_WITHDRAWAL = 'Account Withdrawal',
 }

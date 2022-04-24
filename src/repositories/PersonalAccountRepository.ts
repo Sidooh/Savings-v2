@@ -83,5 +83,25 @@ export const PersonalAccountRepository = {
         await PersonalAccount.getRepository().increment({id: personalAccId}, 'balance', amount);
 
         return transaction;
+    },
+
+    withdraw: async (amount: number, personalAccId) => {
+        const personalAcc = await PersonalAccount.findOneBy({id: personalAccId});
+
+        if (!personalAcc) throw new NotFoundError("Personal Account Not Found!");
+        if (personalAcc.type === PersonalAccountType.LOCKED && personalAcc.balance <= 30000000)
+            return {message: "Cannot Withdraw From Locked Account!"};
+        if (personalAcc.balance <= amount) return {message: "Insufficient balance!"};
+
+        const transaction = await PersonalAccountTransaction.save({
+            amount,
+            description: Description.ACCOUNT_WITHDRAWAL,
+            personal_account_id: personalAccId,
+            type: TransactionType.DEBIT
+        });
+
+        await PersonalAccount.getRepository().decrement({id: personalAccId}, 'balance', amount);
+
+        return transaction;
     }
 };

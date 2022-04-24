@@ -28,6 +28,7 @@ router.group('/personal-accounts', router => {
     router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
 
     router.post('/:personalAccountId/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
+    router.post('/:personalAccountId/withdraw', [validate(PersonalAccountRequest.withdraw)], PersonalAccountController.withdraw);
 });
 
 router.group('/group-accounts', router => {
@@ -40,6 +41,7 @@ router.group('/groups', router => {
     router.get('/:id', GroupController.getById);
 
     router.post('/:groupId/deposit', validate(GroupRequest.deposit), GroupController.deposit);
+    router.post('/:groupId/withdraw', validate(GroupRequest.withdraw), GroupController.withdraw);
 
     router.group('/:groupId/accounts', router => {
         router.post('/', validate(GroupAccountRequest.store), GroupAccountController.store);

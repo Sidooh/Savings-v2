@@ -44,4 +44,13 @@ export default class PersonalAccountController {
 
         res.send(transaction)
     };
+
+    static withdraw = async ({body, params}: Request, res: Response) => {
+        const {amount} = body
+        const {personalAccountId} = params
+
+        const transaction = await Repo.withdraw(amount, personalAccountId)
+
+        res.send(transaction)
+    };
 }

@@ -17,7 +17,7 @@ export class Group extends BaseEntity {
     @Column({type: 'bigint', default: 0})
     frequency_amount: number;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 15, scale: 4})
     balance: number;
 
     @Column({type: 'decimal', default: 0, precision: 10, scale: 4})

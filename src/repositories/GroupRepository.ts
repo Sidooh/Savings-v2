@@ -68,5 +68,9 @@ export const GroupRepository = {
         await Group.getRepository().increment({id:groupId}, 'balance', amount);
 
         return transaction;
+    },
+
+    withdraw: async (amount: number, groupId, accountId: number) => {
+
     }
 };
