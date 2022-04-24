@@ -14,6 +14,12 @@ export default class PersonalAccountController {
         res.send(personalAcc);
     };
 
+    static storeDefaults = async ({params}: Request, res: Response) => {
+        const defaults = await Repo.storeDefaults(params.accountId);
+
+        res.send(defaults);
+    };
+
     static getById = async (req: Request, res: Response) => {
         const {id} = req.params;
 
@@ -30,10 +36,11 @@ export default class PersonalAccountController {
         res.send(personalAcc);
     };
 
-    static deposit = async ({body}: Request, res: Response) => {
-        const {amount, account_id, personal_account_id} = body
+    static deposit = async ({body, params}: Request, res: Response) => {
+        const {amount} = body
+        const {personalAccountId} = params
 
-        const transaction = await Repo.deposit(amount, personal_account_id, account_id)
+        const transaction = await Repo.deposit(amount, personalAccountId)
 
         res.send(transaction)
     };

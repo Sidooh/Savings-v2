@@ -38,7 +38,8 @@ export enum PersonalAccountType {
     RETIREMENT = 'RETIREMENT',
     MONTHLY_INCOME = 'MONTHLY_INCOME',
 
-    INTEREST = 'INTEREST',
+    CURRENT = 'CURRENT',
+    LOCKED = 'LOCKED',
 }
 
 export enum TransactionType {

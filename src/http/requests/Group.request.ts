@@ -13,7 +13,6 @@ export const GroupRequest = {
 
     deposit: Joi.object({
         account_id: Joi.number().integer().required(),
-        group_id: Joi.number().integer().required(),
         amount: Joi.number().integer().min(10).required(),
     })
 };
