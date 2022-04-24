@@ -1,13 +1,16 @@
-import express, { Express, json, urlencoded } from "express";
+import express, { Application, json, urlencoded } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import 'express-async-errors';
 import log from './utils/logger';
 import routes from './routes';
 import { ErrorMiddleware } from './http/middleware/error.middleware';
+import { User } from './http/middleware/user.middleware';
+import cookieParser from "cookie-parser";
+import { NotFoundError } from './exceptions/not-found.err';
 
 class App {
-    public app: Express;
+    public app: Application;
     public port: number;
 
     constructor(port: number) {
@@ -22,10 +25,15 @@ class App {
         this.app.use(helmet());
         this.app.use(json());
         this.app.use(urlencoded({extended: false}));
+        this.app.use(cookieParser());
+        this.app.use(User);
 
         /** --------------------------------    INIT API ROUTES
          * */
         this.app.use('/api/v1', routes);
+        this.app.all('*', async() => {
+            throw new NotFoundError();
+        })
 
         /** --------------------------------    INIT ERROR HANDLER
          * */
