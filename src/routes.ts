@@ -7,11 +7,12 @@ import GroupController from './http/controllers/GroupController';
 import { GroupAccountRequest } from './http/requests/GroupAccount.request';
 import { GroupRequest } from './http/requests/Group.request';
 import GroupAccountController from './http/controllers/GroupAccountController';
+import { Auth } from './http/middleware/auth.middleware';
 
 const router = new RouteGroup('/', Router());
 
 router.group('/accounts', router => {
-    router.get('/:accountId/personal-accounts', PersonalAccountController.getByAccountId);
+    router.get('/:accountId/personal-accounts', [Auth], PersonalAccountController.getByAccountId);
     router.get('/:accountId/groups', GroupController.getByAccountId);
 });
 
@@ -20,11 +21,11 @@ router.group('/personal-accounts', router => {
     router.get('/:id', PersonalAccountController.getById);
     router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
 
-    router.post('/deposit', validate(PersonalAccountRequest.deposit), PersonalAccountController.deposit);
+    router.post('/deposit', [Auth, validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
 });
 
 router.group('/group-accounts', router => {
-    router.get('/:id', GroupAccountController.getById)
+    router.get('/:id', [Auth], GroupAccountController.getById)
 })
 
 router.group('/groups', router => {
