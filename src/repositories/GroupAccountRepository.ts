@@ -6,16 +6,20 @@ export const GroupAccountRepository = {
     getById: async (id) => {
         const groupAccount = await GroupAccount.findOneBy({id});
 
-        if(!groupAccount) throw new NotFoundError('Group Account Not Found!')
+        if (!groupAccount) throw new NotFoundError('Group Account Not Found!');
 
-        return groupAccount
+        return groupAccount;
     },
 
     getByAccountId: async (groupId, accountId) => {
-        await GroupAccount.findOne({
+        const groupAcc = await GroupAccount.findOne({
             where: {group_id: groupId, account_id: accountId},
             select: ['id', 'account_id', 'balance', 'interest', 'created_at'],
         });
+
+        if (!groupAcc) throw new NotFoundError("Group Account Not Found!");
+
+        return groupAcc;
     },
 
     store: async (groupId, accountId: number) => {
