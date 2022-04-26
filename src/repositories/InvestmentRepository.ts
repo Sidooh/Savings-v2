@@ -8,6 +8,8 @@ import { GroupCollectiveInvestment } from '../entities/models/GroupCollectiveInv
 import { Group } from '../entities/models/Group';
 import { GroupSubInvestment } from '../entities/models/GroupSubInvestment';
 import log from '../utils/logger';
+import SidoohNotify from '../services/SidoohNotify';
+import { EventType } from '../utils/enums';
 
 export default class InvestmentRepository {
     getDailyRate = (rate: number) => {
@@ -17,17 +19,17 @@ export default class InvestmentRepository {
     invest = async () => {
         log.info("Investing...");
 
-        const groupSubInvestments = await this.investGroups();
-        const personalSubInvestments = await this.investPersonal();
+        await this.investGroups();
+        await this.investPersonal();
 
-        const investments = await this.calculateInterest(9);
+        const {groups, personal_accounts} = await this.calculateInterest(9);
 
-        console.log(investments);
-
-        return {
-            groupSubInvestments,
-            personalSubInvestments
-        };
+        SidoohNotify.notify(
+            [254110039317],
+            `STATUS::INVESTMENT\nCalcuating Interest. 
+            \n\nCredited ${groups} group accounts AND ${personal_accounts} personal accounts.`,
+            EventType.STATUS_UPDATE
+        );
     };
 
     investGroups = async () => {
@@ -60,7 +62,7 @@ export default class InvestmentRepository {
 
         let investment = await PersonalCollectiveInvestment.findOneBy({created_at: Between(startOfDay, endOfDay)});
 
-        if (investment) return investment;
+        // if (investment) return investment;
 
         let accounts = await PersonalAccount.findBy({balance: MoreThan(0)});
         let totalAmount = sumBy(accounts, (acc) => Number(acc.balance));
@@ -81,10 +83,13 @@ export default class InvestmentRepository {
     calculateInterest = async (rate: number) => {
         const dayRate = this.getDailyRate(rate);
 
+        const groupsCredited = await this.calculateInterestForGroups(rate, dayRate);
+        const personalAccountsCredited = await this.calculateInterestForPersonal(rate, dayRate);
+
         return {
-            groupCollectiveInvestment: await this.calculateInterestForGroups(rate, dayRate),
-            personalCollectiveInvestment: await this.calculateInterestForPersonal(rate, dayRate),
-        }
+            groups: groupsCredited,
+            personal_accounts: personalAccountsCredited,
+        };
     };
 
     calculateInterestForGroups = async (rate: number, dayRate?: number) => {
@@ -96,7 +101,11 @@ export default class InvestmentRepository {
             relations: {group_sub_investments: true}
         });
 
-        if (!investment) return "No Pending Investment!";
+        if (!investment) {
+            log.info('No Pending Group Investment!');
+
+            return 0;
+        }
 
         investment.interest_rate = rate;
         investment.interest = investment.amount * (dayRate / 100);
@@ -113,7 +122,7 @@ export default class InvestmentRepository {
 
         await investment.save();
 
-        return investment
+        return investment.group_sub_investments.length;
     };
 
     calculateInterestForPersonal = async (rate: number, dayRate?: number) => {
@@ -125,7 +134,11 @@ export default class InvestmentRepository {
             relations: {personal_sub_investments: true}
         });
 
-        if (!investment) return "No Pending Investment!";
+        if (!investment) {
+            log.info('No Pending Personal Account Investment!');
+
+            return 0;
+        }
 
         investment.interest_rate = rate;
         investment.interest = investment.amount * (dayRate / 100);
@@ -142,6 +155,6 @@ export default class InvestmentRepository {
 
         await investment.save();
 
-        return investment
+        return investment.personal_sub_investments.length;
     };
 };
