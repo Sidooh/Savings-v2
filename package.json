@@ -9,6 +9,7 @@
       "build": "tsc -p ."
    },
    "dependencies": {
+      "axios": "^0.27.1",
       "cookie-parser": "^1.4.6",
       "cors": "^2.8.5",
       "envalid": "^7.3.1",

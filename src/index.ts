@@ -13,4 +13,4 @@ AppDataSource.initialize().then(async () => {
     app.listen();
 
     await (new InvestmentRepository()).invest()
-}).catch(error => log.error('Database connection error: ', error))
+}).catch(error => log.error('Connection error: ', error))
