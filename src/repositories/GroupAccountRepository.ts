@@ -14,7 +14,7 @@ export const GroupAccountRepository = {
     getByAccountId: async (groupId, accountId) => {
         const groupAcc = await GroupAccount.findOne({
             where: {group_id: groupId, account_id: accountId},
-            select: ['id', 'account_id', 'balance', 'interest', 'created_at'],
+            select: ['id', 'account_id', 'balance', 'created_at'],
         });
 
         if (!groupAcc) throw new NotFoundError("Group Account Not Found!");

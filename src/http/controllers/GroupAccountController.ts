@@ -8,7 +8,7 @@ export default class GroupAccountController {
 
         const groups = await GroupAccount.find({
             where: {group_id: groupId},
-            select: ['id', 'account_id', 'balance', 'interest', 'created_at'],
+            select: ['id', 'account_id', 'balance', 'created_at'],
         });
 
         res.send(groups);

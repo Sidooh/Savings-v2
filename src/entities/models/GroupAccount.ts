@@ -9,9 +9,6 @@ export class GroupAccount extends BaseEntity {
     @Column({type: 'decimal', default: 0, precision: 15, scale: 4})
     balance: number;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
-    interest: number;
-
     @Column({type: 'bigint', unsigned: true})
     account_id;
 

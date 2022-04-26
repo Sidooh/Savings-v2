@@ -10,4 +10,6 @@ AppDataSource.initialize().then(async () => {
     const app = new App(Number(process.env.PORT || 8005));
 
     app.listen();
+
+    // await (new InvestmentRepository()).invest()
 }).catch(error => log.error('Database connection error: ', error))

@@ -14,13 +14,13 @@ export class PersonalCollectiveInvestment extends BaseEntity {
     interest: number;
 
     @Column({type: dateColumnType, default: () => 'CURRENT_TIMESTAMP'})
-    investment_date: Date;
+    invested_at: Date;
 
     @Column({type: dateColumnType, nullable: true})
     maturity_date: Date;
 
     @OneToMany(() => PersonalSubInvestment, (personalSubInvestment) => {
         return personalSubInvestment.personal_collective_investment;
-    }, {cascade: true})
+    })
     personal_sub_investments: PersonalSubInvestment[];
 }
