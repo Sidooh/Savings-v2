@@ -7,20 +7,20 @@ export class PersonalCollectiveInvestment extends BaseEntity {
     @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
     amount: number;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4, nullable: true})
+    @Column({type: 'decimal', precision: 10, scale: 4, nullable: true})
     interest_rate: number;
 
     @Column({type: 'decimal', default: 0, precision: 10, scale: 4, nullable: true})
     interest: number;
 
     @Column({type: dateColumnType, default: () => 'CURRENT_TIMESTAMP'})
-    investment_date: Date;
+    invested_at: Date;
 
     @Column({type: dateColumnType, nullable: true})
     maturity_date: Date;
 
     @OneToMany(() => PersonalSubInvestment, (personalSubInvestment) => {
         return personalSubInvestment.personal_collective_investment;
-    }, {cascade: true})
+    })
     personal_sub_investments: PersonalSubInvestment[];
 }

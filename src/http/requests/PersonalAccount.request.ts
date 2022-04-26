@@ -7,8 +7,8 @@ export const PersonalAccountRequest = {
         type: Joi.string().valid(...Object.values(PersonalAccountType).map(pa => pa)).required(),
         duration: Joi.number().integer().min(1),
         frequency: Joi.string().valid(...Object.values(Frequency).map(f => f)),
-        frequency_amount: Joi.number().integer().min(20),
-        target_amount: Joi.number().integer().min(20),
+        frequency_amount: Joi.number().integer().min(Number(process.env.MIN_FREQUENCY_AMOUNT || 20)),
+        target_amount: Joi.number().integer().min(Number(process.env.MIN_FREQUENCY_AMOUNT || 20)),
         description: Joi.string().when('type', {
             is: PersonalAccountType.GOAL,
             then: Joi.required()
@@ -16,8 +16,10 @@ export const PersonalAccountRequest = {
     }),
 
     deposit: Joi.object({
-        account_id: Joi.number().integer().required(),
-        personal_account_id: Joi.number().integer().required(),
+        amount: Joi.number().integer().min(Number(process.env.MIN_FREQUENCY_AMOUNT || 20)).required(),
+    }),
+
+    withdraw: Joi.object({
         amount: Joi.number().integer().min(10).required(),
     })
 };

@@ -20,6 +20,9 @@ export default function validateEnv(): void {
             choices: ["enabled", "disabled"]
         }),
 
+        SIDOOH_ACCOUNTS_API_URL: url({default: 'http://localhost:8000/api/v1'}),
+        SIDOOH_NOTIFY_API_URL: url({default: 'http://localhost:8003/api/v1'}),
+
         MIN_FREQUENCY_AMOUNT: num({default: 20})
     });
 }

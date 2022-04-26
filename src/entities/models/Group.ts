@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { BaseEntity } from './BaseEntity';
 import { Duration, Frequency, GroupType, Status } from '../../utils/enums';
 import { GroupAccount } from './GroupAccount';
+import { GroupSubInvestment } from './GroupSubInvestment';
 
 @Entity('groups')
 export class Group extends BaseEntity {
@@ -17,7 +18,7 @@ export class Group extends BaseEntity {
     @Column({type: 'bigint', default: 0})
     frequency_amount: number;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 15, scale: 4})
     balance: number;
 
     @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
@@ -39,4 +40,9 @@ export class Group extends BaseEntity {
         cascade: true
     })
     group_accounts: GroupAccount[];
+
+    @OneToMany(() => GroupSubInvestment, (subInvestment) => {
+        return subInvestment.group;
+    }, {cascade: true})
+    group_sub_investments: GroupSubInvestment[];
 }

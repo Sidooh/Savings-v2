@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne } from "typeorm";
 import { BaseEntity } from './BaseEntity';
 import { GroupCollectiveInvestment } from './GroupCollectiveInvestment';
+import { Group } from './Group';
 
 @Entity('group_sub_investments')
 export class GroupSubInvestment extends BaseEntity {
@@ -11,10 +12,15 @@ export class GroupSubInvestment extends BaseEntity {
     interest: number;
 
     @Column({type: 'bigint', unsigned: true})
-    account_id: number;
+    group_id: number;
 
     @Column({type: 'bigint', unsigned: true})
     group_collective_investment_id: number;
+
+    @ManyToOne(() => Group, (group) => {
+        return group.group_sub_investments;
+    })
+    group: Group;
 
     @ManyToOne(() => GroupCollectiveInvestment, (groupCollectiveInvestment) => {
         return groupCollectiveInvestment.group_sub_investments;

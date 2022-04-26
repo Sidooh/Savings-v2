@@ -50,7 +50,7 @@ export const GroupRepository = {
         return group;
     },
 
-    deposit: async (amount: number, groupId: number, accountId: number) => {
+    deposit: async (amount: number, groupId, accountId: number) => {
         const group = await Group.findOne({where: {id: groupId}, relations: {group_accounts: true}});
         const groupAccount = group?.group_accounts.find(acc => acc.account_id == accountId);
 
@@ -68,5 +68,9 @@ export const GroupRepository = {
         await Group.getRepository().increment({id:groupId}, 'balance', amount);
 
         return transaction;
+    },
+
+    withdraw: async (amount: number, groupId, accountId: number) => {
+
     }
 };

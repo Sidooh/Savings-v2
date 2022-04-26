@@ -8,7 +8,7 @@ export default class GroupAccountController {
 
         const groups = await GroupAccount.find({
             where: {group_id: groupId},
-            select: ['id', 'account_id', 'balance', 'interest', 'created_at'],
+            select: ['id', 'account_id', 'balance', 'created_at'],
         });
 
         res.send(groups);
@@ -18,7 +18,7 @@ export default class GroupAccountController {
         const {account_id} = body;
         const {groupId} = params;
 
-        const groupAccount = await Repo.store(groupId, account_id)
+        const groupAccount = await Repo.store(groupId, account_id);
 
         res.send(groupAccount);
     };
@@ -26,7 +26,7 @@ export default class GroupAccountController {
     static getById = async ({query, params}: Request, res: Response) => {
         const {id} = params;
 
-        const group = await Repo.getById(id)
+        const group = await Repo.getById(id);
 
         res.send(group);
     };
@@ -34,7 +34,7 @@ export default class GroupAccountController {
     static getByAccountId = async ({query, params}: Request, res: Response) => {
         const {groupId, accountId} = params;
 
-        const group = await Repo.getByAccountId(groupId, accountId)
+        const group = await Repo.getByAccountId(groupId, accountId);
 
         res.send(group);
     };
