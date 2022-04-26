@@ -46,7 +46,7 @@ class App {
             log.info(`App listening on port: ${this.port}`);
 
             await Jobs()
-        }).on('error', err => log.error('Startup error: ', err));
+        }).on('error', err => log.error('Startup Error: ', err));
     }
 }
 

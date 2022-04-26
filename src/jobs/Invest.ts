@@ -5,5 +5,5 @@ import log from '../utils/logger';
 export const Invest = () => {
     log.info("Investing...");
 
-    schedule('* * * * *', async () => await (new InvestmentRepository()).invest);
+    schedule('* * * * *', async () => await (new InvestmentRepository()).invest());
 };

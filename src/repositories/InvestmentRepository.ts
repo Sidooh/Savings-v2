@@ -20,7 +20,9 @@ export default class InvestmentRepository {
         const groupSubInvestments = await this.investGroups();
         const personalSubInvestments = await this.investPersonal();
 
-        await this.calculateInterest(9);
+        const investments = await this.calculateInterest(9);
+
+        console.log(investments);
 
         return {
             groupSubInvestments,
@@ -79,8 +81,10 @@ export default class InvestmentRepository {
     calculateInterest = async (rate: number) => {
         const dayRate = this.getDailyRate(rate);
 
-        await this.calculateInterestForGroups(rate, dayRate);
-        await this.calculateInterestForPersonal(rate, dayRate);
+        return {
+            groupCollectiveInvestment: await this.calculateInterestForGroups(rate, dayRate),
+            personalCollectiveInvestment: await this.calculateInterestForPersonal(rate, dayRate),
+        }
     };
 
     calculateInterestForGroups = async (rate: number, dayRate?: number) => {
@@ -108,6 +112,8 @@ export default class InvestmentRepository {
         }
 
         await investment.save();
+
+        return investment
     };
 
     calculateInterestForPersonal = async (rate: number, dayRate?: number) => {
@@ -135,5 +141,7 @@ export default class InvestmentRepository {
         }
 
         await investment.save();
+
+        return investment
     };
 };

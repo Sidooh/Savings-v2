@@ -7,7 +7,7 @@ export class PersonalCollectiveInvestment extends BaseEntity {
     @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
     amount: number;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4, nullable: true})
+    @Column({type: 'decimal', precision: 10, scale: 4, nullable: true})
     interest_rate: number;
 
     @Column({type: 'decimal', default: 0, precision: 10, scale: 4, nullable: true})
