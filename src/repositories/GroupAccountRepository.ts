@@ -1,6 +1,7 @@
 import { Group } from '../entities/models/Group';
 import { GroupAccount } from '../entities/models/GroupAccount';
 import { NotFoundError } from '../exceptions/not-found.err';
+import SidoohAccounts from '../services/SidoohAccounts';
 
 export const GroupAccountRepository = {
     getById: async (id) => {
@@ -23,6 +24,8 @@ export const GroupAccountRepository = {
     },
 
     store: async (groupId, accountId: number) => {
+        await SidoohAccounts.find(accountId)
+
         const group = await Group.findOne({where: {id: Number(groupId)}, relations: {group_accounts: true}});
 
         if (!group) throw new NotFoundError('Group Not Found!');

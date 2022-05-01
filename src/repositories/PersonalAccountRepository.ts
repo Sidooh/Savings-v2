@@ -59,6 +59,8 @@ export const PersonalAccountRepository = {
     },
 
     storeDefaults: async accountId => {
+        await SidoohAccounts.find(accountId)
+
         const lockedAcc = await PersonalAccountRepository.store({
             account_id: accountId,
             type: PersonalAccountType.LOCKED
