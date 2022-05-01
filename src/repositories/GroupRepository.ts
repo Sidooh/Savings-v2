@@ -66,8 +66,8 @@ export const GroupRepository = {
             type: TransactionType.CREDIT
         });
 
-        groupAccount.balance -= amount;
-        group.balance -= amount;
+        groupAccount.balance += amount;
+        group.balance += amount;
         await groupAccount.save();
         await group.save();
 
