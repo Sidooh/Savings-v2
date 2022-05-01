@@ -3,6 +3,7 @@ import { NotFoundError } from '../exceptions/not-found.err';
 import { Description, PersonalAccountType, TransactionType } from '../utils/enums';
 import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
 import { DeepPartial } from 'typeorm';
+import SidoohAccounts from '../services/SidoohAccounts';
 
 export const PersonalAccountRepository = {
     index: async () => {
@@ -43,6 +44,8 @@ export const PersonalAccountRepository = {
 
     store: async (requestBody: DeepPartial<PersonalAccount>) => {
         const {account_id, type, target_amount, frequency_amount, duration, frequency, description} = requestBody;
+
+        await SidoohAccounts.find(account_id)
 
         let personalAccount = await PersonalAccount.findOneBy({type, description, account_id});
 

@@ -4,12 +4,10 @@ import { In } from 'typeorm';
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
-        const earnings = await PersonalAccount.findBy({
+        return await PersonalAccount.findBy({
             type: In([PersonalAccountType.LOCKED, PersonalAccountType.CURRENT]),
             account_id
         });
-
-        return earnings;
     },
 
     store: async body => {
