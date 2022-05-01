@@ -4,6 +4,7 @@ import { DefaultAccount, Description, TransactionType } from '../utils/enums';
 import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
 import { DeepPartial } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
+import { PersonalEarning } from '../entities/models/PersonalEarning';
 
 export const PersonalAccountRepository = {
     index: async () => {
@@ -45,7 +46,7 @@ export const PersonalAccountRepository = {
     store: async (requestBody: DeepPartial<PersonalAccount>) => {
         const {account_id, type, target_amount, frequency_amount, duration, frequency, description} = requestBody;
 
-        await SidoohAccounts.find(account_id)
+        await SidoohAccounts.find(account_id);
 
         let personalAccount = await PersonalAccount.findOneBy({type, description, account_id});
 
@@ -58,19 +59,14 @@ export const PersonalAccountRepository = {
         return personalAccount;
     },
 
-    storeDefaults: async accountId => {
-        await SidoohAccounts.find(accountId)
+    storeDefaults: async account_id => {
+        await SidoohAccounts.find(account_id);
 
-        const lockedAcc = await PersonalAccountRepository.store({
-            account_id: accountId,
-            type: DefaultAccount.LOCKED
-        });
-        const currentAcc = await PersonalAccountRepository.store({
-            account_id: accountId,
-            type: DefaultAccount.CURRENT
-        });
+        let earningsAcc = await PersonalEarning.findOneBy({account_id});
 
-        return {lockedAcc, currentAcc};
+        if (!earningsAcc) earningsAcc = await PersonalEarning.save({account_id});
+
+        return earningsAcc;
     },
 
     deposit: async (amount: number, personalAccId) => {

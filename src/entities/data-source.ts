@@ -10,6 +10,7 @@ import { GroupAccountTransaction } from './models/GroupAccountTransaction';
 import { GroupCollectiveInvestment } from './models/GroupCollectiveInvestment';
 import { PersonalSubInvestment } from './models/PersonalSubInvestment';
 import { GroupSubInvestment } from './models/GroupSubInvestment';
+import { PersonalEarning } from './models/PersonalEarning';
 
 export const AppDataSource = new DataSource({
     type: "mysql",
@@ -31,7 +32,8 @@ export const AppDataSource = new DataSource({
         PersonalAccount,
         PersonalAccountTransaction,
         PersonalCollectiveInvestment,
-        PersonalSubInvestment
+        PersonalSubInvestment,
+        PersonalEarning
     ],
     migrations: [],
     subscribers: [],

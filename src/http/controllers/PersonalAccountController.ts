@@ -15,23 +15,19 @@ export default class PersonalAccountController {
     };
 
     static storeDefaults = async ({params}: Request, res: Response) => {
-        const defaults = await Repo.storeDefaults(params.accountId);
+        const earningsAcc = await Repo.storeDefaults(params.accountId);
 
-        res.send(defaults);
+        res.send(earningsAcc);
     };
 
     static getById = async (req: Request, res: Response) => {
-        const {id} = req.params;
-
-        const personalAcc = await Repo.getById(id);
+        const personalAcc = await Repo.getById(req.params.id);
 
         res.send(personalAcc);
     };
 
     static getByAccountId = async ({params}: Request, res: Response) => {
-        const {accountId} = params;
-
-        const personalAcc = await Repo.getByAccountId(accountId)
+        const personalAcc = await Repo.getByAccountId(params.accountId)
 
         res.send(personalAcc);
     };
