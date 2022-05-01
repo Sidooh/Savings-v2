@@ -24,7 +24,7 @@ export default class InvestmentRepository {
 
         const {groups, personal_accounts} = await this.calculateInterest(9);
 
-        SidoohNotify.notify(
+        await SidoohNotify.notify(
             [254110039317],
             `STATUS::INVESTMENT\nCalcuating Interest. 
             \n\nCredited ${groups} group accounts AND ${personal_accounts} personal accounts.`,

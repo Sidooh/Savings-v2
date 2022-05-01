@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany } from "typeorm";
-import { BaseEntity } from './BaseEntity';
+import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
 import { Duration, Frequency, GroupType, Status } from '../../utils/enums';
 import { GroupAccount } from './GroupAccount';
 import { GroupSubInvestment } from './GroupSubInvestment';
@@ -18,10 +18,10 @@ export class Group extends BaseEntity {
     @Column({type: 'bigint', default: 0})
     frequency_amount: number;
 
-    @Column({type: 'decimal', default: 0, precision: 15, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 15, scale: 4, transformer: new NumericColumnTransformer})
     balance: number;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4, transformer: new NumericColumnTransformer})
     interest: number;
 
     @Column({type: 'tinyint', unsigned: true, nullable: true})

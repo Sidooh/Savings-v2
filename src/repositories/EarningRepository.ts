@@ -1,28 +1,30 @@
 import { PersonalAccount } from '../entities/models/PersonalAccount';
-import { PersonalAccountType } from '../utils/enums';
+import { DefaultAccount } from '../utils/enums';
 import { In } from 'typeorm';
+import SidoohAccounts from '../services/SidoohAccounts';
+import { PersonalEarning } from '../entities/models/PersonalEarning';
+import { NotFoundError } from '../exceptions/not-found.err';
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
-        const earnings = await PersonalAccount.findBy({
-            type: In([PersonalAccountType.LOCKED, PersonalAccountType.CURRENT]),
+        return await PersonalAccount.findBy({
+            type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT]),
             account_id
         });
-
-        return earnings;
     },
 
     store: async body => {
         for (const acc of body) {
-            await PersonalAccount.getRepository().increment({
-                account_id: acc.account_id,
-                type: PersonalAccountType.LOCKED
-            }, 'balance', acc.locked_amount);
+            await SidoohAccounts.find(acc.account_id);
 
-            await PersonalAccount.getRepository().increment({
-                account_id: acc.account_id,
-                type: PersonalAccountType.CURRENT
-            }, 'balance', acc.current_amount);
+            const personalEarnings = await PersonalEarning.findOneBy({account_id: acc.account_id});
+
+            if (!personalEarnings) throw new NotFoundError("Personal Earnings Account Not Found!");
+
+            personalEarnings.locked_balance += acc.locked_amount;
+            personalEarnings.current_balance += acc.current_amount;
+
+            await personalEarnings.save();
         }
     }
 };

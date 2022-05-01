@@ -1,14 +1,14 @@
 import { Column, Entity, ManyToOne } from "typeorm";
-import { BaseEntity } from './BaseEntity';
+import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
 import { GroupCollectiveInvestment } from './GroupCollectiveInvestment';
 import { Group } from './Group';
 
 @Entity('group_sub_investments')
 export class GroupSubInvestment extends BaseEntity {
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4, transformer: new NumericColumnTransformer})
     amount: number;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4, nullable: true})
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4, nullable: true, transformer: new NumericColumnTransformer})
     interest: number;
 
     @Column({type: 'bigint', unsigned: true})

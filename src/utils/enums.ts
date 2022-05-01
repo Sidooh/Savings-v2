@@ -32,14 +32,16 @@ export enum GroupType {
     AGENT = 'AGENT',
 }
 
+export enum DefaultAccount {
+    CURRENT = 'CURRENT',
+    LOCKED = 'LOCKED',
+}
+
 export enum PersonalAccountType {
     GOAL = 'GOAL',
     EMERGENCY = 'EMERGENCY',
     RETIREMENT = 'RETIREMENT',
     MONTHLY_INCOME = 'MONTHLY_INCOME',
-
-    CURRENT = 'CURRENT',
-    LOCKED = 'LOCKED',
 }
 
 export enum TransactionType {

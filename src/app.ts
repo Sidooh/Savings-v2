@@ -31,9 +31,9 @@ class App {
         /** --------------------------------    INIT API ROUTES
          * */
         this.app.use('/api/v1', /*[Auth],*/ routes);
-        this.app.all('*', async() => {
+        this.app.all('*', async () => {
             throw new NotFoundError();
-        })
+        });
 
         /** --------------------------------    INIT ERROR HANDLER
          * */
@@ -44,7 +44,7 @@ class App {
         this.app.listen(this.port, async () => {
             log.info(`App listening on port: ${this.port}`);
 
-            // await Jobs()
+            // await Jobs();
         }).on('error', err => log.error('Startup Error: ', err));
     }
 }

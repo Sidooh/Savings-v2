@@ -9,6 +9,7 @@
       "build": "tsc -p ."
    },
    "dependencies": {
+      "axios": "^0.27.1",
       "cookie-parser": "^1.4.6",
       "cors": "^2.8.5",
       "envalid": "^7.3.1",
@@ -21,6 +22,7 @@
       "lodash": "^4.17.21",
       "moment": "^2.29.3",
       "mysql2": "^2.3.3",
+      "node-cache": "^5.1.2",
       "node-cron": "^3.0.0",
       "reflect-metadata": "^0.1.13",
       "typeorm": "0.3.5",
