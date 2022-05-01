@@ -1,10 +1,17 @@
 import axios, { AxiosInstance, Method } from 'axios';
 import log from '../utils/logger';
 import { CONFIG } from '../config';
+import { Cache } from '../utils/helpers';
 
 export default class SidoohService {
     static http = async (): Promise<AxiosInstance> => {
-        const {token} = await this.authenticate();
+        let token = Cache.get('auth_token');
+
+        if (!token) {
+            token = await this.authenticate();
+
+            Cache.set('auth_token', token);
+        }
 
         return axios.create({
             headers: {
@@ -17,9 +24,11 @@ export default class SidoohService {
     };
 
     static authenticate = async () => {
+        log.info('--- --- --- --- ---   ...[SRV - SIDOOH]: Authenticate...   --- --- --- --- ---')
+
         const url = `${CONFIG.sidooh.services.accounts.url}/users/signin`;
 
-        const {data: token} = await axios.post(url, {email: 'aa@a.a', password: '12345678'});
+        const {data: {token}} = await axios.post(url, {email: 'aa@a.a', password: '12345678'});
 
         return token;
     };

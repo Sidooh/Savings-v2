@@ -1,6 +1,7 @@
 import { PersonalAccount } from '../entities/models/PersonalAccount';
 import { PersonalAccountType } from '../utils/enums';
 import { In } from 'typeorm';
+import SidoohAccounts from '../services/SidoohAccounts';
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
@@ -12,6 +13,8 @@ export const EarningRepository = {
 
     store: async body => {
         for (const acc of body) {
+            await SidoohAccounts.find(acc.account_id)
+
             await PersonalAccount.getRepository().increment({
                 account_id: acc.account_id,
                 type: PersonalAccountType.LOCKED

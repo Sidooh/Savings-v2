@@ -1,3 +1,5 @@
+import NodeCache from 'node-cache';
+
 export const circularReplacer = () => {
     const visited = new WeakSet();
 
@@ -11,3 +13,5 @@ export const circularReplacer = () => {
         return value;
     };
 };
+
+export const Cache = new NodeCache({stdTTL: 100, checkperiod: 120});
