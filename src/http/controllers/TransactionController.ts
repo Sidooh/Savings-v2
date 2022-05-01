@@ -17,4 +17,13 @@ export default class TransactionController {
 
         res.send(transactions);
     }
+
+    static getAllGroupTransactions =async ({params, query}: Request, res: Response) => {
+        const {with_group} = query;
+        const {groupId} = params;
+
+        const transactions = await Repo.getAllGroupTransactions(groupId, with_group);
+
+        res.send(transactions);
+    }
 }

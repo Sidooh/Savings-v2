@@ -47,9 +47,13 @@ router.group('/groups', router => {
     router.post('/:groupId/deposit', validate(GroupRequest.deposit), GroupController.deposit);
     router.post('/:groupId/withdraw', validate(GroupRequest.withdraw), GroupController.withdraw);
 
-    router.group('/:groupId/accounts', router => {
-        router.post('/', validate(GroupAccountRequest.store), GroupAccountController.store);
-        router.get('/:accountId', GroupAccountController.getByAccountId);
+    router.group('/:groupId', router => {
+        router.get('/transactions', TransactionController.getAllGroupTransactions);
+
+        router.group('/accounts', router => {
+            router.post('/', validate(GroupAccountRequest.store), GroupAccountController.store);
+            router.get('/:accountId', GroupAccountController.getByAccountId);
+        });
     });
 });
 

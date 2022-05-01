@@ -29,4 +29,14 @@ export const TransactionRepository = {
             relations: {group_account: Boolean(withGroupAccount)}
         });
     },
+
+    getAllGroupTransactions: async (group_id, withGroup = null) => {
+        return await GroupAccountTransaction.find({
+            where: {group_account: {group_id}},
+            select: {
+                group_account: {id: true, balance: true, account_id: true, group_id: true}
+            },
+            relations: {group_account: Boolean(withGroup)}
+        });
+    },
 };
