@@ -1,6 +1,6 @@
 import { PersonalAccount } from '../entities/models/PersonalAccount';
 import { NotFoundError } from '../exceptions/not-found.err';
-import { Description, PersonalAccountType, TransactionType } from '../utils/enums';
+import { DefaultAccount, Description, TransactionType } from '../utils/enums';
 import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
 import { DeepPartial } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
@@ -63,11 +63,11 @@ export const PersonalAccountRepository = {
 
         const lockedAcc = await PersonalAccountRepository.store({
             account_id: accountId,
-            type: PersonalAccountType.LOCKED
+            type: DefaultAccount.LOCKED
         });
         const currentAcc = await PersonalAccountRepository.store({
             account_id: accountId,
-            type: PersonalAccountType.CURRENT
+            type: DefaultAccount.CURRENT
         });
 
         return {lockedAcc, currentAcc};
@@ -94,7 +94,7 @@ export const PersonalAccountRepository = {
         const personalAcc = await PersonalAccount.findOneBy({id: personalAccId});
 
         if (!personalAcc) throw new NotFoundError("Personal Account Not Found!");
-        if (personalAcc.type === PersonalAccountType.LOCKED && personalAcc.balance <= 30000000)
+        if (personalAcc.type === DefaultAccount.LOCKED && personalAcc.balance <= 30000000)
             return {message: "Cannot Withdraw From Locked Account!"};
         if (personalAcc.balance <= amount) return {message: "Insufficient balance!"};
 

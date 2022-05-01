@@ -1,12 +1,12 @@
 import { PersonalAccount } from '../entities/models/PersonalAccount';
-import { PersonalAccountType } from '../utils/enums';
+import { DefaultAccount } from '../utils/enums';
 import { In } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
         return await PersonalAccount.findBy({
-            type: In([PersonalAccountType.LOCKED, PersonalAccountType.CURRENT]),
+            type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT]),
             account_id
         });
     },
@@ -17,12 +17,12 @@ export const EarningRepository = {
 
             await PersonalAccount.getRepository().increment({
                 account_id: acc.account_id,
-                type: PersonalAccountType.LOCKED
+                type: DefaultAccount.LOCKED
             }, 'balance', acc.locked_amount);
 
             await PersonalAccount.getRepository().increment({
                 account_id: acc.account_id,
-                type: PersonalAccountType.CURRENT
+                type: DefaultAccount.CURRENT
             }, 'balance', acc.current_amount);
         }
     }
