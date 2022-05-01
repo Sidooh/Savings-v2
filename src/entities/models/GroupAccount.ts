@@ -1,12 +1,12 @@
 import { Column, Entity, Index, ManyToOne, OneToMany } from "typeorm";
-import { BaseEntity } from './BaseEntity';
+import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
 import { Group } from './Group';
 import { GroupAccountTransaction } from './GroupAccountTransaction';
 
 @Entity('group_accounts')
 @Index(["account_id", "group_id"], {unique: true})
 export class GroupAccount extends BaseEntity {
-    @Column({type: 'decimal', default: 0, precision: 15, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 15, scale: 4, transformer: new NumericColumnTransformer})
     balance: number;
 
     @Column({type: 'bigint', unsigned: true})

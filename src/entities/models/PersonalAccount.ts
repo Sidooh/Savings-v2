@@ -1,5 +1,5 @@
 import { Column, Entity, Index, OneToMany } from "typeorm";
-import { BaseEntity } from './BaseEntity';
+import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
 import { DefaultAccount, Duration, Frequency, PersonalAccountType, Status } from '../../utils/enums';
 import { PersonalAccountTransaction } from './PersonalAccountTransaction';
 import { PersonalSubInvestment } from './PersonalSubInvestment';
@@ -13,16 +13,16 @@ export class PersonalAccount extends BaseEntity {
     @Column({nullable: true})
     description: string;
 
-    @Column({type: 'bigint', default: 0})
+    @Column({type: 'bigint', default: 0, transformer: new NumericColumnTransformer})
     target_amount: number;
 
-    @Column({type: 'bigint', default: 0})
+    @Column({type: 'bigint', default: 0, transformer: new NumericColumnTransformer})
     frequency_amount: number;
 
-    @Column({type: 'decimal', default: 0, precision: 15, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 15, scale: 4, transformer: new NumericColumnTransformer})
     balance: number;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4, transformer: new NumericColumnTransformer})
     interest: number;
 
     @Column({type: 'tinyint', unsigned: true, nullable: true})
