@@ -9,6 +9,7 @@ import { GroupRequest } from './http/requests/Group.request';
 import GroupAccountController from './http/controllers/GroupAccountController';
 import EarningController from './http/controllers/EarningController';
 import { EarningRequest } from './http/requests/Earning.request';
+import TransactionController from './http/controllers/TransactionController';
 
 const router = new RouteGroup('/', Router());
 
@@ -23,6 +24,8 @@ router.group('/accounts', router => {
 });
 
 router.group('/personal-accounts', router => {
+    router.get('/transactions', TransactionController.getAllPersonalTransactions);
+
     router.get('/', PersonalAccountController.index);
     router.get('/:id', PersonalAccountController.getById);
     router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
@@ -32,6 +35,7 @@ router.group('/personal-accounts', router => {
 });
 
 router.group('/group-accounts', router => {
+    router.get('/transactions', TransactionController.getAllGroupAccountTransactions);
     router.get('/:id', GroupAccountController.getById);
 });
 

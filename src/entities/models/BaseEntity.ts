@@ -8,6 +8,16 @@ import {
 
 export const dateColumnType = process.env.NODE_ENV === 'test' ? 'datetime' : 'timestamp'
 
+export class NumericColumnTransformer {
+    to(data: number): number {
+        return data;
+    }
+
+    from(data: string): number {
+        return parseFloat(data);
+    }
+}
+
 export abstract class BaseEntity extends OrmBaseEntity {
     @PrimaryGeneratedColumn({ type: process.env.NODE_ENV === 'test' ? 'integer' : 'bigint', unsigned: true })
     id: number;

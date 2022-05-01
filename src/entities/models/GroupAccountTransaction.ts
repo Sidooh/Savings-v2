@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne } from "typeorm";
-import { BaseEntity } from './BaseEntity';
+import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
 import { Status, TransactionType } from '../../utils/enums';
 import { GroupAccount } from './GroupAccount';
 
@@ -11,7 +11,7 @@ export class GroupAccountTransaction extends BaseEntity {
     @Column()
     description: string;
 
-    @Column({type: 'decimal', default: 0, precision: 10, scale: 4})
+    @Column({type: 'decimal', default: 0, precision: 10, scale: 4, transformer: new NumericColumnTransformer})
     amount: number;
 
     @Column({length: 20, default: Status.PENDING})
