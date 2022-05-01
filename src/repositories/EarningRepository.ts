@@ -12,6 +12,7 @@ export const EarningRepository = {
     },
 
     store: async body => {
+
         for (const acc of body) {
             await SidoohAccounts.find(acc.account_id)
 
