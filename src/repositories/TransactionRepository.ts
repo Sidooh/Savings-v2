@@ -34,6 +34,11 @@ export const TransactionRepository = {
         return await GroupAccountTransaction.find({
             where: {group_account: {group_id}},
             select: {
+                id: true,
+                type: true,
+                description: true,
+                amount: true,
+                status: true,
                 group_account: {id: true, balance: true, account_id: true, group_id: true}
             },
             relations: {group_account: Boolean(withGroup)}
