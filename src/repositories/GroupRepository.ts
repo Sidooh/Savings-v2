@@ -1,7 +1,6 @@
 import { Group } from '../entities/models/Group';
 import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
 import { Description, TransactionType } from '../utils/enums';
-import { GroupAccount } from '../entities/models/GroupAccount';
 import { NotFoundError } from '../exceptions/not-found.err';
 import SidoohAccounts from '../services/SidoohAccounts';
 
@@ -34,7 +33,7 @@ export const GroupRepository = {
     store: async (body) => {
         const {name, target_amount, frequency_amount, frequency, account_id, min_frequency_amount} = body;
 
-        await SidoohAccounts.find(account_id)
+        await SidoohAccounts.find(account_id);
 
         let group = await Group.findOne({
             where: {name, group_accounts: {account_id}},
@@ -67,8 +66,10 @@ export const GroupRepository = {
             type: TransactionType.CREDIT
         });
 
-        await GroupAccount.getRepository().increment({group_id: groupId, account_id: accountId}, 'balance', amount);
-        await Group.getRepository().increment({id:groupId}, 'balance', amount);
+        groupAccount.balance -= amount;
+        group.balance -= amount;
+        await groupAccount.save();
+        await group.save();
 
         return transaction;
     },

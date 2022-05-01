@@ -81,7 +81,8 @@ export const PersonalAccountRepository = {
             type: TransactionType.CREDIT
         });
 
-        await PersonalAccount.getRepository().increment({id: personalAccId}, 'balance', amount);
+        personalAcc.balance += amount
+        await personalAcc.save()
 
         return transaction;
     },
@@ -101,7 +102,8 @@ export const PersonalAccountRepository = {
             type: TransactionType.DEBIT
         });
 
-        await PersonalAccount.getRepository().decrement({id: personalAccId}, 'balance', amount);
+        personalAcc.balance -= amount;
+        await personalAcc.save();
 
         return transaction;
     }
