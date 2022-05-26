@@ -13,16 +13,17 @@ import { GroupSubInvestment } from './models/GroupSubInvestment';
 import { PersonalEarning } from './models/PersonalEarning';
 
 export const AppDataSource = new DataSource({
-    type: "mysql",
-    host: "localhost",
-    port: 3306,
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    synchronize: true,
-    logging: false,
+    type       : "mysql",
+    host       : "localhost",
+    port       : Number(process.env.DB_PORT || 3306),
+    username   : process.env.DB_USERNAME,
+    password   : process.env.DB_PASSWORD,
+    database   : process.env.DB_DATABASE,
+    socketPath : process.env.DB_SOCKET,
+    synchronize: process.env.NODE_ENV === 'production',
+    logging    : false,
     // dropSchema:true,
-    entities: [
+    entities      : [
         Group,
         GroupAccount,
         GroupAccountTransaction,
@@ -35,7 +36,7 @@ export const AppDataSource = new DataSource({
         PersonalSubInvestment,
         PersonalEarning
     ],
-    migrations: [],
-    subscribers: [],
+    migrations    : [],
+    subscribers   : [],
     namingStrategy: new SnakeNamingStrategy()
 });
