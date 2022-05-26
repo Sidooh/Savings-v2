@@ -11,7 +11,5 @@ AppDataSource.initialize().then(async () => {
 
     app.listen();
 
-    log.info(process.env.NODE_ENV === 'production')
-
     // await (new InvestmentRepository()).invest()
 }).catch(error => log.error('Connection error: ', error))
