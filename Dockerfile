@@ -17,7 +17,6 @@ COPY ["src/", "./src/"]
 COPY ["tsconfig.json", "."]
 
 RUN ["yarn", "run", "build"]
-#RUN ["/bin/bash", "-c", "find . ! -name dist ! -name node_modules -maxdepth 1 -mindepth 1 -exec rm -rf {} \\;"]
 
 
 
@@ -27,13 +26,8 @@ RUN ["yarn", "run", "build"]
 FROM node:16.15.0-alpine
 WORKDIR /app
 
-#COPY package.json .
-#COPY yarn.lock .
-#
-#RUN ["yarn", "install"]
-#
 COPY --from=builder /app/ ./
-#
-ENTRYPOINT ["yarn", "start"]
 
 EXPOSE 8080
+
+ENTRYPOINT ["yarn", "start"]
