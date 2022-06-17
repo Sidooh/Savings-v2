@@ -3,7 +3,6 @@ import { DefaultAccount } from '../utils/enums';
 import { In } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
 import { PersonalEarning } from '../entities/models/PersonalEarning';
-import { NotFoundError } from '../exceptions/not-found.err';
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
@@ -17,12 +16,18 @@ export const EarningRepository = {
         for (const acc of body) {
             await SidoohAccounts.find(acc.account_id);
 
-            const personalEarnings = await PersonalEarning.findOneBy({account_id: acc.account_id});
+            let personalEarnings = await PersonalEarning.findOneBy({account_id: acc.account_id});
 
-            if (!personalEarnings) throw new NotFoundError("Personal Earnings Account Not Found!");
-
-            personalEarnings.locked_balance += acc.locked_amount;
-            personalEarnings.current_balance += acc.current_amount;
+            if (!personalEarnings) {
+                personalEarnings = PersonalEarning.create({
+                    account_id     : acc.account_id,
+                    current_balance: acc.current_amount,
+                    locked_balance : acc.locked_amount
+                });
+            } else {
+                personalEarnings.locked_balance += acc.locked_amount;
+                personalEarnings.current_balance += acc.current_amount;
+            }
 
             await personalEarnings.save();
         }

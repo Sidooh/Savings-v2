@@ -7,7 +7,7 @@ import moment from 'moment';
 
 export default class SidoohAccounts extends SidoohService {
     static async find(id: number) {
-        log.info('--- --- --- --- ---   ...[SRV - ACCOUNTS]: Find Account...   --- --- --- --- ---', {id});
+        log.info('--- --- ---   ...[SRV - ACCOUNTS]: Find Account...   --- --- ---', {id});
 
         const url = `${CONFIG.sidooh.services.accounts.url}/accounts/${id}`;
 
