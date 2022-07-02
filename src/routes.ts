@@ -21,13 +21,14 @@ router.group('/accounts', router => {
 
     router.get('/:accountId/earnings', EarningController.getAccountEarnings);
     router.post('/earnings', validate(EarningRequest.store), EarningController.store);
+    router.post('/earnings/withdraw', validate(EarningRequest.withdraw), EarningController.withdraw);
 });
 
 router.group('/personal-accounts', router => {
     router.get('/transactions', TransactionController.getAllPersonalTransactions);
 
     router.get('/', PersonalAccountController.index);
-    router.get('/:id', PersonalAccountController.getById);
+    router.get('/:personalAccountId', PersonalAccountController.getById);
     router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
 
     router.post('/:personalAccountId/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);

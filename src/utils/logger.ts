@@ -29,8 +29,8 @@ const log = createLogger({
     ),
     exceptionHandlers,
     transports: [
-        new transports.File({filename: 'logs/notify.log', level: process.env.LOG_LEVEL}),
-        new transports.Console({level: 'info'}),
+        new transports.File({filename: 'logs/savings.log', level: process.env.LOG_LEVEL}),
+        new transports.Console({level: process.env.LOG_LEVEL}),
         new SlackHook({
             level: 'error',
             webhookUrl: String(process.env.SLACK_HOOK_URL),

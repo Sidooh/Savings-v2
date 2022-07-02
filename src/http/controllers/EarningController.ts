@@ -13,4 +13,10 @@ export default class EarningController {
 
         res.status(202).send({message: "Allocating Earnings!"});
     };
+
+    static withdraw = async ({body}: Request, res: Response) => {
+        const response = await Repo.withdraw(body);
+
+        res.status(200).send(response);
+    };
 }

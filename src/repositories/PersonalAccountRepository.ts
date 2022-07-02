@@ -17,7 +17,7 @@ export const PersonalAccountRepository = {
         });
     },
 
-    getById: async (id) => {
+    getById: async (id: number) => {
         const personalAccount = await PersonalAccount.findOne({
             where: {id: Number(id)},
             select: [

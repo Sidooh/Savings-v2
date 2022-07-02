@@ -1,7 +1,7 @@
-import axios, { AxiosInstance, Method } from 'axios';
+import axios, {AxiosInstance, Method} from 'axios';
 import log from '../utils/logger';
-import { CONFIG } from '../config';
-import { Cache } from '../utils/helpers';
+import {CONFIG} from '../config';
+import {Cache} from '../utils/helpers';
 
 export default class SidoohService {
     static http = async (): Promise<AxiosInstance> => {
@@ -24,7 +24,7 @@ export default class SidoohService {
     };
 
     static authenticate = async () => {
-        log.info('--- --- --- --- ---   ...[SRV - SIDOOH]: Authenticate...   --- --- --- --- ---')
+        log.info('...[SRV - SIDOOH]: Authenticate...')
 
         const url = `${CONFIG.sidooh.services.accounts.url}/users/signin`;
 
@@ -34,7 +34,7 @@ export default class SidoohService {
     };
 
     static fetch = async (url: string, method: Method = 'GET', data: {} = {}) => {
-        log.info('--- --- --- --- ---   ...[SRV - SIDOOH]: Fetch...   --- --- --- --- ---', {method, data});
+        log.info('...[SRV - SIDOOH]: Fetch...', {method, data});
 
         const http = await this.http();
 

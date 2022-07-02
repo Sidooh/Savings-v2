@@ -11,14 +11,15 @@ import { GroupCollectiveInvestment } from './models/GroupCollectiveInvestment';
 import { PersonalSubInvestment } from './models/PersonalSubInvestment';
 import { GroupSubInvestment } from './models/GroupSubInvestment';
 import { PersonalEarning } from './models/PersonalEarning';
+import {env} from "../utils/validate.env";
 
 export const AppDataSource = new DataSource({
     type       : "mysql",
     host       : "localhost",
     port       : Number(process.env.DB_PORT || 3306),
-    username   : process.env.DB_USERNAME,
-    password   : process.env.DB_PASSWORD,
-    database   : process.env.DB_DATABASE,
+    username   : env().DB_USERNAME,
+    password   : env().DB_PASSWORD,
+    database   : env().DB_DATABASE,
     socketPath : process.env.DB_SOCKET,
     synchronize: process.env.NODE_ENV !== 'production',
     logging    : false,
