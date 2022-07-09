@@ -9,9 +9,9 @@ export default class EarningController {
     };
 
     static store = async ({body}: Request, res: Response) => {
-        await Repo.store(body);
+       const response = await Repo.store(body);
 
-        res.status(202).send({message: "Allocating Earnings!"});
+        res.status(202).send(response);
     };
 
     static withdraw = async ({body}: Request, res: Response) => {

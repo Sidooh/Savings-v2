@@ -28,15 +28,17 @@ export default class SidoohService {
 
         const url = `${CONFIG.sidooh.services.accounts.url}/users/signin`;
 
-        const {data: {token}} = await axios.post(url, {email: 'aa@a.a', password: '12345678'});
+        const {data: {access_token}} = await axios.post(url, {email: 'aa@a.a', password: '12345678'});
 
-        return token;
+        return access_token;
     };
 
     static fetch = async (url: string, method: Method = 'GET', data: {} = {}) => {
-        log.info('...[SRV - SIDOOH]: Fetch...', {method, data});
+        log.info('...[SRV - SIDOOH]: Fetch...', {url, method, data});
 
         const http = await this.http();
+
+        console.log()
 
         return http[method.toLowerCase()](url, data);
     };

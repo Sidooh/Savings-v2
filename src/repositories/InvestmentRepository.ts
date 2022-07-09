@@ -25,8 +25,9 @@ export default class InvestmentRepository {
         const {groups, personal_accounts} = await this.calculateInterest(9);
 
         await SidoohNotify.notify(
-            [254110039317],
-            `STATUS::INVESTMENT\nCalcuating Interest. 
+            //TODO: Move these to admin contacts env
+            [254110039317, 254714611696],
+            `STATUS::INVESTMENT\nCalculating Interest. 
             \n\nCredited ${groups} group accounts AND ${personal_accounts} personal accounts.`,
             EventType.STATUS_UPDATE
         );

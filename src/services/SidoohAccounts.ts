@@ -23,14 +23,15 @@ export default class SidoohAccounts extends SidoohService {
                     Cache.set(id, acc, moment().add(1, 'd').diff(moment(), 's'));
                 },
                 error => {
-                    log.error('...[SRV - ACCOUNTS]: ERR - ', {...error?.response?.data})
-                    throw new NotFoundError('Sidooh Account Not Found!');
+                    const message = error.isAxiosError ? error.message : error?.response?.message || error?.response?.data
+                    log.error('...[SRV - ACCOUNTS]: ERR - ', {message})
+                    throw new NotFoundError('Sidooh Account Not Found!')
                 }
             );
         }
 
-        if (!acc) throw new NotFoundError('Sidooh Account Not Found!');
+        if (!acc) throw new NotFoundError('Sidooh Account Not Found!')
 
-        return acc;
+        return acc
     }
 }

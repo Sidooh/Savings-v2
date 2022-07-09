@@ -8,6 +8,9 @@ export default {
         },
         accounts: {
             url: env().SIDOOH_ACCOUNTS_API_URL
+        },
+        payments: {
+            url: env().SIDOOH_PAYMENTS_API_URL
         }
     }
 }
