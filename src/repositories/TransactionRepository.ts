@@ -6,6 +6,7 @@ import {LessThan} from "typeorm";
 import SidoohPayments from "../services/SidoohPayments";
 import SidoohAccounts from "../services/SidoohAccounts";
 import {Payment} from "../entities/models/Payment";
+import SidoohProducts from "../services/SidoohProducts";
 
 export const TransactionRepository = {
     getAllPersonalTransactions: async (withAccount = null) => {
@@ -52,7 +53,7 @@ export const TransactionRepository = {
     },
 
 
-    ProcessPersonalWithdrawals: async () => {
+    processPersonalWithdrawals: async () => {
         log.info("Processing Personal Withdrawals...");
 
         const transactions = await PersonalAccountTransaction.find({
@@ -62,8 +63,6 @@ export const TransactionRepository = {
                 description: true,
                 amount: true,
                 status: true,
-                // personal_account: true,
-                // payment: true
             },
             where: {
                 status: Status.PENDING,
@@ -86,7 +85,7 @@ export const TransactionRepository = {
                     await SidoohPayments.queryPayment(t.payment.reference)
                         .then(async res => {
 
-                            if (res.status === Status.COMPLETED) {
+                            if (res && res.status === Status.COMPLETED) {
                                 t.payment.status = Status.COMPLETED
                                 await t.payment.save()
 
@@ -98,7 +97,8 @@ export const TransactionRepository = {
                                 // Notify user
                             }
 
-                            if (res.status === Status.FAILED) {
+                            if (res && res.status == Status.FAILED) {
+                                console.log({res})
                                 t.payment.status = Status.FAILED
                                 await t.payment.save()
 
@@ -109,6 +109,8 @@ export const TransactionRepository = {
 
                                 // Notify user
                             }
+
+                            // TODO: Handle for other status or non-existent (undefined res)
 
                         }, error => {
                             throw new Error('Payment already initialized')
@@ -148,7 +150,7 @@ export const TransactionRepository = {
 
                 }
 
-                // Mark transaction complete
+                // Mark transaction complete?
                 // results[t.id] = payment
             } catch (e) {
                 //reverse actions // rollback
@@ -157,8 +159,47 @@ export const TransactionRepository = {
 
                 results[t.id] = e.message
             }
+
+            SidoohProducts.withdrawalCallback({...t, personal_account: undefined, payment: undefined})
         }
 
         log.info("...Processed Personal Withdrawals!", results);
     },
+
+
+    processPaymentCallback: async (data: any) => {
+        console.log('processPaymentCallback', {data})
+        const payment = await Payment.findOne({
+            where: {
+                reference: data.id
+            },
+            relations: {transaction: true}
+        })
+
+        console.log({payment})
+
+        if (data.status === Status.COMPLETED) {
+            payment.status = Status.COMPLETED
+            await payment.save()
+
+            payment.transaction.status = Status.COMPLETED
+            await payment.transaction.save()
+
+            // Notify user
+        }
+
+        if (data.status == Status.FAILED) {
+            payment.status = Status.FAILED
+            await payment.save()
+
+            payment.transaction.status = Status.FAILED
+            await payment.transaction.save()
+
+            // Notify user
+        }
+
+        SidoohProducts.withdrawalCallback({...payment.transaction})
+
+        return {}
+    }
 };

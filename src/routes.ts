@@ -10,6 +10,7 @@ import GroupAccountController from './http/controllers/GroupAccountController';
 import EarningController from './http/controllers/EarningController';
 import { EarningRequest } from './http/requests/Earning.request';
 import TransactionController from './http/controllers/TransactionController';
+import PaymentController from './http/controllers/PaymentController';
 
 const router = new RouteGroup('/', Router());
 
@@ -56,6 +57,10 @@ router.group('/groups', router => {
             router.get('/:accountId', GroupAccountController.getByAccountId);
         });
     });
+});
+
+router.group('/payments', router => {
+    router.post('/callback', PaymentController.processCallback);
 });
 
 export default router.export();

@@ -3,6 +3,8 @@ import {cleanEnv, num, port, str, url} from 'envalid';
 export const env = () => cleanEnv(process.env, {
     PORT: port({default: 3000}),
 
+    JWT_KEY: str(),
+
     APP_ENV: str({
         default: 'development',
         choices: ['development', 'production']
@@ -21,6 +23,7 @@ export const env = () => cleanEnv(process.env, {
 
     SIDOOH_ACCOUNTS_API_URL: url({default: 'http://localhost:8000/api/v1'}),
     SIDOOH_NOTIFY_API_URL: url({default: 'http://localhost:8003/api/v1'}),
+    SIDOOH_PRODUCTS_API_URL: url({default: 'http://localhost:8001/api/v1'}),
     SIDOOH_PAYMENTS_API_URL: url({default: 'http://localhost:8002/api/v1'}),
 
     MIN_FREQUENCY_AMOUNT: num({default: 20}),

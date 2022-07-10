@@ -38,8 +38,6 @@ export default class SidoohService {
 
         const http = await this.http();
 
-        console.log()
-
         return http[method.toLowerCase()](url, data);
     };
 }

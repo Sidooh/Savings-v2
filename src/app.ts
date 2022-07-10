@@ -8,7 +8,7 @@ import { ErrorMiddleware } from './http/middleware/error.middleware';
 import { User } from './http/middleware/user.middleware';
 import cookieParser from "cookie-parser";
 import { NotFoundError } from './exceptions/not-found.err';
-import Jobs from "./jobs";
+import {Auth} from "./http/middleware/auth.middleware";
 
 class App {
     public app: Application;
@@ -31,7 +31,7 @@ class App {
 
         /** --------------------------------    INIT API ROUTES
          * */
-        this.app.use('/api/v1', /*[Auth],*/ routes);
+        this.app.use('/api/v1', [Auth], routes);
         this.app.all('*', async () => {
             throw new NotFoundError();
         });
@@ -44,8 +44,6 @@ class App {
     listen(): void {
         this.app.listen(this.port, async () => {
             log.info(`App listening on port: ${this.port}`);
-
-            await Jobs();
         }).on('error', err => log.error('Startup Error: ', err));
     }
 }
