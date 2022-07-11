@@ -17,12 +17,12 @@ export default class InvestmentRepository {
     };
 
     invest = async () => {
-        log.info("Investing...");
+        log.info("...[REPO INVESTMENT] Investing...");
 
         await this.investGroups();
         await this.investPersonal();
 
-        const {groups, personal_accounts} = await this.calculateInterest(9);
+        const {groups, personal_accounts} = await this.calculateInterest(Number(process.env.INTEREST_RATE) || 9);
 
         await SidoohNotify.notify(
             //TODO: Move these to admin contacts env

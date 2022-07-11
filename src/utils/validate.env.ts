@@ -1,4 +1,4 @@
-import {cleanEnv, num, port, str, url} from 'envalid';
+import { cleanEnv, num, port, str, url } from 'envalid';
 
 export const env = () => cleanEnv(process.env, {
     PORT: port({default: 3000}),
@@ -27,10 +27,12 @@ export const env = () => cleanEnv(process.env, {
     SIDOOH_PAYMENTS_API_URL: url({default: 'http://localhost:8002/api/v1'}),
 
     MIN_FREQUENCY_AMOUNT: num({default: 20}),
-    MIN_WITHDRAWAL_AMOUNT: num({default: 20})
+    MIN_WITHDRAWAL_AMOUNT: num({default: 20}),
+
+    INTEREST_RATE: num({default: 9}),
 });
 
 
 export default function validateEnv(): void {
-    env()
+    env();
 }

@@ -1,14 +1,13 @@
-import {PersonalAccount} from '../entities/models/PersonalAccount';
-import {DefaultAccount, Description, Status, TransactionType} from '../utils/enums';
-import {In} from 'typeorm';
+import { PersonalAccount } from '../entities/models/PersonalAccount';
+import { DefaultAccount, Description, Status, TransactionType } from '../utils/enums';
+import { In } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
-import {NotFoundError} from '../exceptions/not-found.err';
-import {PersonalAccountTransaction} from "../entities/models/PersonalAccountTransaction";
-import {BadRequestError} from "../exceptions/bad-request.err";
+import { NotFoundError } from '../exceptions/not-found.err';
+import { PersonalAccountTransaction } from "../entities/models/PersonalAccountTransaction";
+import { BadRequestError } from "../exceptions/bad-request.err";
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
-        // TODO: Select the specific columns to show
         return await PersonalAccount.find({
             select: [
                 'id', 'type', 'balance', 'interest',
@@ -30,7 +29,6 @@ export const EarningRepository = {
         //TODO: Can we get the relevant accounts then use PersonalAccountRepo::deposit to actually deposit?
         for (const record of body) {
             try {
-
                 await SidoohAccounts.find(record.account_id);
 
                 const accs = await PersonalAccount.findBy({

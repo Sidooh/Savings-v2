@@ -1,11 +1,11 @@
-import {PersonalAccountTransaction} from '../entities/models/PersonalAccountTransaction';
-import {GroupAccountTransaction} from '../entities/models/GroupAccountTransaction';
-import {Description, SavingsAccountType, Status, TransactionType} from "../utils/enums";
+import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
+import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
+import { Description, SavingsAccountType, Status, TransactionType } from "../utils/enums";
 import log from "../utils/logger";
-import {LessThan} from "typeorm";
+import { LessThan } from "typeorm";
 import SidoohPayments from "../services/SidoohPayments";
 import SidoohAccounts from "../services/SidoohAccounts";
-import {Payment} from "../entities/models/Payment";
+import { Payment } from "../entities/models/Payment";
 import SidoohProducts from "../services/SidoohProducts";
 
 export const TransactionRepository = {
@@ -155,7 +155,7 @@ export const TransactionRepository = {
             } catch (e) {
                 //reverse actions // rollback
                 t.personal_account.balance += t.amount
-                await t.save()
+                await t.personal_account.save()
 
                 results[t.id] = e.message
             }
