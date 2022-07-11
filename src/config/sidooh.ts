@@ -1,10 +1,19 @@
+import {env} from "../utils/validate.env";
+
+
 export default {
     services: {
         notify: {
-            url: process.env.SIDOOH_NOTIFY_API_URL
+            url: env().SIDOOH_NOTIFY_API_URL
         },
         accounts: {
-            url: process.env.SIDOOH_ACCOUNTS_API_URL
+            url: env().SIDOOH_ACCOUNTS_API_URL
+        },
+        products: {
+            url: env().SIDOOH_PRODUCTS_API_URL
+        },
+        payments: {
+            url: env().SIDOOH_PAYMENTS_API_URL
         }
     }
 }

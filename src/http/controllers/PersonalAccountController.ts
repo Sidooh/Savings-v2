@@ -20,8 +20,8 @@ export default class PersonalAccountController {
         res.send(earningsAcc);
     };
 
-    static getById = async (req: Request, res: Response) => {
-        const personalAcc = await Repo.getById(req.params.id);
+    static getById = async ({params: {personalAccountId: id}}: Request, res: Response) => {
+        const personalAcc = await Repo.getById(Number(id));
 
         res.send(personalAcc);
     };

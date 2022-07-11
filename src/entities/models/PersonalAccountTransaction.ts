@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import {Column, Entity, ManyToOne, OneToOne} from "typeorm";
 import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
 import { Status, TransactionType } from '../../utils/enums';
 import { PersonalAccount } from './PersonalAccount';
+import {Payment} from "./Payment";
 
 @Entity('personal_account_transactions')
 export class PersonalAccountTransaction extends BaseEntity {
@@ -22,4 +23,7 @@ export class PersonalAccountTransaction extends BaseEntity {
 
     @ManyToOne(() => PersonalAccount, (personalAccount) => personalAccount.transactions)
     personal_account;
+
+    @OneToOne(() => Payment, (payment) => payment.transaction)
+    payment;
 }

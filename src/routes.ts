@@ -10,6 +10,7 @@ import GroupAccountController from './http/controllers/GroupAccountController';
 import EarningController from './http/controllers/EarningController';
 import { EarningRequest } from './http/requests/Earning.request';
 import TransactionController from './http/controllers/TransactionController';
+import PaymentController from './http/controllers/PaymentController';
 
 const router = new RouteGroup('/', Router());
 
@@ -21,13 +22,14 @@ router.group('/accounts', router => {
 
     router.get('/:accountId/earnings', EarningController.getAccountEarnings);
     router.post('/earnings', validate(EarningRequest.store), EarningController.store);
+    router.post('/earnings/withdraw', validate(EarningRequest.withdraw), EarningController.withdraw);
 });
 
 router.group('/personal-accounts', router => {
     router.get('/transactions', TransactionController.getAllPersonalTransactions);
 
     router.get('/', PersonalAccountController.index);
-    router.get('/:id', PersonalAccountController.getById);
+    router.get('/:personalAccountId', PersonalAccountController.getById);
     router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
 
     router.post('/:personalAccountId/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
@@ -55,6 +57,10 @@ router.group('/groups', router => {
             router.get('/:accountId', GroupAccountController.getByAccountId);
         });
     });
+});
+
+router.group('/payments', router => {
+    router.post('/callback', PaymentController.processCallback);
 });
 
 export default router.export();

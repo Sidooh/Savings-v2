@@ -1,10 +1,9 @@
-import { PersonalAccount } from '../entities/models/PersonalAccount';
-import { NotFoundError } from '../exceptions/not-found.err';
-import { DefaultAccount, Description, TransactionType } from '../utils/enums';
-import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
-import { DeepPartial } from 'typeorm';
+import {PersonalAccount} from '../entities/models/PersonalAccount';
+import {NotFoundError} from '../exceptions/not-found.err';
+import {DefaultAccount, Description, TransactionType} from '../utils/enums';
+import {PersonalAccountTransaction} from '../entities/models/PersonalAccountTransaction';
+import {DeepPartial, In} from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
-import { PersonalEarning } from '../entities/models/PersonalEarning';
 
 export const PersonalAccountRepository = {
     index: async () => {
@@ -17,7 +16,7 @@ export const PersonalAccountRepository = {
         });
     },
 
-    getById: async (id) => {
+    getById: async (id: number) => {
         const personalAccount = await PersonalAccount.findOne({
             where: {id: Number(id)},
             select: [
@@ -62,11 +61,26 @@ export const PersonalAccountRepository = {
     storeDefaults: async account_id => {
         await SidoohAccounts.find(account_id);
 
-        let earningsAcc = await PersonalEarning.findOneBy({account_id});
+        const accs = await PersonalAccount.findBy({
+            type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT]),
+            account_id
+        })
 
-        if (!earningsAcc) earningsAcc = await PersonalEarning.save({account_id});
+        let current, locked: PersonalAccount
+        for (const acc of accs) {
+            if (acc.type === DefaultAccount.LOCKED) {
+                locked = acc
+            }
 
-        return earningsAcc;
+            if (acc.type === DefaultAccount.CURRENT) {
+                current = acc
+            }
+        }
+
+        if (!current) current = await PersonalAccount.save({type: DefaultAccount.CURRENT, account_id});
+        if (!locked) locked = await PersonalAccount.save({type: DefaultAccount.LOCKED, account_id});
+
+        return [current, locked];
     },
 
     deposit: async (amount: number, personalAccId) => {
@@ -106,5 +120,5 @@ export const PersonalAccountRepository = {
         await personalAcc.save();
 
         return transaction;
-    }
+    },
 };
