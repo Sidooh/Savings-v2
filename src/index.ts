@@ -12,5 +12,5 @@ AppDataSource.initialize().then(async () => {
 
     app.listen();
 
-    await Jobs();
+    Jobs();
 }).catch(error => log.error('Connection error: ', error))

@@ -16,11 +16,11 @@ if ((process.env.SLACK_LOGGING || 'disabled') === 'enabled') {
 const log = createLogger({
     levels: config.syslog.levels,
     format: combine(
-        timestamp({format: 'YYYY-MM-DD hh:mm:ss.SSS A'}),
+        timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS A'}),
         align(),
         printf(info => {
             const {timestamp, level, message, ...args} = info;
-            const ts = timestamp.slice(0, 19).replace('T', ' ');
+            const ts = timestamp.slice(0, 23).replace('T', ' ');
 
             return `${ts} [${level}]: ${message} ${Object.keys(args).length
                 ? JSON.stringify(args, circularReplacer(), 2)
