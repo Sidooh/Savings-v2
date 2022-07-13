@@ -15,14 +15,14 @@ export default class SidoohNotify extends SidoohService {
         const url = `${CONFIG.sidooh.services.notify.url}/notifications`;
 
         try {
-            /*const {data} = await this.http.post(url, {
+            const {data} = await this.fetch(url, 'POST', {
                 channel: 'sms',
                 event_type: eventType,
                 destination: to,
                 content: message
             });
 
-            log.info('--- --- ---   ...[SRV - NOTIFY]: Notification Sent...   --- --- ---', data);*/
+            log.info('--- --- ---   ...[SRV - NOTIFY]: Notification Sent...   --- --- ---', data);
         } catch (err) {
             log.error('Error sending notification: ', {err});
         }
