@@ -28,4 +28,10 @@ WORKDIR /app
 
 COPY --from=builder /app/ ./
 
-ENTRYPOINT ["yarn", "start"]
+RUN apk --no-cache add procps
+
+RUN ["yarn", "global", "add", "pm2"]
+
+EXPOSE 8005
+
+CMD ["pm2-runtime", "dist/index.js"]
