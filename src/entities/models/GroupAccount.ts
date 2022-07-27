@@ -1,20 +1,25 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import { BaseEntity } from './BaseEntity';
+import { Column, Entity, Index, ManyToOne, OneToMany } from "typeorm";
+import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
 import { Group } from './Group';
-import { PolymorphicChildren } from 'typeorm-polymorphic';
-import { SubTransaction } from './SubTransaction';
+import { GroupAccountTransaction } from './GroupAccountTransaction';
 
 @Entity('group_accounts')
+@Index(["account_id", "group_id"], {unique: true})
 export class GroupAccount extends BaseEntity {
-    @Column({type: 'decimal', default: 0})
+    @Column({type: 'decimal', default: 0, precision: 15, scale: 4, transformer: new NumericColumnTransformer})
     balance: number;
 
     @Column({type: 'bigint', unsigned: true})
     account_id;
 
-    @ManyToOne(() => Group, group => group.group_accounts, {cascade: true})
+    @Column({type: 'bigint', unsigned: true})
+    group_id;
+
+    @ManyToOne(() => Group, group => group.group_accounts, {onDelete:'CASCADE'})
     group: Group;
 
-    @PolymorphicChildren(() => SubTransaction, {eager: false})
-    sub_transactions: SubTransaction[];
+    @OneToMany(() => GroupAccountTransaction, (transaction) => transaction.group_account, {
+        cascade: true,
+    })
+    transactions: GroupAccountTransaction[];
 }

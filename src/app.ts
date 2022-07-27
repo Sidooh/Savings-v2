@@ -1,13 +1,17 @@
-import express, { Express, json, urlencoded } from "express";
+import express, { Application, json, urlencoded } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import 'express-async-errors';
 import log from './utils/logger';
 import routes from './routes';
-import { errorHandler } from '@nabz.tickets/common';
+import { ErrorMiddleware } from './http/middleware/error.middleware';
+import { User } from './http/middleware/user.middleware';
+import cookieParser from "cookie-parser";
+import { NotFoundError } from './exceptions/not-found.err';
+import {Auth} from "./http/middleware/auth.middleware";
 
 class App {
-    public app: Express;
+    public app: Application;
     public port: number;
 
     constructor(port: number) {
@@ -21,20 +25,26 @@ class App {
         this.app.use(cors());
         this.app.use(helmet());
         this.app.use(json());
-        this.app.use(urlencoded({ extended: false }));
+        this.app.use(urlencoded({extended: false}));
+        this.app.use(cookieParser());
+        this.app.use(User);
 
         /** --------------------------------    INIT API ROUTES
          * */
-        this.app.use('/api', routes)
+        this.app.use('/api/v1', [Auth], routes);
+        this.app.all('*', async () => {
+            throw new NotFoundError();
+        });
 
         /** --------------------------------    INIT ERROR HANDLER
          * */
-        this.app.use(errorHandler);
+        this.app.use(ErrorMiddleware);
     }
 
     listen(): void {
-        this.app.listen(this.port, () => log.info(`App listening on port: ${this.port}`))
-            .on('error', err => log.error('Startup error: ', err));
+        this.app.listen(this.port, async () => {
+            log.info(`App listening on port: ${this.port}`);
+        }).on('error', err => log.error('Startup Error: ', err));
     }
 }
 

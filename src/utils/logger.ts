@@ -1,39 +1,42 @@
 import { config, createLogger, format, transports } from 'winston';
 import SlackHook from 'winston-slack-webhook-transport';
 import { FileTransportInstance } from 'winston/lib/winston/transports';
+import { circularReplacer } from './helpers';
 
-const { combine, timestamp, printf, align } = format;
+const {combine, timestamp, printf, align} = format;
 
 const exceptionHandlers = [
-    new transports.File({ filename: 'logs/exception.log' })
+    new transports.File({filename: 'logs/exception.log'})
 ];
 
 if ((process.env.SLACK_LOGGING || 'disabled') === 'enabled') {
-    exceptionHandlers.push(<FileTransportInstance>new SlackHook({ webhookUrl: String(process.env.SLACK_HOOK_URL) }));
+    exceptionHandlers.push(<FileTransportInstance>new SlackHook({webhookUrl: String(process.env.SLACK_HOOK_URL)}));
 }
 
 const log = createLogger({
-    levels     : config.syslog.levels,
-    format     : combine(
-        timestamp({ format: 'YYYY-MM-DD hh:mm:ss.SSS A' }),
+    levels: config.syslog.levels,
+    format: combine(
+        timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS A'}),
         align(),
         printf(info => {
-            const { timestamp, level, message, ...args } = info;
-            const ts = timestamp.slice(0, 19).replace('T', ' ');
+            const {timestamp, level, message, ...args} = info;
+            const ts = timestamp.slice(0, 23).replace('T', ' ');
 
-            return `${ts} [${level}]: ${message} ${Object.keys(args).length ? JSON.stringify(args, null, 2) : ''}`;
+            return `${ts} [${level}]: ${message} ${Object.keys(args).length
+                ? JSON.stringify(args, circularReplacer(), 2)
+                : ''}`;
         })
     ),
     exceptionHandlers,
-    transports : [
-        new transports.File({ filename: 'logs/notify.log', level: process.env.LOG_LEVEL }),
-        new transports.Console({ level: 'info' }),
+    transports: [
+        new transports.File({filename: 'logs/savings.log', level: process.env.LOG_LEVEL}),
+        new transports.Console({level: process.env.LOG_LEVEL}),
         new SlackHook({
-            level     : 'error',
+            level: 'error',
             webhookUrl: String(process.env.SLACK_HOOK_URL),
-            formatter : info => {
-                const { timestamp, level, message, ...args } = info;
-                const stack = Object.keys(args).length ? JSON.stringify(args, null, 2) : '';
+            formatter: info => {
+                const {timestamp, level, message, ...args} = info;
+                const stack = Object.keys(args).length ? JSON.stringify(args, circularReplacer(), 2) : '';
 
                 return {
                     blocks: [
@@ -72,4 +75,4 @@ const log = createLogger({
     exitOnError: false
 });
 
-export default log
+export default log;
