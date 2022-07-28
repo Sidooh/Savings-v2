@@ -23,16 +23,10 @@ RUN ["yarn", "run", "build"]
 # Build Stage 2
 # This build takes the production build from staging build
 #
-#FROM node:16.15.0-alpine
 FROM gcr.io/distroless/nodejs:16
 WORKDIR /app
 
 COPY --from=builder /app/ ./
-
-#RUN apk --no-cache add procps
-#
-#RUN ["yarn", "global", "add", "pm2"]
-#RUN sed -i 's/pidusage(pids, function retPidUsage(err, statistics) {/pidusage(pids, { usePs: true }, function retPidUsage(err, statistics) {/' /usr/local/share/.config/yarn/global/node_modules/pm2/lib/God/ActionMethods.js
 
 EXPOSE 8005
 
