@@ -38,6 +38,10 @@ export default class SidoohService {
 
         const http = await this.http();
 
-        return http[method.toLowerCase()](url, data);
+        try {
+            return http[method.toLowerCase()](url, data);
+        } catch (e) {
+            throw new Error('Something went wrong, please try again.')
+        }
     };
 }
