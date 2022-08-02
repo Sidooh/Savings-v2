@@ -5,12 +5,7 @@ import SidoohService from './SidoohService';
 
 export default class SidoohNotify extends SidoohService {
     static async notify(to: (string | number)[], message: string, eventType: EventType) {
-        log.info('...[SRV - NOTIFY]: Send Notification...', {
-            channel: 'sms',
-            event_type: eventType,
-            destination: to,
-            content: message
-        });
+        log.info('...[SRV - NOTIFY]: Send Notification...');
 
         const url = `${CONFIG.sidooh.services.notify.url}/notifications`;
 
