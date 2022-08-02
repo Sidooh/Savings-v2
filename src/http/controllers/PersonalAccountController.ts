@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { PersonalAccountRepository as Repo } from '../../repositories/PersonalAccountRepository';
+import Controller from './Controller';
 
-export default class PersonalAccountController {
+export default class PersonalAccountController extends Controller {
     static index = async (req: Request, res: Response) => {
         const personalAccounts = await Repo.index();
 
-        res.send(personalAccounts);
+        res.send(this.successResponse({data: personalAccounts}));
     };
 
     static store = async ({body}: Request, res: Response) => {
@@ -23,13 +24,13 @@ export default class PersonalAccountController {
     static getById = async ({params: {personalAccountId: id}}: Request, res: Response) => {
         const personalAcc = await Repo.getById(Number(id));
 
-        res.send(personalAcc);
+        res.send(this.successResponse({data: personalAcc}));
     };
 
     static getByAccountId = async ({params}: Request, res: Response) => {
         const personalAcc = await Repo.getByAccountId(params.accountId)
 
-        res.send(personalAcc);
+        res.send(this.successResponse({data: personalAcc}));
     };
 
     static deposit = async ({body, params}: Request, res: Response) => {
