@@ -26,8 +26,8 @@ export default class InvestmentRepository {
 
         await SidoohNotify.notify(
             //TODO: Move these to admin contacts env
-            [254110039317, 254714611696],
-            `STATUS::INVESTMENT\nCalculating Interest. 
+            [254110039317, 254714611696, 254711414987],
+            `STATUS:INVESTMENT\nCalculating Interest. 
             \n\nCredited ${groups} group accounts AND ${personal_accounts} personal accounts.`,
             EventType.STATUS_UPDATE
         );

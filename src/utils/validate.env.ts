@@ -27,7 +27,10 @@ export const env = () => cleanEnv(process.env, {
     SIDOOH_PAYMENTS_API_URL: url({default: 'http://localhost:8002/api/v1'}),
 
     MIN_FREQUENCY_AMOUNT: num({default: 20}),
-    MIN_WITHDRAWAL_AMOUNT: num({default: 20})
+    MIN_WITHDRAWAL_AMOUNT: num({default: 20}),
+
+    SENTRY_DSN: url({default: null}),
+    SENTRY_TRACES_SAMPLE_RATE: num({default: 0.0})
 });
 
 
