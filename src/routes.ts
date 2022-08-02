@@ -11,6 +11,7 @@ import EarningController from './http/controllers/EarningController';
 import { EarningRequest } from './http/requests/Earning.request';
 import TransactionController from './http/controllers/TransactionController';
 import PaymentController from './http/controllers/PaymentController';
+import InvestmentController from './http/controllers/InvestmentController';
 
 const router = new RouteGroup('/', Router());
 
@@ -27,6 +28,10 @@ router.group('/accounts', router => {
 
 router.group('/personal-accounts', router => {
     router.get('/transactions', TransactionController.getAllPersonalTransactions);
+    router.get('/transactions/:transactionId', TransactionController.getPersonalTransactionById);
+
+    router.get('/collective-investments', InvestmentController.getPersonalCollectiveInvestments);
+    router.get('/sub-investments', InvestmentController.getPersonalSubInvestments);
 
     router.get('/', PersonalAccountController.index);
     router.get('/:personalAccountId', PersonalAccountController.getById);
@@ -38,6 +43,7 @@ router.group('/personal-accounts', router => {
 
 router.group('/group-accounts', router => {
     router.get('/transactions', TransactionController.getAllGroupAccountTransactions);
+    router.get('/transactions/:transactionId', TransactionController.getGroupTransactionById);
     router.get('/:id', GroupAccountController.getById);
 });
 

@@ -7,8 +7,34 @@ import SidoohPayments from "../services/SidoohPayments";
 import SidoohAccounts from "../services/SidoohAccounts";
 import { Payment } from "../entities/models/Payment";
 import SidoohProducts from "../services/SidoohProducts";
+import { NotFoundError } from '../exceptions/not-found.err';
 
 export const TransactionRepository = {
+    getPersonalTransactionById: async (id, withAccount = false) => {
+        const transaction = await PersonalAccountTransaction.findOne({
+            where: {id: Number(id)},
+            select: ['id', 'type', 'description', 'amount', 'status', 'created_at'],
+            relations: {personal_account: withAccount}
+        });
+
+        if (!transaction) throw new NotFoundError();
+
+        return transaction;
+    },
+
+    getGroupTransactionById: async (id, withGroupAccount = false) => {
+        console.log(id);
+        const transaction = await GroupAccountTransaction.findOne({
+            where: {id: Number(id)},
+            select: ['id', 'type', 'description', 'amount', 'status', 'created_at'],
+            relations: {group_account: withGroupAccount}
+        });
+
+        if (!transaction) throw new NotFoundError();
+
+        return transaction;
+    },
+
     getAllPersonalTransactions: async (withAccount = null) => {
         return await PersonalAccountTransaction.find({
             select: {
