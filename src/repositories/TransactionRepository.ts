@@ -63,17 +63,31 @@ export const TransactionRepository = {
         });
     },
 
-    getAllGroupAccountTransactions: async (withGroupAccount = null) => {
-        return await GroupAccountTransaction.find({
+    getAllGroupAccountTransactions: async (withRelations?: string) => {
+        const relations = withRelations.split(',');
+
+        return GroupAccountTransaction.find({
             select: {
                 id: true,
                 type: true,
                 description: true,
                 amount: true,
                 status: true,
+                created_at: true,
                 group_account: { id: true, balance: true, account_id: true, group_id: true }
             },
-            relations: { group_account: Boolean(withGroupAccount) }
+            relations: { group_account: relations.includes('group_account') || relations.includes('account') }
+        }).then(async transactions => {
+            let res: any = transactions;
+
+            if (withRelations.split(',').includes('account')) {
+                const accounts = await SidoohAccounts.findAll();
+                res = transactions.map(i => ({
+                    ...i, account: accounts.find(a => String(a.id) === i.group_account.account_id)
+                }));
+            }
+
+            return res;
         });
     },
 

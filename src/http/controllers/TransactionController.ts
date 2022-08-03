@@ -12,9 +12,9 @@ export default class TransactionController extends Controller {
     };
 
     static getAllGroupAccountTransactions = async ({ query }: Request, res: Response) => {
-        const { with_group_account } = query;
+        const { with_relations } = query;
 
-        const transactions = await Repo.getAllGroupAccountTransactions(with_group_account);
+        const transactions = await Repo.getAllGroupAccountTransactions(String(with_relations));
 
         res.send(this.successResponse({ data: transactions }));
     };
