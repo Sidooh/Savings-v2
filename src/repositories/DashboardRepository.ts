@@ -7,6 +7,41 @@ import moment from 'moment';
 import { GroupAccount } from '../entities/models/GroupAccount';
 
 export const DashboardRepository = {
+    chartData: async () => {
+        const startDate = moment().startOf('day');
+        const endDate = moment().endOf('day'),
+            whereToday = Between(startDate.toDate(), endDate.toDate());
+
+        const transactions = await PersonalAccountTransaction.createQueryBuilder('transaction')
+            .select('DAY(created_at) as day, HOUR(created_at) as hour',)
+            .addSelect('SUM(amount)', 'amount').where({created_at: whereToday})
+            .groupBy('day, hour').getRawMany();
+
+        const freqCount = 24;
+
+        const getLabel = (day: number, month: number, year: number) => {
+            return moment(`${day}-${month}-${year}`, 'DD-MM-YYYY').format('HH:mm');
+        };
+
+        let datasets = [], labels = [];
+        for (let hour: number = 0; hour < freqCount; hour++) {
+            let label = moment(hour, 'H').format('HHmm'), amount;
+
+            if (transactions.find(t => t.hour === startDate.hour())) {
+                amount = Number(transactions.find(({hour}) => hour === startDate.hour()).amount);
+            } else {
+                amount = 0;
+            }
+
+            labels.push(label);
+            datasets.push(amount);
+
+            startDate.add(1, 'h');
+        }
+
+        return {datasets, labels, transactions};
+    },
+
     getSummaries: async () => {
         const startOfDay = moment().startOf('day').toDate();
         const endOfDay = moment().endOf('day').toDate(),
