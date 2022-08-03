@@ -97,10 +97,12 @@ export default class InvestmentRepository {
 
         const {groups, personal_accounts} = await this.calculateInterest(Number(process.env.INTEREST_RATE) || 9);
 
+        log.info("... Completed Investments");
+
         await SidoohNotify.notify(
             //TODO: Move these to admin contacts env
-            [254110039317, 254714611696],
-            `STATUS::INVESTMENT\nCalculating Interest. 
+            [254110039317, 254714611696, 254711414987],
+            `STATUS:INVESTMENT\nCalculating Interest. 
             \n\nCredited ${groups} group accounts AND ${personal_accounts} personal accounts.`,
             EventType.STATUS_UPDATE
         );
@@ -155,6 +157,8 @@ export default class InvestmentRepository {
     };
 
     calculateInterest = async (rate: number) => {
+        log.info("...Calculating interest...");
+
         const dayRate = this.getDailyRate(rate);
 
         const groupsCredited = await this.calculateInterestForGroups(rate, dayRate);
@@ -167,6 +171,8 @@ export default class InvestmentRepository {
     };
 
     calculateInterestForGroups = async (rate: number, dayRate?: number) => {
+        log.info("...Calculating interest - groups...");
+
         if (!dayRate) dayRate = this.getDailyRate(rate);
 
         const investment = await GroupCollectiveInvestment.findOne({
@@ -200,6 +206,8 @@ export default class InvestmentRepository {
     };
 
     calculateInterestForPersonal = async (rate: number, dayRate?: number) => {
+        log.info("...Calculating interest - personals...");
+
         if (!dayRate) dayRate = this.getDailyRate(rate);
 
         const investment = await PersonalCollectiveInvestment.findOne({

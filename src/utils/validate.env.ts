@@ -29,6 +29,9 @@ export const env = () => cleanEnv(process.env, {
     MIN_FREQUENCY_AMOUNT: num({default: 20}),
     MIN_WITHDRAWAL_AMOUNT: num({default: 20}),
 
+    SENTRY_DSN: url({default: null}),
+    SENTRY_TRACES_SAMPLE_RATE: num({default: 0.0}),
+
     INTEREST_RATE: num({default: 9}),
 });
 
