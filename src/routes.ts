@@ -48,6 +48,9 @@ router.group('/group-accounts', router => {
 });
 
 router.group('/groups', router => {
+    router.get('/collective-investments', InvestmentController.getGroupCollectiveInvestments);
+    router.get('/sub-investments', InvestmentController.getGroupSubInvestments);
+
     router.post('/', validate(GroupRequest.store), GroupController.store);
     router.get('/', GroupController.index);
     router.get('/:id', GroupController.getById);

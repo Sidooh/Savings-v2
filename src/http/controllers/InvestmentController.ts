@@ -6,34 +6,34 @@ const Repo = new InvestmentRepository();
 
 export default class InvestmentController extends Controller {
     static getPersonalCollectiveInvestments = async ({query}: Request, res: Response) => {
-        const {with_sub_investments} = query;
+        const {with_relations} = query;
 
-        const transactions = await Repo.getPersonalCollectiveInvestments(Boolean(with_sub_investments));
+        const investments = await Repo.getPersonalCollectiveInvestments(String(with_relations));
 
-        res.send(this.successResponse({data: transactions}));
+        res.send(this.successResponse({data: investments}));
     };
 
     static getPersonalSubInvestments = async ({query}: Request, res: Response) => {
         const {with_relations} = query;
 
-        const transactions = await Repo.getPersonalSubInvestments(String(with_relations));
+        const investments = await Repo.getPersonalSubInvestments(String(with_relations));
 
-        res.send(this.successResponse({data: transactions}));
+        res.send(this.successResponse({data: investments}));
     };
 
     static getGroupCollectiveInvestments = async ({query}: Request, res: Response) => {
-        const {with_group_account} = query;
+        const {with_relations} = query;
 
-        const transactions = await Repo.getGroupCollectiveInvestments(with_group_account);
+        const investments = await Repo.getGroupCollectiveInvestments(String(with_relations));
 
-        res.send(this.successResponse({data: transactions}));
+        res.send(this.successResponse({data: investments}));
     };
 
     static getGroupSubInvestments = async ({query}: Request, res: Response) => {
-        const {with_group_account} = query;
+        const {with_relations} = query;
 
-        const transactions = await Repo.getGroupSubInvestments(with_group_account);
+        const investments = await Repo.getGroupSubInvestments(String(with_relations));
 
-        res.send(this.successResponse({data: transactions}));
+        res.send(this.successResponse({data: investments}));
     };
 }

@@ -10,11 +10,10 @@ import { GroupSubInvestment } from '../entities/models/GroupSubInvestment';
 import log from '../utils/logger';
 import SidoohNotify from '../services/SidoohNotify';
 import { EventType } from '../utils/enums';
-import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
 import SidoohAccounts from '../services/SidoohAccounts';
 
 export default class InvestmentRepository {
-    getPersonalCollectiveInvestments = async (withSubInvestments = false) => {
+    getPersonalCollectiveInvestments = async (withRelations?: string) => {
         return await PersonalCollectiveInvestment.find({
             select: {
                 id: true,
@@ -26,7 +25,7 @@ export default class InvestmentRepository {
                 created_at: true,
                 personal_sub_investments: {id: true, amount: true, interest: true}
             },
-            relations: {personal_sub_investments: withSubInvestments}
+            relations: {personal_sub_investments: withRelations.split(',').includes('sub_investment')}
         });
     };
 
@@ -54,33 +53,32 @@ export default class InvestmentRepository {
         });
     };
 
-    getGroupCollectiveInvestments = async (group_id, withGroup = null) => {
-        return await GroupAccountTransaction.find({
-            where: {group_account: {group_id}},
+    getGroupCollectiveInvestments = async (withRelations?: string) => {
+        return await GroupCollectiveInvestment.find({
             select: {
                 id: true,
-                type: true,
-                description: true,
                 amount: true,
-                status: true,
-                group_account: {id: true, balance: true, account_id: true, group_id: true}
+                interest_rate: true,
+                interest: true,
+                investment_date: true,
+                maturity_date: true,
+                group_sub_investments: {id: true, amount: true, interest: true}
             },
-            relations: {group_account: Boolean(withGroup)}
+            relations: {group_sub_investments: withRelations.split(',').includes('sub_investment')}
         });
     };
 
-    getGroupSubInvestments = async (group_id, withGroup = null) => {
-        return await GroupAccountTransaction.find({
-            where: {group_account: {group_id}},
+    getGroupSubInvestments = async (withRelations?: string) => {
+        const relations = withRelations.split(',');
+
+        return await GroupSubInvestment.find({
             select: {
                 id: true,
-                type: true,
-                description: true,
                 amount: true,
-                status: true,
-                group_account: {id: true, balance: true, account_id: true, group_id: true}
+                interest: true,
+                group: {id: true, balance: true, name: true, type: true, target_amount: true, frequency: true}
             },
-            relations: {group_account: Boolean(withGroup)}
+            relations: {group: relations.includes('group')}
         });
     };
 
