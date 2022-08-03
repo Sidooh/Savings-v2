@@ -5,41 +5,38 @@ import { PersonalCollectiveInvestment } from '../entities/models/PersonalCollect
 import { Between } from 'typeorm';
 import moment from 'moment';
 import { GroupAccount } from '../entities/models/GroupAccount';
+import ChartAid from '../utils/ChartAid';
+import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
+import { TransactionType } from '../utils/enums';
 
 export const DashboardRepository = {
     chartData: async () => {
         const startDate = moment().startOf('day');
         const endDate = moment().endOf('day'),
-            whereToday = Between(startDate.toDate(), endDate.toDate());
+            whereToday = Between(startDate.toDate(), endDate.toDate()),
+            whereYesterday = Between(startDate.subtract(1, 'd').toDate(), endDate.subtract(1, 'd').toDate());
 
-        const transactions = await PersonalAccountTransaction.createQueryBuilder('transaction')
-            .select('DAY(created_at) as day, HOUR(created_at) as hour',)
-            .addSelect('SUM(amount)', 'amount').where({created_at: whereToday})
-            .groupBy('day, hour').getRawMany();
+        const chartAid = new ChartAid();
 
-        const freqCount = 24;
+        const fetch = async (whereBetween, freq = 24) => {
+            const personalTransactions = await PersonalAccountTransaction.createQueryBuilder('transaction')
+                .select('HOUR(created_at) as hour',)
+                .addSelect('SUM(amount)', 'amount').where({created_at: whereBetween, type: TransactionType.CREDIT})
+                .groupBy('hour').getRawMany();
+            const groupTransactions = await GroupAccountTransaction.createQueryBuilder('transaction')
+                .select('HOUR(created_at) as hour',)
+                .addSelect('SUM(amount)', 'amount').where({created_at: whereBetween, type: TransactionType.CREDIT})
+                .groupBy('hour').getRawMany();
 
-        const getLabel = (day: number, month: number, year: number) => {
-            return moment(`${day}-${month}-${year}`, 'DD-MM-YYYY').format('HH:mm');
+            return {
+                personal: await chartAid.chartDataSet(personalTransactions, freq),
+                group: await chartAid.chartDataSet(groupTransactions, freq)
+            };
         };
 
-        let datasets = [], labels = [];
-        for (let hour: number = 0; hour < freqCount; hour++) {
-            let label = moment(hour, 'H').format('HHmm'), amount;
+        const todayHrs = moment().diff(moment().startOf('day'), 'h');
 
-            if (transactions.find(t => t.hour === startDate.hour())) {
-                amount = Number(transactions.find(({hour}) => hour === startDate.hour()).amount);
-            } else {
-                amount = 0;
-            }
-
-            labels.push(label);
-            datasets.push(amount);
-
-            startDate.add(1, 'h');
-        }
-
-        return {datasets, labels, transactions};
+        return {today: await fetch(whereToday, todayHrs + 1), yesterday: await fetch(whereYesterday)};
     },
 
     getSummaries: async () => {
