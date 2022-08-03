@@ -3,8 +3,8 @@ import { DashboardRepository as Repo } from '../../repositories/DashboardReposit
 import Controller from './Controller';
 
 export default class DashboardController extends Controller {
-    static index = async ({body}: Request, res: Response) => {
-        const response = await Repo.getDashData();
+    static summaries = async ({body}: Request, res: Response) => {
+        const response = await Repo.getSummaries();
 
         res.send(this.successResponse({data: response}));
     };

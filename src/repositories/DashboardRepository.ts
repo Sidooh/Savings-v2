@@ -7,7 +7,7 @@ import moment from 'moment';
 import { GroupAccount } from '../entities/models/GroupAccount';
 
 export const DashboardRepository = {
-    getDashData: async () => {
+    getSummaries: async () => {
         const startOfDay = moment().startOf('day').toDate();
         const endOfDay = moment().endOf('day').toDate(),
             whereToday = Between(startOfDay, endOfDay);

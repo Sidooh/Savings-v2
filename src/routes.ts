@@ -76,7 +76,7 @@ router.group('/payments', router => {
 });
 
 router.group('/dashboard', router => {
-    router.get('/', DashboardController.index);
+    router.get('/', DashboardController.summaries);
     router.get('/recent-transactions', DashboardController.recentTransactions);
     router.get('/recent-collective-investments', DashboardController.recentCollectiveInvestments);
 });
