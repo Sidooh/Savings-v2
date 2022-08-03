@@ -11,6 +11,8 @@ import EarningController from './http/controllers/EarningController';
 import { EarningRequest } from './http/requests/Earning.request';
 import TransactionController from './http/controllers/TransactionController';
 import PaymentController from './http/controllers/PaymentController';
+import InvestmentController from './http/controllers/InvestmentController';
+import DashboardController from './http/controllers/DashboardController';
 
 const router = new RouteGroup('/', Router());
 
@@ -27,6 +29,10 @@ router.group('/accounts', router => {
 
 router.group('/personal-accounts', router => {
     router.get('/transactions', TransactionController.getAllPersonalTransactions);
+    router.get('/transactions/:transactionId', TransactionController.getPersonalTransactionById);
+
+    router.get('/collective-investments', InvestmentController.getPersonalCollectiveInvestments);
+    router.get('/sub-investments', InvestmentController.getPersonalSubInvestments);
 
     router.get('/', PersonalAccountController.index);
     router.get('/:personalAccountId', PersonalAccountController.getById);
@@ -37,11 +43,17 @@ router.group('/personal-accounts', router => {
 });
 
 router.group('/group-accounts', router => {
+    router.get('/', GroupAccountController.index);
+
     router.get('/transactions', TransactionController.getAllGroupAccountTransactions);
+    router.get('/transactions/:transactionId', TransactionController.getGroupTransactionById);
     router.get('/:id', GroupAccountController.getById);
 });
 
 router.group('/groups', router => {
+    router.get('/collective-investments', InvestmentController.getGroupCollectiveInvestments);
+    router.get('/sub-investments', InvestmentController.getGroupSubInvestments);
+
     router.post('/', validate(GroupRequest.store), GroupController.store);
     router.get('/', GroupController.index);
     router.get('/:id', GroupController.getById);
@@ -61,6 +73,13 @@ router.group('/groups', router => {
 
 router.group('/payments', router => {
     router.post('/callback', PaymentController.processCallback);
+});
+
+router.group('/dashboard', router => {
+    router.get('/chart', DashboardController.chartData);
+    router.get('/summeries', DashboardController.summaries);
+    router.get('/recent-transactions', DashboardController.recentTransactions);
+    router.get('/recent-collective-investments', DashboardController.recentCollectiveInvestments);
 });
 
 export default router.export();

@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import { GroupRepository as Repo } from '../../repositories/GroupRepository';
+import Controller from './Controller';
 
-export default class GroupController {
+export default class GroupController extends Controller{
     static index = async (req: Request, res: Response) => {
         const {with_group_accounts} = req.query;
 
         const groups = await Repo.index(with_group_accounts);
 
-        res.send(groups);
+        res.send(this.successResponse({data: groups}));
     };
 
     static store = async ({body}: Request, res: Response) => {
@@ -22,7 +23,7 @@ export default class GroupController {
 
         const group = await Repo.getById(id, with_group_accounts);
 
-        res.send(group);
+        res.send(this.successResponse({data: group}));
     };
 
     static getByAccountId = async ({params}: Request, res: Response) => {
@@ -30,7 +31,7 @@ export default class GroupController {
 
         const groups = await Repo.getByAccountId(accountId);
 
-        res.send(groups);
+        res.send(this.successResponse({data: groups}));
     };
 
     static deposit = async ({body, params}: Request, res: Response) => {
