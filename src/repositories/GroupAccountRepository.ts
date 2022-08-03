@@ -4,6 +4,31 @@ import { NotFoundError } from '../exceptions/not-found.err';
 import SidoohAccounts from '../services/SidoohAccounts';
 
 export const GroupAccountRepository = {
+    index: async (withRelations?: string) => {
+        const relations = withRelations.split(',');
+
+        return GroupAccount.find({
+            select: {
+                id: true,
+                account_id: true,
+                balance: true,
+                created_at: true,
+                group: {id: true, name: true, type: true}
+            },
+            relations: {group: relations.includes('group')}
+        }).then(async groupAccounts => {
+            let res: any = groupAccounts;
+            if (withRelations.split(',').includes('account')) {
+                const accounts = await SidoohAccounts.findAll();
+                res = groupAccounts.map(a => ({
+                    ...a, account: accounts.find(acc => String(acc.id) === a.account_id)
+                }));
+            }
+
+            return res;
+        });
+    },
+
     getById: async (id) => {
         const groupAccount = await GroupAccount.findOneBy({id});
 
@@ -24,7 +49,7 @@ export const GroupAccountRepository = {
     },
 
     store: async (groupId, accountId: number) => {
-        await SidoohAccounts.find(accountId)
+        await SidoohAccounts.find(accountId);
 
         const group = await Group.findOne({where: {id: Number(groupId)}, relations: {group_accounts: true}});
 

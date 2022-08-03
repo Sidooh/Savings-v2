@@ -42,6 +42,8 @@ router.group('/personal-accounts', router => {
 });
 
 router.group('/group-accounts', router => {
+    router.get('/', GroupAccountController.index);
+
     router.get('/transactions', TransactionController.getAllGroupAccountTransactions);
     router.get('/transactions/:transactionId', TransactionController.getGroupTransactionById);
     router.get('/:id', GroupAccountController.getById);
