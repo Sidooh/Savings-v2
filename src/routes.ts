@@ -12,6 +12,7 @@ import { EarningRequest } from './http/requests/Earning.request';
 import TransactionController from './http/controllers/TransactionController';
 import PaymentController from './http/controllers/PaymentController';
 import InvestmentController from './http/controllers/InvestmentController';
+import DashboardController from './http/controllers/DashboardController';
 
 const router = new RouteGroup('/', Router());
 
@@ -72,6 +73,12 @@ router.group('/groups', router => {
 
 router.group('/payments', router => {
     router.post('/callback', PaymentController.processCallback);
+});
+
+router.group('/dashboard', router => {
+    router.get('/', DashboardController.index);
+    router.get('/recent-transactions', DashboardController.recentTransactions);
+    router.get('/recent-collective-investments', DashboardController.recentCollectiveInvestments);
 });
 
 export default router.export();
