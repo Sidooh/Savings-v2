@@ -3,48 +3,50 @@ import { PersonalAccountRepository as Repo } from '../../repositories/PersonalAc
 import Controller from './Controller';
 
 export default class PersonalAccountController extends Controller {
-    static index = async (req: Request, res: Response) => {
-        const personalAccounts = await Repo.index();
+    static index = async ({ query }: Request, res: Response) => {
+        const { with_relations } = query;
 
-        res.send(this.successResponse({data: personalAccounts}));
+        const personalAccounts = await Repo.index(String(with_relations));
+
+        res.send(this.successResponse({ data: personalAccounts }));
     };
 
-    static store = async ({body}: Request, res: Response) => {
+    static store = async ({ body }: Request, res: Response) => {
         const personalAcc = await Repo.store(body);
 
         res.send(personalAcc);
     };
 
-    static storeDefaults = async ({params}: Request, res: Response) => {
+    static storeDefaults = async ({ params }: Request, res: Response) => {
         const earningsAcc = await Repo.storeDefaults(params.accountId);
 
         res.send(earningsAcc);
     };
 
-    static getById = async ({params: {personalAccountId: id}}: Request, res: Response) => {
+    static getById = async ({ params: { personalAccountId: id } }: Request, res: Response) => {
         const personalAcc = await Repo.getById(Number(id));
 
-        res.send(this.successResponse({data: personalAcc}));
+        res.send(this.successResponse({ data: personalAcc }));
     };
 
-    static getByAccountId = async ({params}: Request, res: Response) => {
+    static getByAccountId = async ({ params }: Request, res: Response) => {
         const personalAcc = await Repo.getByAccountId(params.accountId)
 
-        res.send(this.successResponse({data: personalAcc}));
+        res.send(this.successResponse({ data: personalAcc }));
     };
 
-    static deposit = async ({body, params}: Request, res: Response) => {
-        const {amount} = body
-        const {personalAccountId} = params
+    static deposit = async ({ body, params }: Request, res: Response) => {
+        const { amount } = body
+        const { personalAccountId } = params
 
         const transaction = await Repo.deposit(amount, personalAccountId)
 
         res.send(transaction)
     };
 
-    static withdraw = async ({body, params}: Request, res: Response) => {
-        const {amount} = body
-        const {personalAccountId} = params
+    static withdraw = async ({ body, params }: Request, res: Response) => {
+        const { amount } = body
+        const { personalAccountId } = params
 
         const transaction = await Repo.withdraw(amount, personalAccountId)
 
