@@ -75,6 +75,7 @@ export const DashboardRepository = {
                 personal_account: {id: true, type: true, account_id: true}
             },
             take: 100,
+            order: {id: 'DESC'},
             relations: {personal_account: true},
         }).then(async transactions => {
             const accounts = await SidoohAccounts.findAll();
@@ -97,6 +98,7 @@ export const DashboardRepository = {
                 created_at: true,
             },
             take: 7,
+            order: {id: 'DESC'},
         });
     }
 };

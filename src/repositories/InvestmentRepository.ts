@@ -25,6 +25,7 @@ export default class InvestmentRepository {
                 created_at: true,
                 personal_sub_investments: { id: true, amount: true, interest: true }
             },
+            order: {id: 'DESC'},
             relations: { personal_sub_investments: withRelations.split(',').includes('sub_investment') }
         });
     };
@@ -40,6 +41,7 @@ export default class InvestmentRepository {
                 created_at: true,
                 personal_account: { id: true, type: true, account_id: true }
             },
+            order: {id: 'DESC'},
             relations: { personal_account: relations.includes('personal_account') || relations.includes('account') }
         }).then(async subInvestments => {
             let res: any = subInvestments;
@@ -66,6 +68,7 @@ export default class InvestmentRepository {
                 created_at: true,
                 group_sub_investments: { id: true, amount: true, interest: true }
             },
+            order: {id: 'DESC'},
             relations: { group_sub_investments: withRelations.split(',').includes('sub_investment') }
         });
     };
@@ -81,6 +84,7 @@ export default class InvestmentRepository {
                 created_at: true,
                 group: { id: true, balance: true, name: true, type: true, target_amount: true, frequency: true }
             },
+            order: {id: 'DESC'},
             relations: { group: relations.includes('group') }
         });
     };

@@ -48,6 +48,7 @@ export const TransactionRepository = {
                 created_at: true,
                 personal_account: { id: true, type: true, account_id: true }
             },
+            order: {id: 'DESC'},
             relations: { personal_account: relations.includes('personal_account') || relations.includes('account') }
         }).then(async transactions => {
             let res: any = transactions;
@@ -76,6 +77,7 @@ export const TransactionRepository = {
                 created_at: true,
                 group_account: { id: true, balance: true, account_id: true, group_id: true }
             },
+            order: {id: 'DESC'},
             relations: { group_account: relations.includes('group_account') || relations.includes('account') }
         }).then(async transactions => {
             let res: any = transactions;
@@ -102,6 +104,7 @@ export const TransactionRepository = {
                 status: true,
                 group_account: { id: true, balance: true, account_id: true, group_id: true }
             },
+            order: {id: 'DESC'},
             relations: { group_account: Boolean(withGroup) }
         });
     },

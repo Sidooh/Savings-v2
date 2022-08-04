@@ -15,6 +15,7 @@ export const GroupAccountRepository = {
                 created_at: true,
                 group: {id: true, name: true, type: true}
             },
+            order: {id: 'DESC'},
             relations: {group: relations.includes('group')}
         }).then(async groupAccounts => {
             let res: any = groupAccounts;
