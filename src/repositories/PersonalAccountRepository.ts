@@ -14,7 +14,8 @@ export const PersonalAccountRepository = {
                 'id', 'type', 'description', 'target_amount', 'frequency_amount',
                 'balance', 'interest', 'duration',
                 'status', 'account_id', 'created_at'
-            ]
+            ],
+            order: {id: 'DESC'},
         }).then(async personalAccounts => {
             let res: any = personalAccounts;
 

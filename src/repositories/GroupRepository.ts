@@ -8,6 +8,7 @@ export const GroupRepository = {
     index: async (withGroupAccounts = null) => {
         return await Group.find({
             select: ['id', 'name', 'balance', 'interest', 'target_amount', 'type', 'status', 'created_at'],
+            order: {id: 'DESC'},
             relations: {
                 group_accounts: Boolean(withGroupAccounts)
             }
