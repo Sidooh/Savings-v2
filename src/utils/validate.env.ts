@@ -33,6 +33,9 @@ export const env = () => cleanEnv(process.env, {
     SENTRY_TRACES_SAMPLE_RATE: num({default: 0.0}),
 
     INTEREST_RATE: num({default: 9}),
+
+    DAILY_INTEREST_CALCULATION_CRON: str({default: '0 21 * * *'}),
+    MONTHLY_INTEREST_ALLOCATION_CRON: str({default: '0 0 1 * *'}),
 });
 
 
