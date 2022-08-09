@@ -103,7 +103,7 @@ export default class InvestmentRepository {
         await this.investGroups();
         await this.investPersonal();
 
-        const {groups, personal_accounts} = await this.calculateInterest(Number(process.env.INTEREST_RATE) || 9);
+        const {groups, personal_accounts} = await this.calculateInterest(env().INTEREST_RATE);
 
         log.info("... Completed Investments");
 
