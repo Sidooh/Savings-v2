@@ -54,6 +54,7 @@ export enum TransactionType {
 export enum Description {
     ACCOUNT_DEPOSIT = 'Account Deposit',
     ACCOUNT_WITHDRAWAL = 'Account Withdrawal',
+    MONTHLY_INTEREST_ALLOCATION = 'Interest Allocation',
 }
 
 export enum EventType {
