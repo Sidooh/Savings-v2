@@ -1,0 +1,17 @@
+### Node template
+# Logs
+logs
+
+# Dependency directories
+node_modules/
+
+# dotenv environment variables file
+.env
+dist
+
+# yarn v2
+.yarn/*
+!.yarn/plugins
+!.yarn/releases
+
+y.hide

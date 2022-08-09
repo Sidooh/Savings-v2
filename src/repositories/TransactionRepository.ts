@@ -1,15 +1,43 @@
-import {PersonalAccountTransaction} from '../entities/models/PersonalAccountTransaction';
-import {GroupAccountTransaction} from '../entities/models/GroupAccountTransaction';
-import {Description, SavingsAccountType, Status, TransactionType} from "../utils/enums";
+import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
+import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
+import { Description, SavingsAccountType, Status, TransactionType } from "../utils/enums";
 import log from "../utils/logger";
-import {LessThan} from "typeorm";
+import { LessThan } from "typeorm";
 import SidoohPayments from "../services/SidoohPayments";
 import SidoohAccounts from "../services/SidoohAccounts";
-import {Payment} from "../entities/models/Payment";
+import { Payment } from "../entities/models/Payment";
 import SidoohProducts from "../services/SidoohProducts";
+import { NotFoundError } from '../exceptions/not-found.err';
 
 export const TransactionRepository = {
-    getAllPersonalTransactions: async (withAccount = null) => {
+    getPersonalTransactionById: async (id, withAccount = false) => {
+        const transaction = await PersonalAccountTransaction.findOne({
+            where: { id: Number(id) },
+            select: ['id', 'type', 'description', 'amount', 'status', 'created_at'],
+            relations: { personal_account: withAccount }
+        });
+
+        if (!transaction) throw new NotFoundError();
+
+        return transaction;
+    },
+
+    getGroupTransactionById: async (id, withGroupAccount = false) => {
+        console.log(id);
+        const transaction = await GroupAccountTransaction.findOne({
+            where: { id: Number(id) },
+            select: ['id', 'type', 'description', 'amount', 'status', 'created_at'],
+            relations: { group_account: withGroupAccount }
+        });
+
+        if (!transaction) throw new NotFoundError();
+
+        return transaction;
+    },
+
+    getAllPersonalTransactions: async (withRelations?: string) => {
+        const relations = withRelations.split(',');
+
         return await PersonalAccountTransaction.find({
             select: {
                 id: true,
@@ -17,38 +45,67 @@ export const TransactionRepository = {
                 description: true,
                 amount: true,
                 status: true,
-                personal_account: {id: true, type: true}
+                created_at: true,
+                personal_account: { id: true, type: true, account_id: true }
             },
-            relations: {personal_account: Boolean(withAccount)}
+            order: {id: 'DESC'},
+            relations: { personal_account: relations.includes('personal_account') || relations.includes('account') }
+        }).then(async transactions => {
+            let res: any = transactions;
+
+            if (withRelations.split(',').includes('account')) {
+                const accounts = await SidoohAccounts.findAll();
+                res = transactions.map(i => ({
+                    ...i, account: accounts.find(a => String(a.id) === i.personal_account.account_id)
+                }));
+            }
+
+            return res;
         });
     },
 
-    getAllGroupAccountTransactions: async (withGroupAccount = null) => {
-        return await GroupAccountTransaction.find({
+    getAllGroupAccountTransactions: async (withRelations?: string) => {
+        const relations = withRelations.split(',');
+
+        return GroupAccountTransaction.find({
             select: {
                 id: true,
                 type: true,
                 description: true,
                 amount: true,
                 status: true,
-                group_account: {id: true, balance: true, account_id: true, group_id: true}
+                created_at: true,
+                group_account: { id: true, balance: true, account_id: true, group_id: true }
             },
-            relations: {group_account: Boolean(withGroupAccount)}
+            order: {id: 'DESC'},
+            relations: { group_account: relations.includes('group_account') || relations.includes('account') }
+        }).then(async transactions => {
+            let res: any = transactions;
+
+            if (withRelations.split(',').includes('account')) {
+                const accounts = await SidoohAccounts.findAll();
+                res = transactions.map(i => ({
+                    ...i, account: accounts.find(a => String(a.id) === i.group_account.account_id)
+                }));
+            }
+
+            return res;
         });
     },
 
     getAllGroupTransactions: async (group_id, withGroup = null) => {
         return await GroupAccountTransaction.find({
-            where: {group_account: {group_id}},
+            where: { group_account: { group_id } },
             select: {
                 id: true,
                 type: true,
                 description: true,
                 amount: true,
                 status: true,
-                group_account: {id: true, balance: true, account_id: true, group_id: true}
+                group_account: { id: true, balance: true, account_id: true, group_id: true }
             },
-            relations: {group_account: Boolean(withGroup)}
+            order: {id: 'DESC'},
+            relations: { group_account: Boolean(withGroup) }
         });
     },
 
@@ -68,15 +125,15 @@ export const TransactionRepository = {
                 status: Status.PENDING,
                 amount: LessThan(100),
             },
-            relations: {personal_account: true, payment: true}
+            relations: { personal_account: true, payment: true }
         });
 
         log.info(`...Processing ${transactions.length} transactions`);
 
-        const results = {}
+        const results = {};
         for (const t of transactions) {
             try {
-                const account = await SidoohAccounts.find(t.personal_account.account_id)
+                const account = await SidoohAccounts.find(t.personal_account.account_id);
                 // Withdraw from account
                 // TODO: create method, helper to get withdrawal amount
 
@@ -86,26 +143,26 @@ export const TransactionRepository = {
                         .then(async res => {
 
                             if (res && res.status === Status.COMPLETED) {
-                                t.payment.status = Status.COMPLETED
-                                await t.payment.save()
+                                t.payment.status = Status.COMPLETED;
+                                await t.payment.save();
 
-                                t.status = Status.COMPLETED
-                                await t.save()
+                                t.status = Status.COMPLETED;
+                                await t.save();
 
-                                results[t.id] = t.payment
+                                results[t.id] = t.payment;
 
                                 // Notify user
                             }
 
                             if (res && res.status == Status.FAILED) {
-                                console.log({res})
-                                t.payment.status = Status.FAILED
-                                await t.payment.save()
+                                console.log({ res });
+                                t.payment.status = Status.FAILED;
+                                await t.payment.save();
 
-                                t.status = Status.FAILED
-                                await t.save()
+                                t.status = Status.FAILED;
+                                await t.save();
 
-                                results[t.id] = t.payment
+                                results[t.id] = t.payment;
 
                                 // Notify user
                             }
@@ -113,20 +170,19 @@ export const TransactionRepository = {
                             // TODO: Handle for other status or non-existent (undefined res)
 
                         }, error => {
-                            throw new Error('Payment already initialized')
-                        })
-
+                            throw new Error('Payment already initialized');
+                        });
                 } else {
                     if (t.personal_account.balance - 50 < t.amount) {
-                        throw new Error('Account Balance is insufficient')
+                        throw new Error('Account Balance is insufficient');
                     }
 
-                    t.personal_account.balance -= t.amount
-                    await t.save()
+                    t.personal_account.balance -= t.amount;
+                    await t.save();
 
                     // Request Payment
-                    const description = t.description.split(' - ')
-                    const destination = description.length > 1 ? description[1] : account['phone']
+                    const description = t.description.split(' - ');
+                    const destination = description.length > 1 ? description[1] : account['phone'];
                     await SidoohPayments.requestPayment({
                         amount: t.amount,
                         destination,
@@ -135,18 +191,17 @@ export const TransactionRepository = {
                         account_id: account['id']
                     })
                         .then(async res => {
-                                const p = await Payment.save({
-                                    type: TransactionType.DEBIT,
-                                    description: Description.ACCOUNT_WITHDRAWAL,
-                                    amount: t.amount,
-                                    transaction: t,
-                                    reference: res.id,
-                                })
-                                results[t.id] = p
-                            },
+                            results[t.id] = await Payment.save({
+                                type: TransactionType.DEBIT,
+                                description: Description.ACCOUNT_WITHDRAWAL,
+                                amount: t.amount,
+                                transaction: t,
+                                reference: res.id,
+                            });
+                        },
                             async error => {
-                                throw new Error("Failed")
-                            })
+                                throw new Error("Failed");
+                            });
 
                 }
 
@@ -154,13 +209,13 @@ export const TransactionRepository = {
                 // results[t.id] = payment
             } catch (e) {
                 //reverse actions // rollback
-                t.personal_account.balance += t.amount
-                await t.save()
+                t.personal_account.balance += t.amount;
+                await t.personal_account.save();
 
-                results[t.id] = e.message
+                results[t.id] = e.message;
             }
 
-            SidoohProducts.withdrawalCallback({...t, personal_account: undefined, payment: undefined})
+            SidoohProducts.withdrawalCallback({ ...t, personal_account: undefined, payment: undefined });
         }
 
         log.info("...Processed Personal Withdrawals!", results);
@@ -168,38 +223,38 @@ export const TransactionRepository = {
 
 
     processPaymentCallback: async (data: any) => {
-        console.log('processPaymentCallback', {data})
+        console.log('processPaymentCallback', { data });
         const payment = await Payment.findOne({
             where: {
                 reference: data.id
             },
-            relations: {transaction: true}
-        })
+            relations: { transaction: true }
+        });
 
-        console.log({payment})
+        console.log({ payment });
 
         if (data.status === Status.COMPLETED) {
-            payment.status = Status.COMPLETED
-            await payment.save()
+            payment.status = Status.COMPLETED;
+            await payment.save();
 
-            payment.transaction.status = Status.COMPLETED
-            await payment.transaction.save()
+            payment.transaction.status = Status.COMPLETED;
+            await payment.transaction.save();
 
             // Notify user
         }
 
         if (data.status == Status.FAILED) {
-            payment.status = Status.FAILED
-            await payment.save()
+            payment.status = Status.FAILED;
+            await payment.save();
 
-            payment.transaction.status = Status.FAILED
-            await payment.transaction.save()
+            payment.transaction.status = Status.FAILED;
+            await payment.transaction.save();
 
             // Notify user
         }
 
-        SidoohProducts.withdrawalCallback({...payment.transaction})
+        SidoohProducts.withdrawalCallback({ ...payment.transaction });
 
-        return {}
+        return {};
     }
 };

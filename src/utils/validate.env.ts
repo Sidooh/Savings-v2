@@ -1,4 +1,4 @@
-import {cleanEnv, num, port, str, url} from 'envalid';
+import { cleanEnv, num, port, str, url } from 'envalid';
 
 export const env = () => cleanEnv(process.env, {
     PORT: port({default: 3000}),
@@ -30,10 +30,17 @@ export const env = () => cleanEnv(process.env, {
     MIN_WITHDRAWAL_AMOUNT: num({default: 20}),
 
     SENTRY_DSN: url({default: null}),
-    SENTRY_TRACES_SAMPLE_RATE: num({default: 0.0})
+    SENTRY_TRACES_SAMPLE_RATE: num({default: 0.0}),
+
+    INTEREST_RATE: num({default: 9}),
+
+    DAILY_INTEREST_CALCULATION_CRON: str({default: '0 21 * * *'}),
+    MONTHLY_INTEREST_ALLOCATION_CRON: str({default: '0 21 1 * *'}),
+
+    ADMIN_CONTACTS: str({default: '254110039317,254714611696,254711414987'})
 });
 
 
 export default function validateEnv(): void {
-    env()
+    env();
 }

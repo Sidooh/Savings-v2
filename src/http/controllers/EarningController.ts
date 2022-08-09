@@ -1,11 +1,12 @@
 import { EarningRepository as Repo } from '../../repositories/EarningRepository';
 import { Request, Response } from 'express';
+import Controller from './Controller';
 
-export default class EarningController {
+export default class EarningController extends Controller{
     static getAccountEarnings = async ({params}: Request, res: Response) => {
         const earnings = await Repo.getAccountEarnings(params.accountId)
 
-        res.send(earnings)
+        res.send(this.successResponse({data: earnings}))
     };
 
     static store = async ({body}: Request, res: Response) => {

@@ -1,24 +1,38 @@
-import {PersonalAccount} from '../entities/models/PersonalAccount';
-import {NotFoundError} from '../exceptions/not-found.err';
-import {DefaultAccount, Description, TransactionType} from '../utils/enums';
-import {PersonalAccountTransaction} from '../entities/models/PersonalAccountTransaction';
-import {DeepPartial, In} from 'typeorm';
+import { PersonalAccount } from '../entities/models/PersonalAccount';
+import { NotFoundError } from '../exceptions/not-found.err';
+import { DefaultAccount, Description, TransactionType } from '../utils/enums';
+import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
+import { DeepPartial, In } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
 
 export const PersonalAccountRepository = {
-    index: async () => {
-        return await PersonalAccount.find({
+    index: async (withRelations?: string) => {
+        const relations = withRelations.split(',');
+
+        return PersonalAccount.find({
             select: [
                 'id', 'type', 'description', 'target_amount', 'frequency_amount',
                 'balance', 'interest', 'duration',
                 'status', 'account_id', 'created_at'
-            ]
+            ],
+            order: {id: 'DESC'},
+        }).then(async personalAccounts => {
+            let res: any = personalAccounts;
+
+            if (relations.includes('account')) {
+                const accounts = await SidoohAccounts.findAll();
+                res = personalAccounts.map(pa => ({
+                    ...pa, account: accounts.find(a => String(a.id) === pa.account_id)
+                }));
+            }
+
+            return res;
         });
     },
 
     getById: async (id: number) => {
         const personalAccount = await PersonalAccount.findOne({
-            where: {id: Number(id)},
+            where: { id: Number(id) },
             select: [
                 'id', 'type', 'description', 'target_amount', 'frequency_amount',
                 'balance', 'interest', 'duration',
@@ -33,7 +47,7 @@ export const PersonalAccountRepository = {
 
     getByAccountId: async (accountId) => {
         return await PersonalAccount.find({
-            where: {account_id: Number(accountId)},
+            where: { account_id: Number(accountId) },
             select: [
                 'id', 'type', 'description', 'target_amount', 'frequency_amount',
                 'balance', 'interest', 'duration',
@@ -43,11 +57,11 @@ export const PersonalAccountRepository = {
     },
 
     store: async (requestBody: DeepPartial<PersonalAccount>) => {
-        const {account_id, type, target_amount, frequency_amount, duration, frequency, description} = requestBody;
+        const { account_id, type, target_amount, frequency_amount, duration, frequency, description } = requestBody;
 
         await SidoohAccounts.find(account_id);
 
-        let personalAccount = await PersonalAccount.findOneBy({type, description, account_id});
+        let personalAccount = await PersonalAccount.findOneBy({ type, description, account_id });
 
         if (!personalAccount) personalAccount = await PersonalAccount.save({
             account_id,
@@ -77,14 +91,14 @@ export const PersonalAccountRepository = {
             }
         }
 
-        if (!current) current = await PersonalAccount.save({type: DefaultAccount.CURRENT, account_id});
-        if (!locked) locked = await PersonalAccount.save({type: DefaultAccount.LOCKED, account_id});
+        if (!current) current = await PersonalAccount.save({ type: DefaultAccount.CURRENT, account_id });
+        if (!locked) locked = await PersonalAccount.save({ type: DefaultAccount.LOCKED, account_id });
 
         return [current, locked];
     },
 
     deposit: async (amount: number, personalAccId) => {
-        const personalAcc = await PersonalAccount.findOneBy({id: personalAccId});
+        const personalAcc = await PersonalAccount.findOneBy({ id: personalAccId });
 
         if (!personalAcc) throw new NotFoundError("Personal Account Not Found!");
 
@@ -102,12 +116,12 @@ export const PersonalAccountRepository = {
     },
 
     withdraw: async (amount: number, personalAccId) => {
-        const personalAcc = await PersonalAccount.findOneBy({id: personalAccId});
+        const personalAcc = await PersonalAccount.findOneBy({ id: personalAccId });
 
         if (!personalAcc) throw new NotFoundError("Personal Account Not Found!");
         if (personalAcc.type === DefaultAccount.LOCKED && personalAcc.balance <= 30000000)
-            return {message: "Cannot Withdraw From Locked Account!"};
-        if (personalAcc.balance <= amount) return {message: "Insufficient balance!"};
+            return { message: "Cannot Withdraw From Locked Account!" };
+        if (personalAcc.balance <= amount) return { message: "Insufficient balance!" };
 
         const transaction = await PersonalAccountTransaction.save({
             amount,

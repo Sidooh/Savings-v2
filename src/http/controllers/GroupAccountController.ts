@@ -1,17 +1,14 @@
 import { Request, Response } from 'express';
-import { GroupAccount } from '../../entities/models/GroupAccount';
 import { GroupAccountRepository as Repo } from '../../repositories/GroupAccountRepository';
+import Controller from './Controller';
 
-export default class GroupAccountController {
-    static index = async ({params}: Request, res: Response) => {
-        const {groupId} = params;
+export default class GroupAccountController extends Controller {
+    static index = async ({query}: Request, res: Response) => {
+        const {with_relations} = query;
 
-        const groups = await GroupAccount.find({
-            where: {group_id: groupId},
-            select: ['id', 'account_id', 'balance', 'created_at'],
-        });
+        const accounts = await Repo.index(String(with_relations))
 
-        res.send(groups);
+        res.send(this.successResponse({data: accounts}));
     };
 
     static store = async ({body, params}: Request, res: Response) => {
@@ -28,7 +25,7 @@ export default class GroupAccountController {
 
         const group = await Repo.getById(id);
 
-        res.send(group);
+        res.send(this.successResponse({data: group}));
     };
 
     static getByAccountId = async ({query, params}: Request, res: Response) => {
@@ -36,6 +33,6 @@ export default class GroupAccountController {
 
         const group = await Repo.getByAccountId(groupId, accountId);
 
-        res.send(group);
+        res.send(this.successResponse({data: group}));
     };
 }

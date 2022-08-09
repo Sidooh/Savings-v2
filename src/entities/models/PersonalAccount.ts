@@ -47,4 +47,3 @@ export class PersonalAccount extends BaseEntity {
     }, {cascade: true})
     personal_sub_investments: PersonalSubInvestment[];
 }
-//TODO: Make type, description and account_id unique index
