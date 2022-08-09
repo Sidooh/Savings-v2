@@ -9,8 +9,11 @@ import { Group } from '../entities/models/Group';
 import { GroupSubInvestment } from '../entities/models/GroupSubInvestment';
 import log from '../utils/logger';
 import SidoohNotify from '../services/SidoohNotify';
-import { EventType } from '../utils/enums';
+import { Description, EventType, Status, TransactionType } from '../utils/enums';
 import SidoohAccounts from '../services/SidoohAccounts';
+import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
+import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
+import { env } from '../utils/validate.env';
 
 export default class InvestmentRepository {
     getPersonalCollectiveInvestments = async (withRelations?: string) => {
@@ -105,8 +108,7 @@ export default class InvestmentRepository {
         log.info("... Completed Investments");
 
         await SidoohNotify.notify(
-            //TODO: Move these to admin contacts env
-            [254110039317, 254714611696, 254711414987],
+            env().ADMIN_CONTACTS.split(','),
             `STATUS:INVESTMENT\nCalculating Interest. 
             \n\nCredited ${groups} group accounts AND ${personal_accounts} personal accounts.`,
             EventType.STATUS_UPDATE
@@ -247,22 +249,47 @@ export default class InvestmentRepository {
     };
 
     monthlyInterestAllocation = async () => {
-        Group.find({select: ['id', 'balance', 'interest']}).then(groups => {
+        const gA = await Group.find({select: ['id', 'balance', 'interest']}).then(groups => {
             groups.forEach(async g => {
                 g.balance = g.balance + g.interest;
                 g.interest = 0;
 
                 await g.save();
-            })
+
+                await GroupAccountTransaction.save({
+                    amount: g.interest,
+                    type: TransactionType.CREDIT,
+                    description: Description.MONTHLY_INTEREST_ALLOCATION,
+                    group_account_id: g.id,
+                    status: Status.COMPLETED
+                });
+            });
         });
 
-        PersonalAccount.find({select: ['id', 'balance', 'interest']}).then(accounts => {
+        const pA = await PersonalAccount.find({select: ['id', 'balance', 'interest']}).then(accounts => {
             accounts.forEach(async a => {
                 a.balance = a.balance + a.interest;
                 a.interest = 0;
 
                 await a.save();
-            })
+
+                await PersonalAccountTransaction.save({
+                    amount: a.interest,
+                    type: TransactionType.CREDIT,
+                    description: Description.MONTHLY_INTEREST_ALLOCATION,
+                    personal_account_id: a.id,
+                    status: Status.COMPLETED
+                });
+            });
+
+            return accounts.length;
         });
+
+        await SidoohNotify.notify(
+            env().ADMIN_CONTACTS.split(','),
+            `STATUS:INVESTMENT\nAllocated Interest. 
+            \n\n${gA} Group Accounts and ${pA} Personal Accounts updated.`,
+            EventType.STATUS_UPDATE
+        );
     };
 };

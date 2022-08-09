@@ -35,7 +35,9 @@ export const env = () => cleanEnv(process.env, {
     INTEREST_RATE: num({default: 9}),
 
     DAILY_INTEREST_CALCULATION_CRON: str({default: '0 21 * * *'}),
-    MONTHLY_INTEREST_ALLOCATION_CRON: str({default: '0 0 1 * *'}),
+    MONTHLY_INTEREST_ALLOCATION_CRON: str({default: '0 21 1 * *'}),
+
+    ADMIN_CONTACTS: str({default: '254110039317,254714611696,254711414987'})
 });
 
 
