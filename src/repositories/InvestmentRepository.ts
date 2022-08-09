@@ -264,6 +264,8 @@ export default class InvestmentRepository {
                     status: Status.COMPLETED
                 });
             });
+
+            return groups.length;
         });
 
         const pA = await PersonalAccount.find({select: ['id', 'balance', 'interest']}).then(accounts => {
