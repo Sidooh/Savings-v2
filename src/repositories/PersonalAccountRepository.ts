@@ -44,7 +44,7 @@ export const PersonalAccountRepository = {
             order: { transactions: { id: 'DESC' } }
         }).then(async acc => {
             let res: any = acc;
-            if (withRelations.split(',').includes('account')) {
+            if (relations.includes('account')) {
                 res = { ...acc, account: await SidoohAccounts.find(acc.account_id) };
             }
 

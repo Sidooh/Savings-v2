@@ -19,7 +19,7 @@ export const GroupAccountRepository = {
             relations: { group: relations.includes('group') }
         }).then(async groupAccounts => {
             let res: any = groupAccounts;
-            if (withRelations.split(',').includes('account')) {
+            if (relations.includes('account')) {
                 const accounts = await SidoohAccounts.findAll();
                 res = groupAccounts.map(a => ({
                     ...a, account: accounts.find(acc => String(acc.id) === a.account_id)
@@ -35,15 +35,20 @@ export const GroupAccountRepository = {
 
         const groupAccount = await GroupAccount.findOne({
             select: {
-                id: true, account_id: true, balance: true, status: true, created_at: true,
-                group: { id: true, type: true, name: true, balance: true, status: true }
+                id: true,
+                balance: true,
+                account_id: true,
+                group_id: true,
+                status: true,
+                created_at: true,
+                group: { id: true, name: true, type: true, balance: true, status: true },
+                transactions: { id: true, created_at: true, type: true, description: true, amount: true, status: true }
             },
-            where: { id },
-            relations: { group: relations.includes('group'), transactions: relations.includes('transactions') },
+            where: { id }, relations: { transactions: true, group: relations.includes('group') },
             order: { transactions: { id: 'DESC' } }
         }).then(async acc => {
             let res: any = acc;
-            if (withRelations.split(',').includes('account')) {
+            if (relations.includes('account')) {
                 res = { ...acc, account: await SidoohAccounts.find(acc.account_id) };
             }
 
