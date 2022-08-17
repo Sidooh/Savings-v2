@@ -22,7 +22,7 @@ export default class SidoohAccounts extends SidoohService {
     static async find(id: number) {
         log.info('...[SRV - ACCOUNTS]: Find Account...', { id });
 
-        const url = `${CONFIG.sidooh.services.accounts.url}/accounts/${id}`;
+        const url = `${CONFIG.sidooh.services.accounts.url}/accounts/${id}?with_user=true`;
 
         let acc = Cache.get(id);
 

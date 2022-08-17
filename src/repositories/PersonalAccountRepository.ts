@@ -15,7 +15,7 @@ export const PersonalAccountRepository = {
                 'balance', 'interest', 'duration',
                 'status', 'account_id', 'created_at'
             ],
-            order: {id: 'DESC'},
+            order: { id: 'DESC' },
         }).then(async personalAccounts => {
             let res: any = personalAccounts;
 
@@ -30,14 +30,25 @@ export const PersonalAccountRepository = {
         });
     },
 
-    getById: async (id: number) => {
+    getById: async (id: number, withRelations?: string) => {
+        const relations = withRelations.split(',');
+
         const personalAccount = await PersonalAccount.findOne({
             where: { id: Number(id) },
             select: [
-                'id', 'type', 'description', 'target_amount', 'frequency_amount',
-                'balance', 'interest', 'duration',
+                'id', 'account_id', 'type', 'description', 'target_amount', 'frequency_amount',
+                'balance', 'interest', 'duration', 'frequency',
                 'status', 'account_id', 'created_at'
-            ]
+            ],
+            relations: { transactions: relations.includes('transactions') },
+            order: { transactions: { id: 'DESC' } }
+        }).then(async acc => {
+            let res: any = acc;
+            if (withRelations.split(',').includes('account')) {
+                res = { ...acc, account: await SidoohAccounts.find(acc.account_id) };
+            }
+
+            return res;
         });
 
         if (!personalAccount) throw new NotFoundError();
