@@ -20,7 +20,7 @@ export type Account = {
 
 export default class SidoohAccounts extends SidoohService {
     static async find(id: number) {
-        log.info('...[SRV - ACCOUNTS]: Find Account...', {id});
+        log.info('...[SRV - ACCOUNTS]: Find Account...', { id });
 
         const url = `${CONFIG.sidooh.services.accounts.url}/accounts/${id}`;
 
@@ -28,15 +28,15 @@ export default class SidoohAccounts extends SidoohService {
 
         if (!acc) {
             await this.fetch(url).then(
-                ({data}) => {
-                    log.info('...[SRV - ACCOUNTS]: RES - ', {data});
+                ({ data }) => {
+                    log.info('...[SRV - ACCOUNTS]: RES - ', { data });
 
                     acc = data;
                     Cache.set(id, acc, moment().add(1, 'd').diff(moment(), 's'));
                 },
                 error => {
                     const message = error.isAxiosError ? error.message : error?.response?.message || error?.response?.data;
-                    log.error('...[SRV - ACCOUNTS]: ERR - ', {message});
+                    log.error('...[SRV - ACCOUNTS]: ERR - ', { message });
                     throw new NotFoundError('Sidooh Account Not Found!');
                 }
             );
@@ -52,8 +52,8 @@ export default class SidoohAccounts extends SidoohService {
 
         const url = `${CONFIG.sidooh.services.accounts.url}/accounts?with_user=true`;
 
-        return await this.fetch(url).then(({data}: { data: Account[] }) => {
-            log.info('...[SRV - ACCOUNTS]: RES - ', {data});
+        return await this.fetch(url).then(({ data }: { data: Account[] }) => {
+            log.info('...[SRV - ACCOUNTS]: RES - ', { data });
 
             data.forEach(acc => Cache.set(acc.id, acc, moment().add(1, 'd').diff(moment(), 's')));
 
