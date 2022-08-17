@@ -13,6 +13,7 @@ export const GroupAccountRepository = {
                 account_id: true,
                 balance: true,
                 created_at: true,
+                status: true,
                 group: { id: true, name: true, type: true }
             },
             order: { id: 'DESC' },

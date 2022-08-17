@@ -17,11 +17,11 @@ export default class GroupController extends Controller{
         res.send(group);
     };
 
-    static getById = async (req: Request, res: Response) => {
-        const {with_group_accounts} = req.query;
-        const {id} = req.params;
+    static getById = async ({ params, query }: Request, res: Response) => {
+        const { with_relations } = query;
+        const {id} = params;
 
-        const group = await Repo.getById(id, with_group_accounts);
+        const group = await Repo.getById(id, String(with_relations));
 
         res.send(this.successResponse({data: group}));
     };
