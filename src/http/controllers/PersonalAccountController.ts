@@ -23,8 +23,10 @@ export default class PersonalAccountController extends Controller {
         res.send(earningsAcc);
     };
 
-    static getById = async ({ params: { personalAccountId: id } }: Request, res: Response) => {
-        const personalAcc = await Repo.getById(Number(id));
+    static getById = async ({ query, params: { personalAccountId: id } }: Request, res: Response) => {
+        const { with_relations } = query;
+
+        const personalAcc = await Repo.getById(Number(id), String(with_relations));
 
         res.send(this.successResponse({ data: personalAcc }));
     };
