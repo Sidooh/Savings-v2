@@ -20,7 +20,7 @@ export const GroupRepository = {
 
         const group = await Group.findOne({
             where: { id: Number(id) },
-            select: ['id', 'name', 'balance', 'interest', 'created_at'],
+            select: ['id', 'name', 'type', 'target_amount', 'balance', 'interest', 'status', 'frequency', 'frequency_amount', 'duration', 'created_at'],
             relations: { group_accounts: relations.includes('group_accounts') || relations.includes('account') }
         }).then(async group => {
             let res: any = group;
