@@ -28,20 +28,20 @@ export default class TransactionController extends Controller {
         res.send(this.successResponse({ data: transactions }));
     };
 
-    static getPersonalTransactionById = async (req: Request, res: Response) => {
-        const { with_account } = req.query;
-        const { transactionId } = req.params;
+    static getPersonalTransactionById = async ({ query, params }: Request, res: Response) => {
+        const { with_relations } = query;
+        const { transactionId } = params;
 
-        const transaction = await Repo.getPersonalTransactionById(transactionId, Boolean(with_account));
+        const transaction = await Repo.getPersonalTransactionById(transactionId, String(with_relations));
 
         res.send(this.successResponse({ data: transaction }));
     };
 
-    static getGroupTransactionById = async (req: Request, res: Response) => {
-        const { with_group_account } = req.query;
-        const { transactionId } = req.params;
+    static getGroupTransactionById = async ({ query, params }: Request, res: Response) => {
+        const { with_relations } = query;
+        const { transactionId } = params;
 
-        const group = await Repo.getGroupTransactionById(transactionId, Boolean(with_group_account));
+        const group = await Repo.getGroupTransactionById(transactionId, String(with_relations));
 
         res.send(this.successResponse({ data: group }));
     };

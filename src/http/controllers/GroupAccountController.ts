@@ -21,9 +21,10 @@ export default class GroupAccountController extends Controller {
     };
 
     static getById = async ({query, params}: Request, res: Response) => {
+        const { with_relations } = query;
         const {id} = params;
 
-        const group = await Repo.getById(id);
+        const group = await Repo.getById(id,String(with_relations));
 
         res.send(this.successResponse({data: group}));
     };

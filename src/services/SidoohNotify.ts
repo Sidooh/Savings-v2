@@ -11,7 +11,7 @@ export default class SidoohNotify extends SidoohService {
 
         try {
             const {data} = await this.fetch(url, 'POST', {
-                channel: 'sms',
+                channel: 'SMS',
                 event_type: eventType,
                 destination: to,
                 content: message

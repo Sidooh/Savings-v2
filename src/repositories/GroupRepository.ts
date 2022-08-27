@@ -8,18 +8,30 @@ export const GroupRepository = {
     index: async (withGroupAccounts = null) => {
         return await Group.find({
             select: ['id', 'name', 'balance', 'interest', 'target_amount', 'type', 'status', 'created_at'],
-            order: {id: 'DESC'},
+            order: { id: 'DESC' },
             relations: {
                 group_accounts: Boolean(withGroupAccounts)
             }
         });
     },
 
-    getById: async (id, withGroupAccounts = null) => {
+    getById: async (id, withRelations?: string) => {
+        const relations = withRelations.split(',');
+
         const group = await Group.findOne({
             where: { id: Number(id) },
-            select: ['id', 'name', 'balance', 'interest', 'created_at'],
-            relations: { group_accounts: Boolean(withGroupAccounts) }
+            select: ['id', 'name', 'type', 'target_amount', 'balance', 'interest', 'status', 'frequency', 'frequency_amount', 'duration', 'created_at'],
+            relations: { group_accounts: relations.includes('group_accounts') || relations.includes('account') }
+        }).then(async group => {
+            let res: any = group;
+            if (relations.includes('account')) {
+                const accounts = await SidoohAccounts.findAll();
+                res.group_accounts = group.group_accounts.map(a => ({
+                    ...a, account: accounts.find(acc => String(acc.id) === a.account_id)
+                }));
+            }
+
+            return res;
         });
 
         if (!group) throw new NotFoundError();
