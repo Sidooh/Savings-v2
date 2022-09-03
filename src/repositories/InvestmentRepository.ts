@@ -2,7 +2,6 @@ import { PersonalCollectiveInvestment } from '../entities/models/PersonalCollect
 import moment from 'moment';
 import { PersonalAccount } from '../entities/models/PersonalAccount';
 import { Between, IsNull, MoreThan } from 'typeorm';
-import sumBy from 'lodash/sumBy';
 import { PersonalSubInvestment } from '../entities/models/PersonalSubInvestment';
 import { GroupCollectiveInvestment } from '../entities/models/GroupCollectiveInvestment';
 import { Group } from '../entities/models/Group';
@@ -124,7 +123,7 @@ export default class InvestmentRepository {
         if (investment) return investment;
 
         let groups = await Group.findBy({balance: MoreThan(0)});
-        let totalAmount = sumBy(groups, (group) => Number(group.balance));
+        let totalAmount = groups.reduce((prev, group) => prev += group.balance, 0);
 
         investment = await GroupCollectiveInvestment.save({amount: totalAmount});
 
@@ -145,10 +144,8 @@ export default class InvestmentRepository {
 
         let investment = await PersonalCollectiveInvestment.findOneBy({created_at: Between(startOfDay, endOfDay)});
 
-        // if (investment) return investment;
-
         let accounts = await PersonalAccount.findBy({balance: MoreThan(0)});
-        let totalAmount = sumBy(accounts, (acc) => Number(acc.balance));
+        let totalAmount = accounts.reduce((prev, acc) => prev += acc.balance, 0);
 
         investment = await PersonalCollectiveInvestment.save({amount: totalAmount});
 
@@ -249,6 +246,8 @@ export default class InvestmentRepository {
     };
 
     monthlyInterestAllocation = async () => {
+        log.info("...[REPO INVESTMENT] Monthly Interest Allocation...");
+
         const gA = await Group.find({select: ['id', 'balance', 'interest']}).then(groups => {
             groups.forEach(async g => {
                 g.balance = g.balance + g.interest;
@@ -286,6 +285,8 @@ export default class InvestmentRepository {
 
             return accounts.length;
         });
+
+        log.info("...Completed Monthly Interest Allocation...");
 
         await SidoohNotify.notify(
             env().ADMIN_CONTACTS.split(','),
