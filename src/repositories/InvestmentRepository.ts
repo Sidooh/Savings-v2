@@ -250,10 +250,7 @@ export default class InvestmentRepository {
 
         const gA = await Group.find({select: ['id', 'balance', 'interest']}).then(groups => {
             groups.forEach(async g => {
-                g.balance = g.balance + g.interest;
-                g.interest = 0;
-
-                await g.save();
+                g.balance += g.interest;
 
                 await GroupAccountTransaction.save({
                     amount: g.interest,
@@ -262,6 +259,10 @@ export default class InvestmentRepository {
                     group_account_id: g.id,
                     status: Status.COMPLETED
                 });
+
+                g.interest = 0;
+
+                await g.save();
             });
 
             return groups.length;
@@ -269,10 +270,7 @@ export default class InvestmentRepository {
 
         const pA = await PersonalAccount.find({select: ['id', 'balance', 'interest']}).then(accounts => {
             accounts.forEach(async a => {
-                a.balance = a.balance + a.interest;
-                a.interest = 0;
-
-                await a.save();
+                a.balance += a.interest;
 
                 await PersonalAccountTransaction.save({
                     amount: a.interest,
@@ -281,6 +279,10 @@ export default class InvestmentRepository {
                     personal_account_id: a.id,
                     status: Status.COMPLETED
                 });
+
+                a.interest = 0;
+
+                await a.save();
             });
 
             return accounts.length;
