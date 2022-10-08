@@ -3,7 +3,8 @@ on:
   push:
     branches:
     - main
-    - master
+    - develop
+    - red.dev
     paths:
     - .github/workflows/semgrep.yml
   schedule:

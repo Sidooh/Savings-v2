@@ -172,7 +172,7 @@ export const TransactionRepository = {
                             }
 
                             if (res && res.status == Status.FAILED) {
-                                console.log({res});
+                                log.info({res});
                                 t.payment.status = Status.FAILED;
                                 await t.payment.save();
 
@@ -240,7 +240,8 @@ export const TransactionRepository = {
 
 
     processPaymentCallback: async (data: any) => {
-        console.log('processPaymentCallback', {data});
+        log.info('processPaymentCallback', {data});
+
         const payment = await Payment.findOne({
             where: {
                 reference: data.id
@@ -248,7 +249,7 @@ export const TransactionRepository = {
             relations: {transaction: true}
         });
 
-        console.log({payment});
+        log.info({payment});
 
         if (data.status === Status.COMPLETED) {
             payment.status = Status.COMPLETED;
