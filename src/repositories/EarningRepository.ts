@@ -95,43 +95,27 @@ export const EarningRepository = {
     },
 
     withdraw: async body => {
-        const transactions = {
-            completed: {},
-            failed: {}
-        };
+        await SidoohAccounts.find(body.account_id);
 
-        for (const acc of body) {
-            try {
-                await SidoohAccounts.find(acc.account_id);
+        const personalAccount = await PersonalAccount.findOneBy({
+            account_id: body.account_id,
+            type: DefaultAccount.CURRENT
+        });
 
-                const personalAccount = await PersonalAccount.findOneBy({
-                    account_id: acc.account_id,
-                    type: DefaultAccount.CURRENT
-                });
+        if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
 
-                if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
+        if (personalAccount.balance - 50 <= body.amount) throw new BadRequestError("Insufficient balance!");
 
-                if (personalAccount.balance - 50 <= acc.amount) throw new BadRequestError("Insufficient balance!");
+        const transaction = await PersonalAccountTransaction.save({
+            amount: body.amount,
+            description: Description.ACCOUNT_WITHDRAWAL + (body.destination ? ' - ' + body.destination : ''),
+            personal_account_id: personalAccount.id,
+            type: TransactionType.DEBIT
+        });
 
-                const transaction = await PersonalAccountTransaction.save({
-                    amount: acc.amount,
-                    description: Description.ACCOUNT_WITHDRAWAL + ' - ' + acc.destination,
-                    personal_account_id: personalAccount.id,
-                    type: TransactionType.DEBIT
-                });
+        personalAccount.balance -= body.amount;
+        await personalAccount.save();
 
-                personalAccount.balance -= acc.amount;
-                await personalAccount.save();
-
-                transactions.completed[acc.ref] = transaction;
-            } catch (e) {
-                transactions.failed[acc.ref] = e.message;
-            }
-        }
-        // TODO: Is this good practice?
-        // if (transactions.completed.length === 0) transactions.completed = undefined
-        // if (transactions.failed.length === 0) transactions.failed = undefined
-
-        return transactions;
+        return transaction;
     }
 };

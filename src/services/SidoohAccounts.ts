@@ -29,7 +29,7 @@ export default class SidoohAccounts extends SidoohService {
         if (!acc) {
             await this.fetch(url).then(
                 ({ data }) => {
-                    log.info('...[SRV - ACCOUNTS]: RES - ', { data });
+                    log.info('...[SRV - ACCOUNTS]: RES - ', data);
 
                     acc = data;
                     Cache.set(id, acc, moment().add(1, 'd').diff(moment(), 's'));
@@ -37,12 +37,11 @@ export default class SidoohAccounts extends SidoohService {
                 error => {
                     const message = error.isAxiosError ? error.message : error?.response?.message || error?.response?.data;
                     log.error('...[SRV - ACCOUNTS]: ERR - ', { message });
-                    throw new NotFoundError('Sidooh Account Not Found!');
                 }
             );
         }
 
-        if (!acc) throw new NotFoundError('Sidooh Account Not Found!');
+        if (!acc) throw new NotFoundError('Invalid account');
 
         return acc;
     }
@@ -53,7 +52,7 @@ export default class SidoohAccounts extends SidoohService {
         const url = `${CONFIG.sidooh.services.accounts.url}/accounts?with_user=true`;
 
         return await this.fetch(url).then(({ data }: { data: Account[] }) => {
-            log.info('...[SRV - ACCOUNTS]: RES - ', { data });
+            log.info('...[SRV - ACCOUNTS]: RES - ', { retrieved: data.length });
 
             data.forEach(acc => Cache.set(acc.id, acc, moment().add(1, 'd').diff(moment(), 's')));
 
