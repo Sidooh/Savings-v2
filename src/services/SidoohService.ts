@@ -10,7 +10,7 @@ export default class SidoohService {
         if (!token) {
             token = await this.authenticate();
 
-            Cache.set('auth_token', token);
+            Cache.set('auth_token', token, 15 * 60);
         }
 
         return axios.create({
@@ -24,7 +24,7 @@ export default class SidoohService {
     };
 
     static authenticate = async () => {
-        log.info('...[SRV - SIDOOH]: Authenticate...')
+        log.info('...[SRV - SIDOOH]: AUTH...')
 
         const url = `${CONFIG.sidooh.services.accounts.url}/users/signin`;
 
@@ -34,14 +34,39 @@ export default class SidoohService {
     };
 
     static fetch = async (url: string, method: Method = 'GET', data: {} = {}) => {
-        log.info('...[SRV - SIDOOH]: Fetch...', { url, method, data });
+        log.info('...[SRV - SIDOOH]: REQ...', { url, method, data });
 
         const http = await this.http();
 
+        const t = performance.now()
         try {
-            return http[method.toLowerCase()](url, data).then(({ data }) => data);
+            const response = await http[method.toLowerCase()](url, data).then(({ data }) => data);
+            const latency = Math.round(performance.now() - t)
+
+            log.info('...[SRV - SIDOOH]: RES... ' + latency + 'ms', response);
+
+            return response
         } catch (e) {
-            throw new Error('Something went wrong, please try again.')
+            const latency = Math.round(performance.now() - t)
+
+            // if (e.getCode() === 401) {
+            //     log.error('...[SRV - SIDOOH]: ERR... '+latency+'ms', e.response);
+            //     throw new Error('Something went wrong, please try again later.');
+            // }
+            const message = e.isAxiosError ? e.message : e?.response?.data || e?.response?.message
+            log.error('...[SRV - SIDOOH]: ERR... ' + latency + 'ms', { message });
+            throw new Error('Something went wrong, please try again later.');
         }
     };
+
+    static callback(transaction: { [key: string]: any }) {
+        log.info('--- ...[SRV - SIDOOH]: CB... ---', transaction)
+
+        const { extra: { ipn } } = transaction;
+
+        this.fetch(ipn, 'POST', transaction).catch(
+            error => {
+                // log.error('...[SRV - SIDOOH]: ERR - ', error)
+            })
+    }
 }

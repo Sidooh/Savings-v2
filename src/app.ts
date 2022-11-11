@@ -3,14 +3,14 @@ import cors from "cors";
 import helmet from "helmet";
 import 'express-async-errors';
 import log from './utils/logger';
-import routes from './routes';
+import routes, { api } from './routes';
 import { ErrorMiddleware } from './http/middleware/error.middleware';
 import { User } from './http/middleware/user.middleware';
 import cookieParser from "cookie-parser";
 import { NotFoundError } from './exceptions/not-found.err';
-import {Auth} from "./http/middleware/auth.middleware";
+import { Auth } from "./http/middleware/auth.middleware";
 import * as Sentry from "@sentry/node";
-import {env} from "./utils/validate.env";
+import { env } from "./utils/validate.env";
 import * as Tracing from "@sentry/tracing";
 
 class App {
@@ -53,13 +53,15 @@ class App {
         this.app.use(cors());
         this.app.use(helmet());
         this.app.use(json());
-        this.app.use(urlencoded({extended: false}));
+        this.app.use(urlencoded({ extended: false }));
         this.app.use(cookieParser());
         this.app.use(User);
 
         /** --------------------------------    INIT API ROUTES
          * */
-        this.app.use('/api/v1', [Auth], routes);
+        this.app.use('/', [Auth], api);
+        this.app.use('/', routes);
+        // [...routes.stack, ...api.stack].map(r => console.log(r.route.path))
         this.app.all('*', async () => {
             throw new NotFoundError();
         });
@@ -69,7 +71,7 @@ class App {
         this.app.use(ErrorMiddleware);
     }
 
-    listen(): void {
+    serve(): void {
         this.app.listen(this.port, async () => {
             log.info(`App listening on port: ${this.port}`);
         }).on('error', err => log.error('Startup Error: ', err));

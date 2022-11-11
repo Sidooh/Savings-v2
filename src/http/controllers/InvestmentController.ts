@@ -26,14 +26,26 @@ export default class InvestmentController extends Controller {
 
         const investments = await Repo.getGroupCollectiveInvestments(String(with_relations));
 
-        res.send(this.successResponse({data: investments}));
+        res.send(this.successResponse({ data: investments }));
     };
 
-    static getGroupSubInvestments = async ({query}: Request, res: Response) => {
-        const {with_relations} = query;
+    static getGroupSubInvestments = async ({ query }: Request, res: Response) => {
+        const { with_relations } = query;
 
         const investments = await Repo.getGroupSubInvestments(String(with_relations));
 
-        res.send(this.successResponse({data: investments}));
+        res.send(this.successResponse({ data: investments }));
+    };
+
+    static calculateInterest = async (req: Request, res: Response) => {
+        (new InvestmentRepository()).dailyInterestCalculation()
+
+        res.send();
+    };
+
+    static allocateInterest = async (req: Request, res: Response) => {
+        (new InvestmentRepository()).monthlyInterestAllocation()
+
+        res.send();
     };
 }

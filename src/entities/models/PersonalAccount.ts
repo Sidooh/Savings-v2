@@ -37,9 +37,7 @@ export class PersonalAccount extends BaseEntity {
     @Column({type: 'bigint', unsigned: true})
     account_id;
 
-    @OneToMany(() => PersonalAccountTransaction, (transaction) => {
-        return transaction.personal_account;
-    }, {cascade: true})
+    @OneToMany(() => PersonalAccountTransaction, (transaction) => transaction.personal_account, { cascade: true })
     transactions: PersonalAccountTransaction[];
 
     @OneToMany(() => PersonalSubInvestment, (subInvestment) => {

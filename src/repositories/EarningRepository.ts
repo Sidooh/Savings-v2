@@ -94,11 +94,9 @@ export const EarningRepository = {
         return transactions;
     },
 
-    withdraw: async body => {
-        await SidoohAccounts.find(body.account_id);
-
+    withdraw: async (id, body) => {
         const personalAccount = await PersonalAccount.findOneBy({
-            account_id: body.account_id,
+            account_id: id,
             type: DefaultAccount.CURRENT
         });
 
@@ -108,9 +106,15 @@ export const EarningRepository = {
 
         const transaction = await PersonalAccountTransaction.save({
             amount: body.amount,
-            description: Description.ACCOUNT_WITHDRAWAL + (body.destination ? ' - ' + body.destination : ''),
+            description: Description.ACCOUNT_WITHDRAWAL,
             personal_account_id: personalAccount.id,
-            type: TransactionType.DEBIT
+            type: TransactionType.DEBIT,
+            extra: {
+                destination: body.destination,
+                destination_account: body.destination_account,
+                reference: body.reference,
+                ipn: body.ipn
+            }
         });
 
         personalAccount.balance -= body.amount;
