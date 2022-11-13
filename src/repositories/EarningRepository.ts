@@ -94,44 +94,32 @@ export const EarningRepository = {
         return transactions;
     },
 
-    withdraw: async body => {
-        const transactions = {
-            completed: {},
-            failed: {}
-        };
+    withdraw: async (id, body) => {
+        const personalAccount = await PersonalAccount.findOneBy({
+            account_id: id,
+            type: DefaultAccount.CURRENT
+        });
 
-        for (const acc of body) {
-            try {
-                await SidoohAccounts.find(acc.account_id);
+        if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
 
-                const personalAccount = await PersonalAccount.findOneBy({
-                    account_id: acc.account_id,
-                    type: DefaultAccount.CURRENT
-                });
+        if (personalAccount.balance - 50 <= body.amount) throw new BadRequestError("Insufficient balance!");
 
-                if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
-
-                if (personalAccount.balance - 50 <= acc.amount) throw new BadRequestError("Insufficient balance!");
-
-                const transaction = await PersonalAccountTransaction.save({
-                    amount: acc.amount,
-                    description: Description.ACCOUNT_WITHDRAWAL + ' - ' + acc.destination,
-                    personal_account_id: personalAccount.id,
-                    type: TransactionType.DEBIT
-                });
-
-                personalAccount.balance -= acc.amount;
-                await personalAccount.save();
-
-                transactions.completed[acc.ref] = transaction;
-            } catch (e) {
-                transactions.failed[acc.ref] = e.message;
+        const transaction = await PersonalAccountTransaction.save({
+            amount: body.amount,
+            description: Description.ACCOUNT_WITHDRAWAL,
+            personal_account_id: personalAccount.id,
+            type: TransactionType.DEBIT,
+            extra: {
+                destination: body.destination,
+                destination_account: body.destination_account,
+                reference: body.reference,
+                ipn: body.ipn
             }
-        }
-        // TODO: Is this good practice?
-        // if (transactions.completed.length === 0) transactions.completed = undefined
-        // if (transactions.failed.length === 0) transactions.failed = undefined
+        });
 
-        return transactions;
+        personalAccount.balance -= body.amount;
+        await personalAccount.save();
+
+        return transaction;
     }
 };

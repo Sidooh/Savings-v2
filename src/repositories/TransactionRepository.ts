@@ -1,26 +1,27 @@
 import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
 import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
-import { Description, SavingsAccountType, Status, TransactionType } from "../utils/enums";
+import { Description, Status, TransactionType } from "../utils/enums";
 import log from "../utils/logger";
 import { LessThan } from "typeorm";
 import SidoohPayments from "../services/SidoohPayments";
 import SidoohAccounts from "../services/SidoohAccounts";
 import { Payment } from "../entities/models/Payment";
-import SidoohProducts from "../services/SidoohProducts";
 import { NotFoundError } from '../exceptions/not-found.err';
+import { env } from "../utils/validate.env";
+import SidoohService from "../services/SidoohService";
 
 export const TransactionRepository = {
     getPersonalTransactionById: async (id, withRelations?: string) => {
         const relations = withRelations.split(',');
 
         const transaction = await PersonalAccountTransaction.findOne({
-            where: {id: Number(id)},
+            where: { id: Number(id) },
             select: ['id', 'type', 'description', 'amount', 'status', 'created_at'],
-            relations: {personal_account: relations.includes('personal_account') || relations.includes('account')}
+            relations: { personal_account: relations.includes('personal_account') || relations.includes('account') }
         }).then(async transaction => {
             let res: any = transaction;
             if (withRelations.split(',').includes('account')) {
-                res = {...transaction, account: await SidoohAccounts.find(transaction.personal_account.account_id)};
+                res = { ...transaction, account: await SidoohAccounts.find(transaction.personal_account.account_id) };
             }
 
             return res;
@@ -35,13 +36,13 @@ export const TransactionRepository = {
         const relations = withRelations.split(',');
 
         const transaction = await GroupAccountTransaction.findOne({
-            where: {id: Number(id)},
+            where: { id: Number(id) },
             select: ['id', 'type', 'description', 'amount', 'status', 'created_at'],
-            relations: {group_account: relations.includes('group_account') || relations.includes('account')}
+            relations: { group_account: relations.includes('group_account') || relations.includes('account') }
         }).then(async transaction => {
             let res: any = transaction;
             if (withRelations.split(',').includes('account')) {
-                res = {...transaction, account: await SidoohAccounts.find(transaction.group_account.account_id)};
+                res = { ...transaction, account: await SidoohAccounts.find(transaction.group_account.account_id) };
             }
 
             return res;
@@ -63,10 +64,10 @@ export const TransactionRepository = {
                 amount: true,
                 status: true,
                 created_at: true,
-                personal_account: {id: true, type: true, account_id: true}
+                personal_account: { id: true, type: true, account_id: true }
             },
-            order: {id: 'DESC'},
-            relations: {personal_account: relations.includes('personal_account') || relations.includes('account')}
+            order: { id: 'DESC' },
+            relations: { personal_account: relations.includes('personal_account') || relations.includes('account') }
         }).then(async transactions => {
             let res: any = transactions;
 
@@ -92,10 +93,10 @@ export const TransactionRepository = {
                 amount: true,
                 status: true,
                 created_at: true,
-                group_account: {id: true, balance: true, account_id: true, group_id: true}
+                group_account: { id: true, balance: true, account_id: true, group_id: true }
             },
-            order: {id: 'DESC'},
-            relations: {group_account: relations.includes('group_account') || relations.includes('account')}
+            order: { id: 'DESC' },
+            relations: { group_account: relations.includes('group_account') || relations.includes('account') }
         }).then(async transactions => {
             let res: any = transactions;
 
@@ -112,23 +113,23 @@ export const TransactionRepository = {
 
     getAllGroupTransactions: async (group_id, withGroup = null) => {
         return await GroupAccountTransaction.find({
-            where: {group_account: {group_id}},
+            where: { group_account: { group_id } },
             select: {
                 id: true,
                 type: true,
                 description: true,
                 amount: true,
                 status: true,
-                group_account: {id: true, balance: true, account_id: true, group_id: true}
+                group_account: { id: true, balance: true, account_id: true, group_id: true }
             },
-            order: {id: 'DESC'},
-            relations: {group_account: Boolean(withGroup)}
+            order: { id: 'DESC' },
+            relations: { group_account: Boolean(withGroup) }
         });
     },
 
 
     processPersonalWithdrawals: async () => {
-        log.info("Processing Personal Withdrawals...");
+        log.info("---> Processing Personal Withdrawals...");
 
         const transactions = await PersonalAccountTransaction.find({
             select: {
@@ -137,12 +138,14 @@ export const TransactionRepository = {
                 description: true,
                 amount: true,
                 status: true,
+                extra: true,
             },
             where: {
+                type: TransactionType.DEBIT,
                 status: Status.PENDING,
-                amount: LessThan(100),
+                amount: LessThan(1000),
             },
-            relations: {personal_account: true, payment: true}
+            relations: { personal_account: true, payment: true }
         });
 
         log.info(`...Processing ${transactions.length} transactions`);
@@ -156,39 +159,50 @@ export const TransactionRepository = {
 
                 if (t.payment) {
                     // If payment exists, just query the status and update accordingly
-                    await SidoohPayments.queryPayment(t.payment.reference)
-                        .then(async res => {
+                    await SidoohPayments.queryPayment(t.payment.payment_id)
+                        .then(async ({ data }) => {
+                                if (data && data.status === Status.COMPLETED) {
+                                    t.payment.status = Status.COMPLETED;
+                                    await t.payment.save();
 
-                            if (res && res.status === Status.COMPLETED) {
-                                t.payment.status = Status.COMPLETED;
-                                await t.payment.save();
+                                    t.status = Status.COMPLETED;
+                                    await t.save();
 
-                                t.status = Status.COMPLETED;
-                                await t.save();
+                                    results[t.id] = t;
 
-                                results[t.id] = t.payment;
-
-                                // Notify user
+                                    // Notify user
+                                    SidoohService.callback({
+                                        ...t,
+                                        personal_account: undefined,
+                                        payment: undefined,
+                                        deleted_at: undefined
+                                    })
                             }
 
-                            if (res && res.status == Status.FAILED) {
-                                log.info({res});
-                                t.payment.status = Status.FAILED;
-                                await t.payment.save();
+                                if (data && data.status == Status.FAILED) {
+                                    t.payment.status = Status.FAILED;
+                                    await t.payment.save();
 
-                                t.status = Status.FAILED;
-                                await t.save();
+                                    t.status = Status.FAILED;
+                                    await t.save();
 
-                                results[t.id] = t.payment;
+                                    results[t.id] = t;
 
-                                // Notify user
-                            }
+                                    // Notify user
+                                    SidoohService.callback({
+                                        ...t,
+                                        personal_account: undefined,
+                                        payment: undefined,
+                                        deleted_at: undefined
+                                    })
+                                }
 
-                            // TODO: Handle for other status or non-existent (undefined res)
-
-                        }, error => {
-                            throw new Error('Payment already initialized');
-                        });
+                                // TODO: Handle for other status or non-existent (undefined res)
+                                results[t.id] = t.status
+                            },
+                            async () => {
+                                results[t.id] = "Payment requested"
+                            });
                 } else {
                     if (t.personal_account.balance - 50 < t.amount) {
                         throw new Error('Account Balance is insufficient');
@@ -197,27 +211,38 @@ export const TransactionRepository = {
                     t.personal_account.balance -= t.amount;
                     await t.save();
 
+                    const { destination, destination_account }: { [key: string]: any } = t.extra
+
                     // Request Payment
-                    const description = t.description.split(' - ');
-                    const destination = description.length > 1 ? description[1] : account['phone'];
                     await SidoohPayments.requestPayment({
+                        account_id: account['id'],
                         amount: t.amount,
+                        description: Description.ACCOUNT_WITHDRAWAL,
+                        reference: t.id,
+                        source: 'FLOAT',
+                        source_account: 1,
+                        ipn: env().APP_URL + "/payments/callback",
                         destination,
-                        payable_type: SavingsAccountType.PERSONAL + '_SAVING_TRANSACTION',
-                        payable_id: t.id,
-                        account_id: account['id']
+                        destination_account
                     })
-                        .then(async res => {
-                                results[t.id] = await Payment.save({
-                                    type: TransactionType.DEBIT,
-                                    description: Description.ACCOUNT_WITHDRAWAL,
-                                    amount: t.amount,
+                        .then(async ({ data }) => {
+                                await Payment.save({
+                                    ...data,
+                                    payment_id: data.id,
+                                    // type: data.type,
+                                    // subtype: data.subtype,
+                                    // description: data.description,
+                                    // amount: data.amount,
+                                    // status: data.status,
+                                    // reference: data.reference,
+                                    // destination: res.destination,
                                     transaction: t,
-                                    reference: res.id,
                                 });
+
+                                results[t.id] = "Payment requested"
                             },
-                            async error => {
-                                throw new Error("Failed");
+                            () => {
+                                results[t.id] = "Failed to process payment"
                             });
 
                 }
@@ -232,24 +257,27 @@ export const TransactionRepository = {
                 results[t.id] = e.message;
             }
 
-            SidoohProducts.withdrawalCallback({...t, personal_account: undefined, payment: undefined});
+            // if (t.status !== Status.PENDING)
+            // SidoohService.callback({ ...t, personal_account: undefined, payment: undefined });
         }
 
-        log.info("...Processed Personal Withdrawals!", results);
+        log.info("<--- Processed Personal Withdrawals", results);
+
+        return results;
     },
 
 
     processPaymentCallback: async (data: any) => {
-        log.info('processPaymentCallback', {data});
+        log.info('processPaymentCallback', { data });
 
         const payment = await Payment.findOne({
             where: {
                 reference: data.id
             },
-            relations: {transaction: true}
+            relations: { transaction: true }
         });
 
-        log.info({payment});
+        log.info({ payment });
 
         if (data.status === Status.COMPLETED) {
             payment.status = Status.COMPLETED;
@@ -271,7 +299,7 @@ export const TransactionRepository = {
             // Notify user
         }
 
-        SidoohProducts.withdrawalCallback({...payment.transaction});
+        SidoohService.callback({ ...payment.transaction })
 
         return {};
     }

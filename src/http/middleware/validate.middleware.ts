@@ -1,6 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import Joi from 'joi';
-import log from '../../utils/logger';
 import { ValidationError } from '../../exceptions/validation.err';
 
 export const validate = (schema: Joi.Schema): RequestHandler => {
@@ -16,7 +15,7 @@ export const validate = (schema: Joi.Schema): RequestHandler => {
 
             next();
         } catch (err: any) {
-            log.error(err);
+            // log.error(err);
 
             const errors: Joi.ValidationErrorItem[] = [];
 

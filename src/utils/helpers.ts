@@ -14,4 +14,4 @@ export const circularReplacer = () => {
     };
 };
 
-export const Cache = new NodeCache({stdTTL: 100, checkperiod: 120});
+export const Cache = new NodeCache({ stdTTL: 15 * 60, checkperiod: 120 });
