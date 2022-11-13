@@ -44,7 +44,8 @@ export default class InvestmentRepository {
                 personal_account: {id: true, type: true, account_id: true}
             },
             order: {id: 'DESC'},
-            relations: {personal_account: relations.includes('personal_account') || relations.includes('account')}
+            relations: {personal_account: relations.includes('personal_account') || relations.includes('account')},
+            take: 10000,
         }).then(async subInvestments => {
             let res: any = subInvestments;
             if (withRelations.split(',').includes('account')) {
