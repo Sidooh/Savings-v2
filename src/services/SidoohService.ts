@@ -8,7 +8,11 @@ export default class SidoohService {
         let token = Cache.get('auth_token');
 
         if (!token) {
-            token = await this.authenticate();
+            try {
+                token = await this.authenticate();
+            } catch (e) {
+                throw new Error('Something went wrong, please try again later.');
+            }
 
             Cache.set('auth_token', token, 15 * 60);
         }
