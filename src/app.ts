@@ -59,8 +59,8 @@ class App {
 
         /** --------------------------------    INIT API ROUTES
          * */
-        this.app.use('/', [Auth], api);
         this.app.use('/', routes);
+        this.app.use('/', [Auth], api);
         // [...routes.stack, ...api.stack].map(r => console.log(r.route.path))
         this.app.all('*', async () => {
             throw new NotFoundError();
