@@ -2,7 +2,7 @@ import { cleanEnv, num, port, str, url } from 'envalid';
 
 export const env = () => cleanEnv(process.env, {
     APP_URL: url(),
-    PORT: port({ default: 3000 }),
+    PORT: port({ default: 8005 }),
 
     JWT_KEY: str(),
 
