@@ -21,7 +21,7 @@ export class PersonalAccountTransaction extends BaseEntity {
     @Column({ type: 'bigint', unsigned: true })
     personal_account_id;
 
-    @Column({ type: 'json', default: "{}" })
+    @Column({ type: 'json' })
     extra: {};
 
     @ManyToOne(() => PersonalAccount, (personalAccount) => personalAccount.transactions)
