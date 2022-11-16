@@ -6,7 +6,7 @@ import { Payment } from "./Payment";
 
 @Entity('personal_account_transactions')
 export class PersonalAccountTransaction extends BaseEntity {
-    @Column({length: 20})
+    @Column({ length: 20 })
     type: TransactionType;
 
     @Column()
@@ -21,7 +21,7 @@ export class PersonalAccountTransaction extends BaseEntity {
     @Column({ type: 'bigint', unsigned: true })
     personal_account_id;
 
-    @Column({ type: 'json', default: "{}" })
+    @Column({ type: 'json', nullable: true })
     extra: {};
 
     @ManyToOne(() => PersonalAccount, (personalAccount) => personalAccount.transactions)

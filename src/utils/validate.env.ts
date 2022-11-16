@@ -2,7 +2,7 @@ import { cleanEnv, num, port, str, url } from 'envalid';
 
 export const env = () => cleanEnv(process.env, {
     APP_URL: url(),
-    PORT: port({ default: 3000 }),
+    PORT: port({ default: 8005 }),
 
     JWT_KEY: str(),
 
@@ -14,7 +14,8 @@ export const env = () => cleanEnv(process.env, {
     DB_USERNAME: str(),
     DB_PASSWORD: str(),
     DB_DATABASE: str(),
-    DB_HOST: str({default: '127.0.0.7'}),
+    DB_SOCKET: str({ default: '' }),
+    DB_HOST: str({ default: '127.0.0.7' }),
 
     SLACK_HOOK_URL: url({ default: null }),
     SLACK_LOGGING: str({
@@ -36,9 +37,9 @@ export const env = () => cleanEnv(process.env, {
     INTEREST_RATE: num({ default: 9 }),
 
     DAILY_INTEREST_CALCULATION_CRON: str({ default: '0 21 * * *' }),
-    MONTHLY_INTEREST_ALLOCATION_CRON: str({default: '0 21 1 * *'}),
+    MONTHLY_INTEREST_ALLOCATION_CRON: str({ default: '0 21 1 * *' }),
 
-    ADMIN_CONTACTS: str({default: '254110039317,254714611696,254711414987'})
+    ADMIN_CONTACTS: str({ default: '254110039317,254714611696,254711414987' })
 });
 
 
