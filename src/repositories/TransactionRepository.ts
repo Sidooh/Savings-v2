@@ -17,9 +17,13 @@ export const TransactionRepository = {
         const transaction = await PersonalAccountTransaction.findOne({
             where: { id: Number(id) },
             select: ['id', 'type', 'description', 'amount', 'status', 'created_at'],
-            relations: { personal_account: relations.includes('personal_account') || relations.includes('account') }
+            relations: {
+                personal_account: relations.includes('personal_account') || relations.includes('account'),
+                payment: true
+            }
         }).then(async transaction => {
             let res: any = transaction;
+
             if (withRelations.split(',').includes('account')) {
                 res = { ...transaction, account: await SidoohAccounts.find(transaction.personal_account.account_id) };
             }
@@ -177,7 +181,7 @@ export const TransactionRepository = {
                                         payment: undefined,
                                         deleted_at: undefined
                                     })
-                            }
+                                }
 
                                 if (data && data.status == Status.FAILED) {
                                     t.payment.status = Status.FAILED;
