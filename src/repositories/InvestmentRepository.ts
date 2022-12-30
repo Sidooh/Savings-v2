@@ -24,10 +24,10 @@ export default class InvestmentRepository {
                 invested_at: true,
                 updated_at: true,
                 created_at: true,
-                personal_sub_investments: {id: true, amount: true, interest: true}
+                personal_sub_investments: { id: true, amount: true, interest: true }
             },
-            order: {id: 'DESC'},
-            relations: {personal_sub_investments: withRelations.split(',').includes('sub_investment')}
+            order: { id: 'DESC' },
+            relations: { personal_sub_investments: withRelations.split(',').includes('sub_investment') }
         });
     };
 
@@ -68,10 +68,10 @@ export default class InvestmentRepository {
                 investment_date: true,
                 maturity_date: true,
                 created_at: true,
-                group_sub_investments: {id: true, amount: true, interest: true}
+                group_sub_investments: { id: true, amount: true, interest: true }
             },
-            order: {id: 'DESC'},
-            relations: {group_sub_investments: withRelations.split(',').includes('sub_investment')}
+            order: { id: 'DESC' },
+            relations: { group_sub_investments: withRelations.split(',').includes('sub_investment') }
         });
     };
 
@@ -103,12 +103,12 @@ export default class InvestmentRepository {
         // await this.investGroups();
         await this.investPersonal();
 
-        const {groups, personal_accounts} = await this.calculateInterest(env().INTEREST_RATE);
+        const { groups, personal_accounts } = await this.calculateInterest(env.INTEREST_RATE);
 
         log.info("... Completed Investments");
 
         await SidoohNotify.notify(
-            env().ADMIN_CONTACTS.split(','),
+            env.ADMIN_CONTACTS.split(','),
             `STATUS:INVESTMENT\nCalculating Interest. 
             \n\nCredited ${groups} group accounts AND ${personal_accounts} personal accounts.`,
             EventType.STATUS_UPDATE
@@ -119,14 +119,14 @@ export default class InvestmentRepository {
         const startOfDay = moment().startOf('day').add(3, 'h').toDate();
         const endOfDay = moment().endOf('day').add(3, 'h').toDate();
 
-        let investment = await GroupCollectiveInvestment.findOneBy({created_at: Between(startOfDay, endOfDay)});
+        let investment = await GroupCollectiveInvestment.findOneBy({ created_at: Between(startOfDay, endOfDay) });
 
         if (investment) return investment;
 
-        let groups = await Group.findBy({balance: MoreThan(0)});
-        let totalAmount = groups.reduce((prev, group) => prev += group.balance, 0);
+        let groups = await Group.findBy({ balance: MoreThan(0) });
+        let totalAmount = groups.reduce((pV, group) => pV += group.balance, 0);
 
-        investment = await GroupCollectiveInvestment.save({amount: totalAmount});
+        investment = await GroupCollectiveInvestment.save({ amount: totalAmount });
 
         const subInvestmentModels = groups.map(g => GroupSubInvestment.create({
             amount: g.balance,
@@ -146,7 +146,7 @@ export default class InvestmentRepository {
         let investment = await PersonalCollectiveInvestment.findOneBy({ created_at: Between(startOfDay, endOfDay) });
 
         let accounts = await PersonalAccount.findBy({ balance: MoreThan(0) });
-        let totalAmount = accounts.reduce((prev, acc) => prev += acc.balance, 0);
+        let totalAmount = accounts.reduce((pV, acc) => pV += acc.balance, 0);
 
         investment = await PersonalCollectiveInvestment.save({ amount: totalAmount });
 
@@ -181,9 +181,9 @@ export default class InvestmentRepository {
         if (!dayRate) dayRate = this.getDailyRate(rate);
 
         const investment = await GroupCollectiveInvestment.findOne({
-            where: {interest_rate: IsNull()},
-            order: {id: 'desc'},
-            relations: {group_sub_investments: true}
+            where: { interest_rate: IsNull() },
+            order: { id: 'desc' },
+            relations: { group_sub_investments: true }
         });
 
         if (!investment) {
@@ -200,7 +200,7 @@ export default class InvestmentRepository {
             const interest = subInvestment.amount * (dayRate / 100);
 
             subInvestment.interest = interest;
-            await Group.getRepository().increment({id: subInvestment.group_id}, 'interest', interest);
+            await Group.getRepository().increment({ id: subInvestment.group_id }, 'interest', interest);
 
             await subInvestment.save();
         }
@@ -216,9 +216,9 @@ export default class InvestmentRepository {
         if (!dayRate) dayRate = this.getDailyRate(rate);
 
         const investment = await PersonalCollectiveInvestment.findOne({
-            where: {interest_rate: IsNull()},
-            order: {id: 'desc'},
-            relations: {personal_sub_investments: true}
+            where: { interest_rate: IsNull() },
+            order: { id: 'desc' },
+            relations: { personal_sub_investments: true }
         });
 
         if (!investment) {
@@ -236,7 +236,7 @@ export default class InvestmentRepository {
 
             subInvestment.interest = interest;
             await PersonalAccount.getRepository()
-                .increment({id: subInvestment.personal_account_id}, 'interest', interest);
+                .increment({ id: subInvestment.personal_account_id }, 'interest', interest);
 
             await subInvestment.save();
         }
@@ -294,7 +294,7 @@ export default class InvestmentRepository {
         log.info("...Completed Monthly Interest Allocation...");
 
         await SidoohNotify.notify(
-            env().ADMIN_CONTACTS.split(','),
+            env.ADMIN_CONTACTS.split(','),
             `STATUS:INVESTMENT\nAllocated Interest. 
             \n\n${0} Group Accounts and ${pA} Personal Accounts updated.`,
             EventType.STATUS_UPDATE

@@ -225,7 +225,7 @@ export const TransactionRepository = {
                         reference: t.id,
                         source: 'FLOAT',
                         source_account: 1,
-                        ipn: env().APP_URL + "/payments/callback",
+                        ipn: env.APP_URL + "/payments/callback",
                         destination,
                         destination_account
                     })

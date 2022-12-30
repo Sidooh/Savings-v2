@@ -68,9 +68,8 @@ export default class SidoohService {
 
         const { extra: { ipn } } = transaction;
 
-        this.fetch(ipn, 'POST', transaction).catch(
-            error => {
-                // log.error('...[SRV - SIDOOH]: ERR - ', error)
-            })
+        this.fetch(ipn, 'POST', transaction).catch(err => {
+            log.error('...[SRV - SIDOOH]: ERR - ', err)
+        })
     }
 }

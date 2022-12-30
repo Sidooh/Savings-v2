@@ -26,7 +26,7 @@ class App {
         /** --------------------------------    INIT SENTRY
          * */
         Sentry.init({
-            dsn: env().SENTRY_DSN,
+            dsn: env.SENTRY_DSN,
             integrations: [
                 // enable HTTP calls tracing
                 new Sentry.Integrations.Http({ tracing: true }),
@@ -34,10 +34,9 @@ class App {
                 new Tracing.Integrations.Express({ app: this.app }),
             ],
 
-            // Set tracesSampleRate to 1.0 to capture 100%
-            // of transactions for performance monitoring.
+            // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
             // We recommend adjusting this value in production
-            tracesSampleRate: env().SENTRY_TRACES_SAMPLE_RATE,
+            tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
         });
 
         // RequestHandler creates a separate execution context using domains, so that every

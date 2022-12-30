@@ -8,7 +8,6 @@ import DashboardController from "../http/controllers/DashboardController";
 import TransactionController from "../http/controllers/TransactionController";
 import InvestmentController from "../http/controllers/InvestmentController";
 
-
 const apiRouter = new RouteGroup('/api/v1', Router());
 
 apiRouter.group('/accounts', router => {

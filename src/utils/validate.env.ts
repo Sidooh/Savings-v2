@@ -1,6 +1,6 @@
 import { cleanEnv, num, port, str, url } from 'envalid';
 
-export const env = () => cleanEnv(process.env, {
+export const validateEnv = () => cleanEnv(process.env, {
     APP_URL: url(),
     PORT: port({ default: 8005 }),
 
@@ -42,7 +42,4 @@ export const env = () => cleanEnv(process.env, {
     ADMIN_CONTACTS: str({ default: '254110039317,254714611696,254711414987' })
 });
 
-
-export default function validateEnv(): void {
-    env();
-}
+export const env = validateEnv();
