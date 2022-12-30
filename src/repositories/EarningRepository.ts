@@ -36,7 +36,7 @@ export const EarningRepository = {
                     account_id: record.account_id
                 });
 
-                let currentAcc, lockedAcc: PersonalAccount;
+                let currentAcc: PersonalAccount, lockedAcc: PersonalAccount;
                 for (const acc of accounts) {
                     if (acc.type === DefaultAccount.LOCKED) {
                         lockedAcc = acc;
@@ -48,25 +48,26 @@ export const EarningRepository = {
                 }
 
                 if (!currentAcc) {
-                    currentAcc = await PersonalAccount.save({
+                    currentAcc = PersonalAccount.create({
                         type: DefaultAccount.CURRENT,
                         account_id: record.account_id,
                         balance: record.current_amount
                     });
+                    await PersonalAccount.insert(currentAcc)
                 } else {
                     currentAcc.balance += record.current_amount;
                     await currentAcc.save();
                 }
 
                 if (!lockedAcc) {
-                    lockedAcc = await PersonalAccount.save({
+                    lockedAcc = await PersonalAccount.create({
                         type: DefaultAccount.LOCKED,
                         account_id: record.account_id,
                         balance: record.locked_amount
                     });
+                    await PersonalAccount.insert(lockedAcc)
                 } else {
-                    lockedAcc.balance += record.locked_amount;
-                    await lockedAcc.save();
+                    await PersonalAccount.update({ id: lockedAcc.id }, { balance: record.locked_amount })
                 }
 
                 const cTransaction = await PersonalAccountTransaction.save({

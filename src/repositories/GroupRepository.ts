@@ -3,6 +3,7 @@ import { GroupAccountTransaction } from '../entities/models/GroupAccountTransact
 import { Description, TransactionType } from '../utils/enums';
 import { NotFoundError } from '../exceptions/not-found.err';
 import SidoohAccounts from '../services/SidoohAccounts';
+import { GroupAccount } from "../entities/models/GroupAccount";
 
 export const GroupRepository = {
     index: async (withGroupAccounts = null) => {
@@ -53,14 +54,17 @@ export const GroupRepository = {
             relations: { group_accounts: true }
         });
 
-        if (!group) group = await Group.save({
-            name,
-            target_amount,
-            frequency_amount,
-            frequency,
-            settings: { min_frequency_amount },
-            group_accounts: [{ account_id }]
-        });
+        if (!group) {
+            group = Group.create({
+                name,
+                target_amount,
+                frequency_amount,
+                frequency,
+                settings: { min_frequency_amount },
+                group_accounts: [{ account_id }]
+            });
+            await Group.insert(group)
+        }
 
         return group;
     },
@@ -72,17 +76,16 @@ export const GroupRepository = {
         if (!group) throw new NotFoundError("Group Not Found!");
         if (!groupAccount) throw new NotFoundError("Group Account Not Found!");
 
-        const transaction = await GroupAccountTransaction.save({
+        const transaction = GroupAccountTransaction.create({
             amount,
             description: Description.ACCOUNT_DEPOSIT,
             group_account_id: groupAccount.id,
             type: TransactionType.CREDIT
         });
+        await GroupAccountTransaction.insert(transaction)
 
-        groupAccount.balance += amount;
-        group.balance += amount;
-        await groupAccount.save();
-        await group.save();
+        await GroupAccount.update({ id: groupAccount.id }, { balance: groupAccount.balance + amount })
+        await Group.update({ id: groupId }, { balance: group.balance + amount })
 
         return transaction;
     },

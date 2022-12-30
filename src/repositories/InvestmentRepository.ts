@@ -126,7 +126,8 @@ export default class InvestmentRepository {
         let groups = await Group.findBy({ balance: MoreThan(0) });
         let totalAmount = groups.reduce((pV, group) => pV += group.balance, 0);
 
-        investment = await GroupCollectiveInvestment.save({ amount: totalAmount });
+        investment = GroupCollectiveInvestment.create({ amount: totalAmount });
+        await GroupCollectiveInvestment.insert(investment)
 
         const subInvestmentModels = groups.map(g => GroupSubInvestment.create({
             amount: g.balance,
@@ -134,7 +135,7 @@ export default class InvestmentRepository {
             group_collective_investment_id: investment.id
         }));
 
-        await GroupSubInvestment.save(subInvestmentModels);
+        await GroupSubInvestment.insert(subInvestmentModels);
 
         return investment;
     };
@@ -148,7 +149,8 @@ export default class InvestmentRepository {
         let accounts = await PersonalAccount.findBy({ balance: MoreThan(0) });
         let totalAmount = accounts.reduce((pV, acc) => pV += acc.balance, 0);
 
-        investment = await PersonalCollectiveInvestment.save({ amount: totalAmount });
+        investment = PersonalCollectiveInvestment.create({ amount: totalAmount });
+        await PersonalCollectiveInvestment.insert(investment)
 
         const subInvestmentModels = accounts.map(acc => PersonalSubInvestment.create({
             amount: acc.balance,
@@ -156,7 +158,7 @@ export default class InvestmentRepository {
             personal_collective_investment_id: investment.id
         }));
 
-        await PersonalSubInvestment.save(subInvestmentModels);
+        await PersonalSubInvestment.insert(subInvestmentModels);
 
         return investment;
     };
@@ -270,25 +272,28 @@ export default class InvestmentRepository {
         // });
 
         const pA = await PersonalAccount.find({ select: ['id', 'balance', 'interest'] }).then(accounts => {
+            let accountsCount = 0;
             accounts.forEach(async a => {
                 if (a.interest > 0) {
                     a.balance += a.interest;
 
-                    await PersonalAccountTransaction.save({
+                    await PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
                         amount: a.interest,
                         type: TransactionType.CREDIT,
                         description: Description.MONTHLY_INTEREST_ALLOCATION,
                         personal_account_id: a.id,
                         status: Status.COMPLETED
-                    });
+                    }));
 
                     a.interest = 0;
 
-                    await a.save();
+                    await PersonalAccount.update({ id: a.id }, { interest: 0 })
+
+                    accountsCount++
                 }
             });
 
-            return accounts.length;
+            return accountsCount;
         });
 
         log.info("...Completed Monthly Interest Allocation...");
