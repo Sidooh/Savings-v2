@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany } from "typeorm";
-import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
+import { BaseEntity, jsonColumnType, NumericColumnTransformer } from './BaseEntity';
 import { Duration, Frequency, GroupType, Status } from '../../utils/enums';
 import { GroupAccount } from './GroupAccount';
 import { GroupSubInvestment } from './GroupSubInvestment';
@@ -33,7 +33,7 @@ export class Group extends BaseEntity {
     @Column({length: 20, default: Status.INACTIVE})
     status: Status;
 
-    @Column({type: 'json', nullable: true})
+    @Column({type: jsonColumnType, nullable: true})
     settings: { min_frequency_amount: number };
 
     @OneToMany(() => GroupAccount, (groupAccount) => groupAccount.group, {

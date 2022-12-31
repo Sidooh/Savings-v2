@@ -13,8 +13,6 @@ export default class SidoohService {
             } catch (e) {
                 throw new Error('Something went wrong, please try again later.');
             }
-
-            Cache.set('auth_token', token, 15 * 60);
         }
 
         return axios.create({
@@ -33,6 +31,8 @@ export default class SidoohService {
         const url = `${CONFIG.sidooh.services.accounts.url}/users/signin`;
 
         const { data: { access_token } } = await axios.post(url, { email: 'aa@a.a', password: '12345678' });
+
+        Cache.set('auth_token', access_token, 15 * 60);
 
         return access_token;
     };

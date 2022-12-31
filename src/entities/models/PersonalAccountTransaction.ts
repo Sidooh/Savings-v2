@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, OneToOne } from "typeorm";
-import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
+import { BaseEntity, jsonColumnType, NumericColumnTransformer } from './BaseEntity';
 import { Status, TransactionType } from '../../utils/enums';
 import { PersonalAccount } from './PersonalAccount';
 import { Payment } from "./Payment";
@@ -21,7 +21,7 @@ export class PersonalAccountTransaction extends BaseEntity {
     @Column({ type: 'bigint', unsigned: true })
     personal_account_id;
 
-    @Column({ type: 'json', nullable: true })
+    @Column({ type: jsonColumnType, nullable: true })
     extra: {};
 
     @ManyToOne(() => PersonalAccount, (personalAccount) => personalAccount.transactions)

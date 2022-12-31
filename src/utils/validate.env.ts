@@ -1,6 +1,7 @@
-import { cleanEnv, num, port, str, url } from 'envalid';
+import { bool, cleanEnv, num, port, str, url } from 'envalid';
 
-export const validateEnv = () => cleanEnv(process.env, {
+export const env = cleanEnv(process.env, {
+    NODE_ENV: str({ choices: ['development', 'test', 'production', 'staging'], default: undefined }),
     APP_URL: url(),
     PORT: port({ default: 8005 }),
 
@@ -11,17 +12,21 @@ export const validateEnv = () => cleanEnv(process.env, {
         choices: ['development', 'production']
     }),
 
+    DB_PORT: num({ default: 3306 }),
     DB_USERNAME: str(),
     DB_PASSWORD: str(),
     DB_DATABASE: str(),
     DB_SOCKET: str({ default: '' }),
     DB_HOST: str({ default: '127.0.0.7' }),
 
-    SLACK_HOOK_URL: url({ default: null }),
-    SLACK_LOGGING: str({
-        default: 'disabled',
-        choices: ["enabled", "disabled"]
+    LOG_LEVEL: str({
+        //  In order of priority - highest to lowest
+        choices: ['emerg', 'alert', 'crit', 'error', 'warn', 'notice', 'info', 'debug'],
+        default: 'debug'
     }),
+
+    SLACK_HOOK_URL: url({ default: '' }),
+    ENABLE_SLACK_LOGGING: bool({ default: true }),
 
     SIDOOH_ACCOUNTS_API_URL: url({ default: 'http://localhost:8000/api/v1' }),
     SIDOOH_NOTIFY_API_URL: url({ default: 'http://localhost:8003/api/v1' }),
@@ -41,5 +46,3 @@ export const validateEnv = () => cleanEnv(process.env, {
 
     ADMIN_CONTACTS: str({ default: '254110039317,254714611696,254711414987' })
 });
-
-export const env = validateEnv();

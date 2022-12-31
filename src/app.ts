@@ -44,7 +44,6 @@ class App {
         this.app.use(Sentry.Handlers.requestHandler());
         // TracingHandler creates a trace for every incoming request
         this.app.use(Sentry.Handlers.tracingHandler());
-
         this.app.use(Sentry.Handlers.errorHandler());
 
         /** --------------------------------    INIT APP MIDDLEWARE
