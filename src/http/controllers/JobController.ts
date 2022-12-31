@@ -4,7 +4,6 @@ import Controller from "./Controller";
 
 
 export default class JobController extends Controller {
-
     static processPersonalWithdrawals = async (req: Request, res: Response) => {
         const data = await TransactionRepository.processPersonalWithdrawals()
 

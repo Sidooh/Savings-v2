@@ -21,6 +21,7 @@ export default class EarningController extends Controller{
 
         try {
             const transaction = await Repo.withdraw(Number(params.accountId), body);
+
             res.status(200).send(this.successResponse({ data: transaction }));
         } catch (e) {
             res.status(400).send(this.errorResponse({ message: e.message, errors: [] }));
