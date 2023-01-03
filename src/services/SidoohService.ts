@@ -41,8 +41,8 @@ export default class SidoohService {
         log.info('...[SRV - SIDOOH]: REQ...', { url, method, data });
 
         const http = await this.http();
-
         const t = performance.now()
+
         try {
             const response = await http[method.toLowerCase()](url, data).then(({ data }) => data);
             const latency = Math.round(performance.now() - t)
@@ -53,12 +53,9 @@ export default class SidoohService {
         } catch (e) {
             const latency = Math.round(performance.now() - t)
 
-            // if (e.getCode() === 401) {
-            //     log.error('...[SRV - SIDOOH]: ERR... '+latency+'ms', e.response);
-            //     throw new Error('Something went wrong, please try again later.');
-            // }
             const message = e.isAxiosError ? e.message : e?.response?.data || e?.response?.message
             log.error('...[SRV - SIDOOH]: ERR... ' + latency + 'ms', { message });
+
             throw new Error('Something went wrong, please try again later.');
         }
     };

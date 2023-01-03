@@ -178,7 +178,7 @@ export default class InvestmentRepository {
     };
 
     calculateInterestForGroups = async (rate: number, dayRate?: number) => {
-        log.info("...Calculating interest - groups...");
+        log.info("...Calculating interest - personal-accounts...");
 
         if (!dayRate) dayRate = this.getDailyRate(rate);
 
@@ -251,8 +251,8 @@ export default class InvestmentRepository {
     monthlyInterestAllocation = async () => {
         log.info("...[REPO INVESTMENT] Monthly Interest Allocation...");
 
-        // const gA = await Group.find({select: ['id', 'balance', 'interest']}).then(groups => {
-        //     groups.forEach(async g => {
+        // const gA = await Group.find({select: ['id', 'balance', 'interest']}).then(personal-accounts => {
+        //     personal-accounts.forEach(async g => {
         //         g.balance += g.interest;
         //
         //         await GroupAccountTransaction.save({
@@ -268,7 +268,7 @@ export default class InvestmentRepository {
         //         await g.save();
         //     });
         //
-        //     return groups.length;
+        //     return personal-accounts.length;
         // });
 
         const pA = await PersonalAccount.find({ select: ['id', 'balance', 'interest'] }).then(accounts => {

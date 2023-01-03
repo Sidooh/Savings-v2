@@ -24,14 +24,12 @@ export default class SidoohAccounts extends SidoohService {
 
         const url = `${CONFIG.sidooh.services.accounts.url}/accounts/${id}?with_user=true`;
 
-        let acc = Cache.get(id);
+        let acc = Cache.get(`account_${id}`);
 
         if (!acc) {
-            await this.fetch(url).then(
-                ({ data }) => {
-                    acc = data;
-                    Cache.set(id, acc, moment().add(1, 'd').diff(moment(), 's'));
-                });
+            await this.fetch(url)
+                .then(({ data }) => Cache.set(`account_${id}`, data, moment().add(1, 'd').diff(moment(), 's')))
+                .catch(err => console.log(err));
         }
 
         if (!acc) throw new NotFoundError('Invalid account');

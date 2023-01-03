@@ -4,25 +4,31 @@ import axios from 'axios';
  * _________________________________________________________________    MOCKS
  * */
 
-jest.mock('axios');
+jest.mock('axios'/*, () => ({
+    create: jest.fn(() => ({
+        get: jest.fn(() => Promise.resolve())
+    })),
+    get: jest.fn(() => Promise.resolve())
+})*/);
 export const mockedAxios = axios as jest.Mocked<typeof axios>;
+
 jest.mock('winston', () => ({
-    config      : {
+    config: {
         syslog: []
     },
-    format      : {
-        combine  : jest.fn(),
+    format: {
+        combine: jest.fn(),
         timestamp: jest.fn(),
-        printf   : jest.fn(),
-        align    : jest.fn()
+        printf: jest.fn(),
+        align: jest.fn()
     },
     createLogger: jest.fn().mockReturnValue({
-        info : jest.fn(),
+        info: jest.fn(),
         debug: jest.fn(),
         error: jest.fn()
     }),
-    transports  : {
-        File   : jest.fn(),
+    transports: {
+        File: jest.fn(),
         Console: jest.fn()
     }
 }));

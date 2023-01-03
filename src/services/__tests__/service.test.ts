@@ -2,11 +2,9 @@ import SidoohService from "../SidoohService";
 import { Cache } from "../../utils/helpers";
 import { mockedAxios } from "../../../tests/mocks";
 
-describe("Authentication tests", () => {
+describe("Testing Authentication", () => {
     it("Should authenticate with accounts service", async () => {
-        mockedAxios.post.mockResolvedValueOnce({
-            data: { access_token: 'something nice' }
-        });
+        mockedAxios.post.mockResolvedValueOnce({ data: { access_token: 'something nice' } });
 
         await SidoohService.authenticate()
 
