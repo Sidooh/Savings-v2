@@ -1,8 +1,7 @@
 import supertest from 'supertest';
 import App from '../../../../app';
-import { testToken } from "../../../../../tests/setup";
 import { env } from "../../../../utils/validate.env";
-import { Cache } from "../../../../utils/helpers";
+import { Cache, testToken } from "../../../../utils/helpers";
 
 const { app } = new App(env.PORT);
 const request = supertest(app);

@@ -1,7 +1,6 @@
 import supertest from 'supertest';
 import App from '../../../../app';
-import { testToken } from "../../../../../tests/setup";
-import { Cache } from "../../../../utils/helpers";
+import { Cache, testToken } from "../../../../utils/helpers";
 
 const { app } = new App(Number(process.env.PORT || 4000));
 const request = supertest(app);
