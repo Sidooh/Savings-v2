@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
-import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
+import { BaseEntity, jsonColumnType, NumericColumnTransformer } from './BaseEntity';
 import { PersonalAccountTransaction } from "./PersonalAccountTransaction";
 
 @Entity('payments')
@@ -26,7 +26,7 @@ export class Payment extends BaseEntity {
     @Column()
     reference: string;
 
-    @Column({ type: 'json', nullable: true })
+    @Column({ type: jsonColumnType, nullable: true })
     destination: {};
 
     @OneToOne(() => PersonalAccountTransaction, (personalAccountTransaction) => personalAccountTransaction.payment)

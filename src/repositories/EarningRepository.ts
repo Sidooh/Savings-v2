@@ -20,7 +20,7 @@ export const EarningRepository = {
         });
     },
 
-    store: async body => {
+    deposit: async body => {
         const transactions = {
             completed: {},
             failed: {}
@@ -36,37 +36,31 @@ export const EarningRepository = {
                     account_id: record.account_id
                 });
 
-                let currentAcc, lockedAcc: PersonalAccount;
-                for (const acc of accounts) {
-                    if (acc.type === DefaultAccount.LOCKED) {
-                        lockedAcc = acc;
-                    }
-
-                    if (acc.type === DefaultAccount.CURRENT) {
-                        currentAcc = acc;
-                    }
-                }
+                let currentAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.CURRENT),
+                    lockedAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.LOCKED);
 
                 if (!currentAcc) {
-                    currentAcc = await PersonalAccount.save({
+                    currentAcc = PersonalAccount.create({
                         type: DefaultAccount.CURRENT,
                         account_id: record.account_id,
                         balance: record.current_amount
                     });
+
+                    await PersonalAccount.insert(currentAcc)
                 } else {
                     currentAcc.balance += record.current_amount;
                     await currentAcc.save();
                 }
 
                 if (!lockedAcc) {
-                    lockedAcc = await PersonalAccount.save({
+                    lockedAcc = await PersonalAccount.create({
                         type: DefaultAccount.LOCKED,
                         account_id: record.account_id,
                         balance: record.locked_amount
                     });
+                    await PersonalAccount.insert(lockedAcc)
                 } else {
-                    lockedAcc.balance += record.locked_amount;
-                    await lockedAcc.save();
+                    await PersonalAccount.update({ id: lockedAcc.id }, { balance: record.locked_amount })
                 }
 
                 const cTransaction = await PersonalAccountTransaction.save({

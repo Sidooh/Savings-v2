@@ -8,19 +8,18 @@ import DashboardController from "../http/controllers/DashboardController";
 import TransactionController from "../http/controllers/TransactionController";
 import InvestmentController from "../http/controllers/InvestmentController";
 
-
 const apiRouter = new RouteGroup('/api/v1', Router());
 
 apiRouter.group('/accounts', router => {
     router.group('/:accountId', router => {
         router.get('/personal-accounts', PersonalAccountController.getByAccountId);
-        // router.get('/groups', GroupController.getByAccountId);
+        // router.get('/personal-accounts', GroupController.getByAccountId);
         router.post('/defaults', PersonalAccountController.storeDefaults);
         router.get('/earnings', EarningController.getAccountEarnings);
         router.post('/earnings/withdraw', validate(EarningRequest.withdraw), EarningController.withdraw);
     });
 
-    router.post('/earnings', validate(EarningRequest.store), EarningController.store);
+    router.post('/earnings', validate(EarningRequest.store), EarningController.deposit);
 });
 
 // TODO: Restructure routing
@@ -47,7 +46,7 @@ apiRouter.group('/personal-accounts', router => {
 //     router.get('/:id', GroupAccountController.getById);
 // });
 
-// apiRouter.group('/groups', router => {
+// apiRouter.group('/personal-accounts', router => {
 //     router.get('/collective-investments', InvestmentController.getGroupCollectiveInvestments);
 //     router.get('/sub-investments', InvestmentController.getGroupSubInvestments);
 //

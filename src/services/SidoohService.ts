@@ -13,8 +13,6 @@ export default class SidoohService {
             } catch (e) {
                 throw new Error('Something went wrong, please try again later.');
             }
-
-            Cache.set('auth_token', token, 15 * 60);
         }
 
         return axios.create({
@@ -34,6 +32,8 @@ export default class SidoohService {
 
         const { data: { access_token } } = await axios.post(url, { email: 'aa@a.a', password: '12345678' });
 
+        Cache.set('auth_token', access_token, 15 * 60);
+
         return access_token;
     };
 
@@ -41,8 +41,8 @@ export default class SidoohService {
         log.info('...[SRV - SIDOOH]: REQ...', { url, method, data });
 
         const http = await this.http();
-
         const t = performance.now()
+
         try {
             const response = await http[method.toLowerCase()](url, data).then(({ data }) => data);
             const latency = Math.round(performance.now() - t)
@@ -53,12 +53,9 @@ export default class SidoohService {
         } catch (e) {
             const latency = Math.round(performance.now() - t)
 
-            // if (e.getCode() === 401) {
-            //     log.error('...[SRV - SIDOOH]: ERR... '+latency+'ms', e.response);
-            //     throw new Error('Something went wrong, please try again later.');
-            // }
             const message = e.isAxiosError ? e.message : e?.response?.data || e?.response?.message
             log.error('...[SRV - SIDOOH]: ERR... ' + latency + 'ms', { message });
+
             throw new Error('Something went wrong, please try again later.');
         }
     };
@@ -68,9 +65,8 @@ export default class SidoohService {
 
         const { extra: { ipn } } = transaction;
 
-        this.fetch(ipn, 'POST', transaction).catch(
-            error => {
-                // log.error('...[SRV - SIDOOH]: ERR - ', error)
-            })
+        this.fetch(ipn, 'POST', transaction).catch(err => {
+            log.error('...[SRV - SIDOOH]: ERR - ', err)
+        })
     }
 }
