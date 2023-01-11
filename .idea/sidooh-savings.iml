@@ -11,6 +11,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.idea/runConfigurations" />
       <excludeFolder url="file://$MODULE_DIR$/.yarn/cache" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/y.hide" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
