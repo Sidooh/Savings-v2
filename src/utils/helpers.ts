@@ -1,4 +1,7 @@
 import NodeCache from 'node-cache';
+import jwt from "jsonwebtoken";
+import moment from "moment/moment";
+import { env } from "./validate.env";
 
 export const circularReplacer = () => {
     const visited = new WeakSet();
@@ -14,4 +17,6 @@ export const circularReplacer = () => {
     };
 };
 
-export const Cache = new NodeCache({stdTTL: 100, checkperiod: 120});
+export const Cache = new NodeCache({ stdTTL: 15 * 60, checkperiod: 120 });
+
+export const testToken = 'Bearer ' + jwt.sign({ iat: moment().add(15, 'm').unix() }, env.JWT_KEY)

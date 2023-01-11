@@ -20,7 +20,7 @@ export const EarningRepository = {
         });
     },
 
-    store: async body => {
+    deposit: async body => {
         const transactions = {
             completed: {},
             failed: {}
@@ -36,37 +36,31 @@ export const EarningRepository = {
                     account_id: record.account_id
                 });
 
-                let currentAcc, lockedAcc: PersonalAccount;
-                for (const acc of accounts) {
-                    if (acc.type === DefaultAccount.LOCKED) {
-                        lockedAcc = acc;
-                    }
-
-                    if (acc.type === DefaultAccount.CURRENT) {
-                        currentAcc = acc;
-                    }
-                }
+                let currentAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.CURRENT),
+                    lockedAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.LOCKED);
 
                 if (!currentAcc) {
-                    currentAcc = await PersonalAccount.save({
+                    currentAcc = PersonalAccount.create({
                         type: DefaultAccount.CURRENT,
                         account_id: record.account_id,
                         balance: record.current_amount
                     });
+
+                    await PersonalAccount.insert(currentAcc)
                 } else {
                     currentAcc.balance += record.current_amount;
                     await currentAcc.save();
                 }
 
                 if (!lockedAcc) {
-                    lockedAcc = await PersonalAccount.save({
+                    lockedAcc = await PersonalAccount.create({
                         type: DefaultAccount.LOCKED,
                         account_id: record.account_id,
                         balance: record.locked_amount
                     });
+                    await PersonalAccount.insert(lockedAcc)
                 } else {
-                    lockedAcc.balance += record.locked_amount;
-                    await lockedAcc.save();
+                    await PersonalAccount.update({ id: lockedAcc.id }, { balance: record.locked_amount })
                 }
 
                 const cTransaction = await PersonalAccountTransaction.save({
@@ -94,44 +88,32 @@ export const EarningRepository = {
         return transactions;
     },
 
-    withdraw: async body => {
-        const transactions = {
-            completed: {},
-            failed: {}
-        };
+    withdraw: async (id, body) => {
+        const personalAccount = await PersonalAccount.findOneBy({
+            account_id: id,
+            type: DefaultAccount.CURRENT
+        });
 
-        for (const acc of body) {
-            try {
-                await SidoohAccounts.find(acc.account_id);
+        if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
 
-                const personalAccount = await PersonalAccount.findOneBy({
-                    account_id: acc.account_id,
-                    type: DefaultAccount.CURRENT
-                });
+        if (personalAccount.balance - 50 <= body.amount) throw new BadRequestError("Insufficient balance!");
 
-                if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
-
-                if (personalAccount.balance - 50 <= acc.amount) throw new BadRequestError("Insufficient balance!");
-
-                const transaction = await PersonalAccountTransaction.save({
-                    amount: acc.amount,
-                    description: Description.ACCOUNT_WITHDRAWAL + ' - ' + acc.destination,
-                    personal_account_id: personalAccount.id,
-                    type: TransactionType.DEBIT
-                });
-
-                personalAccount.balance -= acc.amount;
-                await personalAccount.save();
-
-                transactions.completed[acc.ref] = transaction;
-            } catch (e) {
-                transactions.failed[acc.ref] = e.message;
+        const transaction = await PersonalAccountTransaction.save({
+            amount: body.amount,
+            description: Description.ACCOUNT_WITHDRAWAL,
+            personal_account_id: personalAccount.id,
+            type: TransactionType.DEBIT,
+            extra: {
+                destination: body.destination,
+                destination_account: body.destination_account,
+                reference: body.reference,
+                ipn: body.ipn
             }
-        }
-        // TODO: Is this good practice?
-        // if (transactions.completed.length === 0) transactions.completed = undefined
-        // if (transactions.failed.length === 0) transactions.failed = undefined
+        });
 
-        return transactions;
+        personalAccount.balance -= body.amount;
+        await personalAccount.save();
+
+        return transaction;
     }
 };

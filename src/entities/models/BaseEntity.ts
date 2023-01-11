@@ -5,8 +5,11 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from 'typeorm';
+import { env } from "../../utils/validate.env";
 
-export const dateColumnType = process.env.NODE_ENV === 'test' ? 'datetime' : 'timestamp';
+export const dateColumnType = env.NODE_ENV === 'test' ? 'datetime' : 'timestamp';
+export const intColumnType = env.NODE_ENV === 'test' ? 'integer' : 'bigint';
+export const jsonColumnType = env.NODE_ENV === 'test' ? 'simple-json' : 'json';
 
 export class NumericColumnTransformer {
     to = (data: number): number => data;
@@ -15,7 +18,7 @@ export class NumericColumnTransformer {
 }
 
 export abstract class BaseEntity extends OrmBaseEntity {
-    @PrimaryGeneratedColumn({type: process.env.NODE_ENV === 'test' ? 'integer' : 'bigint', unsigned: true})
+    @PrimaryGeneratedColumn({ type: intColumnType, unsigned: true })
     id: number;
 
     @CreateDateColumn({type: dateColumnType, nullable: true})

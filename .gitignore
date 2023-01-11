@@ -24,3 +24,4 @@ logs
 
 y.hide
 dist
+cloud_sql_proxy
