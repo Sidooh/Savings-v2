@@ -11,7 +11,6 @@ export default class SidoohPayments extends SidoohService {
         return await this.fetch(url, 'POST', transaction)
     }
 
-
     static async queryPayment(id: number) {
         log.info('...[SRV - PAYMENTS]: Querying Payment...', { id });
 
