@@ -228,26 +228,24 @@ export const TransactionRepository = {
                         ipn: env.APP_URL + "/payments/callback",
                         destination,
                         destination_account
-                    })
-                        .then(async ({ data }) => {
-                                await Payment.save({
-                                    ...data,
-                                    payment_id: data.id,
-                                    // type: data.type,
-                                    // subtype: data.subtype,
-                                    // description: data.description,
-                                    // amount: data.amount,
-                                    // status: data.status,
-                                    // reference: data.reference,
-                                    // destination: res.destination,
-                                    transaction: t,
-                                });
+                    }).then(async ({ data }) => {
+                        await Payment.save({
+                            ...data,
+                            payment_id: data.id,
+                            // type: data.type,
+                            // subtype: data.subtype,
+                            // description: data.description,
+                            // amount: data.amount,
+                            // status: data.status,
+                            // reference: data.reference,
+                            // destination: res.destination,
+                            transaction: t,
+                        });
 
-                                results[t.id] = "Payment requested"
-                            },
-                            () => {
-                                results[t.id] = "Failed to process payment"
-                            });
+                        results[t.id] = "Payment requested"
+                    }, (e) => {
+                        results[t.id] = "Failed to process payment"
+                    });
 
                 }
 
@@ -307,4 +305,4 @@ export const TransactionRepository = {
 
         return {};
     }
-};
+}
