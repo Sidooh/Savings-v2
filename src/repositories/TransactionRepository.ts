@@ -305,4 +305,4 @@ export const TransactionRepository = {
 
         return {};
     }
-};
+}
