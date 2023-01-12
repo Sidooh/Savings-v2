@@ -28,7 +28,11 @@ export default class SidoohAccounts extends SidoohService {
 
         if (!acc) {
             await this.fetch(url)
-                .then(({ data }) => Cache.set(`account_${id}`, data, moment().add(1, 'd').diff(moment(), 's')))
+                .then(({ data }) => {
+                    acc = data
+
+                    Cache.set(`account_${id}`, data, moment().add(1, 'd').diff(moment(), 's'))
+                })
                 .catch(err => console.log(err));
         }
 

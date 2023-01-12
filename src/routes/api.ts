@@ -7,6 +7,9 @@ import { validate } from "../http/middleware/validate.middleware";
 import DashboardController from "../http/controllers/DashboardController";
 import TransactionController from "../http/controllers/TransactionController";
 import InvestmentController from "../http/controllers/InvestmentController";
+import { PersonalAccountRequest } from "../http/requests/PersonalAccount.request";
+import GroupAccountController from "../http/controllers/GroupAccountController";
+import GroupTransactionController from "../http/controllers/GroupTransactionController";
 
 const apiRouter = new RouteGroup('/api/v1', Router());
 
@@ -25,8 +28,8 @@ apiRouter.group('/accounts', router => {
 // TODO: Restructure routing
 apiRouter.group('/personal-accounts', router => {
     router.get('/', PersonalAccountController.index);
-    // router.get('/:personalAccountId', PersonalAccountController.getById);
-    // router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
+    router.get('/:personalAccountId', PersonalAccountController.getById);
+    router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
 
     router.get('/transactions', TransactionController.getAllPersonalTransactions);
     router.get('/transactions/:transactionId', TransactionController.getPersonalTransactionById);
@@ -34,17 +37,17 @@ apiRouter.group('/personal-accounts', router => {
     router.get('/collective-investments', InvestmentController.getPersonalCollectiveInvestments);
     router.get('/sub-investments', InvestmentController.getPersonalSubInvestments);
 
-    // router.post('/:personalAccountId/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
-    // router.post('/:personalAccountId/withdraw', [validate(PersonalAccountRequest.withdraw)], PersonalAccountController.withdraw);
+    router.post('/:personalAccountId/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
+    router.post('/:personalAccountId/withdraw', [validate(PersonalAccountRequest.withdraw)], PersonalAccountController.withdraw);
 });
-//
-// apiRouter.group('/group-accounts', router => {
-//     router.get('/', GroupAccountController.index);
-//
-//     router.get('/transactions', GroupTransactionController.getAll);
-//     router.get('/transactions/:transactionId', TransactionController.getGroupTransactionById);
-//     router.get('/:id', GroupAccountController.getById);
-// });
+
+apiRouter.group('/group-accounts', router => {
+    router.get('/', GroupAccountController.index);
+
+    router.get('/transactions', GroupTransactionController.getAll);
+    router.get('/transactions/:transactionId', TransactionController.getGroupTransactionById);
+    router.get('/:id', GroupAccountController.getById);
+});
 
 // apiRouter.group('/personal-accounts', router => {
 //     router.get('/collective-investments', InvestmentController.getGroupCollectiveInvestments);
