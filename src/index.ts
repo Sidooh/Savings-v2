@@ -8,6 +8,4 @@ AppDataSource.initialize().then(async () => {
     const app = new App(env.PORT);
 
     app.serve();
-
-    // Jobs();
 }).catch(error => log.error('Error Initializing DB: ', error))
