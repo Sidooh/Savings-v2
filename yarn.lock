@@ -1141,13 +1141,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node-cron@npm:^3":
-  version: 3.0.5
-  resolution: "@types/node-cron@npm:3.0.5"
-  checksum: 40347212fad2b1a82b0590edc6c031ccbb173c3d7e3e01e587268deb78865270d70e6a6e2f54de6a92e666fdde00ce56cc1714578edd2af3c302dcc86b7f7c3c
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:*":
   version: 18.11.9
   resolution: "@types/node@npm:18.11.9"
@@ -4172,15 +4165,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-cron@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "node-cron@npm:3.0.2"
-  dependencies:
-    uuid: 8.3.2
-  checksum: dd21585c0d4069a0752022dad9b8380a4393c4783ec78355ffa99ff32b018c3743a35d4ebf9d7c7863949e94e302b440f58c884eb4960e71c7260d817e2d3f25
-  languageName: node
-  linkType: hard
-
 "node-fetch@npm:^2.6.7":
   version: 2.6.7
   resolution: "node-fetch@npm:2.6.7"
@@ -4787,7 +4771,6 @@ __metadata:
     "@types/jest": ^29.2.4
     "@types/jsonwebtoken": ^8
     "@types/node": ^16.11.10
-    "@types/node-cron": ^3
     axios: ^1.2.2
     cookie-parser: ^1.4.6
     cors: ^2.8.5
@@ -4804,7 +4787,6 @@ __metadata:
     moment: ^2.29.4
     mysql2: ^2.3.3
     node-cache: ^5.1.2
-    node-cron: ^3.0.2
     nodemon: ^2.0.20
     reflect-metadata: ^0.1.13
     sqlite3: ^5.1.4
@@ -5680,7 +5662,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:8.3.2, uuid@npm:^8.3.2":
+"uuid@npm:^8.3.2":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
   bin:
