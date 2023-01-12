@@ -31,7 +31,7 @@ export const env = cleanEnv(process.env, {
     SIDOOH_ACCOUNTS_API_URL: url({ default: 'http://localhost:8000/api/v1' }),
     SIDOOH_NOTIFY_API_URL: url({ default: 'http://localhost:8003/api/v1' }),
     SIDOOH_PRODUCTS_API_URL: url({ default: 'http://localhost:8001/api/v1' }),
-    SIDOOH_PAYMENTS_API_URL: url({ default: 'http://localhost:8002/api/v2' }),
+    SIDOOH_PAYMENTS_API_URL: url({ default: 'http://localhost:8002/api/v1' }),
 
     MIN_FREQUENCY_AMOUNT: num({ default: 20 }),
     MIN_WITHDRAWAL_AMOUNT: num({ default: 20 }),
