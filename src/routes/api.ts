@@ -10,6 +10,9 @@ import InvestmentController from "../http/controllers/InvestmentController";
 import { PersonalAccountRequest } from "../http/requests/PersonalAccount.request";
 import GroupAccountController from "../http/controllers/GroupAccountController";
 import GroupTransactionController from "../http/controllers/GroupTransactionController";
+import { GroupRequest } from "../http/requests/Group.request";
+import GroupController from "../http/controllers/GroupController";
+import { GroupAccountRequest } from "../http/requests/GroupAccount.request";
 
 const apiRouter = new RouteGroup('/api/v1', Router());
 
@@ -27,18 +30,20 @@ apiRouter.group('/accounts', router => {
 
 // TODO: Restructure routing
 apiRouter.group('/personal-accounts', router => {
-    router.get('/', PersonalAccountController.index);
-    router.get('/:personalAccountId', PersonalAccountController.getById);
-    router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
+    router.get('/collective-investments', InvestmentController.getPersonalCollectiveInvestments);
+    router.get('/sub-investments', InvestmentController.getPersonalSubInvestments);
 
     router.get('/transactions', TransactionController.getAllPersonalTransactions);
     router.get('/transactions/:transactionId', TransactionController.getPersonalTransactionById);
 
-    router.get('/collective-investments', InvestmentController.getPersonalCollectiveInvestments);
-    router.get('/sub-investments', InvestmentController.getPersonalSubInvestments);
+    router.get('/', PersonalAccountController.index);
+    router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
 
-    router.post('/:personalAccountId/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
-    router.post('/:personalAccountId/withdraw', [validate(PersonalAccountRequest.withdraw)], PersonalAccountController.withdraw);
+    router.group('/:personalAccountId', router => {
+        router.get('/', PersonalAccountController.getById);
+        router.post('/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
+        router.post('/withdraw', [validate(PersonalAccountRequest.withdraw)], PersonalAccountController.withdraw);
+    })
 });
 
 apiRouter.group('/group-accounts', router => {
@@ -49,26 +54,26 @@ apiRouter.group('/group-accounts', router => {
     router.get('/:id', GroupAccountController.getById);
 });
 
-// apiRouter.group('/personal-accounts', router => {
-//     router.get('/collective-investments', InvestmentController.getGroupCollectiveInvestments);
-//     router.get('/sub-investments', InvestmentController.getGroupSubInvestments);
-//
-//     router.post('/', validate(GroupRequest.store), GroupController.store);
-//     router.get('/', GroupController.index);
-//     router.get('/:id', GroupController.getById);
-//
-//     router.post('/:groupId/deposit', validate(GroupRequest.deposit), GroupController.deposit);
-//     router.post('/:groupId/withdraw', validate(GroupRequest.withdraw), GroupController.withdraw);
-//
-//     router.group('/:groupId', router => {
-//         router.get('/transactions', TransactionController.getAllGroupTransactions);
-//
-//         router.group('/accounts', router => {
-//             router.post('/', validate(GroupAccountRequest.store), GroupAccountController.store);
-//             router.get('/:accountId', GroupAccountController.getByAccountId);
-//         });
-//     });
-// });
+apiRouter.group('/groups', router => {
+    router.get('/collective-investments', InvestmentController.getGroupCollectiveInvestments);
+    router.get('/sub-investments', InvestmentController.getGroupSubInvestments);
+
+    router.post('/', validate(GroupRequest.store), GroupController.store);
+    router.get('/', GroupController.index);
+    router.get('/:id', GroupController.getById);
+
+    router.post('/:groupId/deposit', validate(GroupRequest.deposit), GroupController.deposit);
+    router.post('/:groupId/withdraw', validate(GroupRequest.withdraw), GroupController.withdraw);
+
+    router.group('/:groupId', router => {
+        router.get('/transactions', TransactionController.getAllGroupTransactions);
+
+        router.group('/accounts', router => {
+            router.post('/', validate(GroupAccountRequest.store), GroupAccountController.store);
+            router.get('/:accountId', GroupAccountController.getByAccountId);
+        });
+    });
+});
 
 apiRouter.group('/dashboard', router => {
     router.get('/chart', DashboardController.chartData);
