@@ -27,18 +27,20 @@ apiRouter.group('/accounts', router => {
 
 // TODO: Restructure routing
 apiRouter.group('/personal-accounts', router => {
-    router.get('/', PersonalAccountController.index);
-    router.get('/:personalAccountId', PersonalAccountController.getById);
-    router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
+    router.get('/collective-investments', InvestmentController.getPersonalCollectiveInvestments);
+    router.get('/sub-investments', InvestmentController.getPersonalSubInvestments);
 
     router.get('/transactions', TransactionController.getAllPersonalTransactions);
     router.get('/transactions/:transactionId', TransactionController.getPersonalTransactionById);
 
-    router.get('/collective-investments', InvestmentController.getPersonalCollectiveInvestments);
-    router.get('/sub-investments', InvestmentController.getPersonalSubInvestments);
+    router.get('/', PersonalAccountController.index);
+    router.post('/', validate(PersonalAccountRequest.store), PersonalAccountController.store);
 
-    router.post('/:personalAccountId/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
-    router.post('/:personalAccountId/withdraw', [validate(PersonalAccountRequest.withdraw)], PersonalAccountController.withdraw);
+    router.group('/:personalAccountId', router => {
+        router.get('/', PersonalAccountController.getById);
+        router.post('/deposit', [validate(PersonalAccountRequest.deposit)], PersonalAccountController.deposit);
+        router.post('/withdraw', [validate(PersonalAccountRequest.withdraw)], PersonalAccountController.withdraw);
+    })
 });
 
 apiRouter.group('/group-accounts', router => {
