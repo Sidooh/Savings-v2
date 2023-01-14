@@ -15,7 +15,6 @@ import { env } from '../utils/validate.env';
 
 export default class InvestmentRepository {
     getPersonalCollectiveInvestments = async (withRelations?: string) => {
-        console.log("===================================================    HERE")
         return await PersonalCollectiveInvestment.find({
             select: {
                 id: true,
