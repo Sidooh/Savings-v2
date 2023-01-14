@@ -60,7 +60,9 @@ export const EarningRepository = {
                     });
                     await PersonalAccount.insert(lockedAcc)
                 } else {
-                    await PersonalAccount.update({ id: lockedAcc.id }, { balance: record.locked_amount })
+                    await PersonalAccount.update({ id: lockedAcc.id }, {
+                        balance: lockedAcc.balance + record.locked_amount
+                    })
                 }
 
                 const cTransaction = await PersonalAccountTransaction.save({

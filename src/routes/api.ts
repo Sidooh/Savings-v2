@@ -19,7 +19,7 @@ const apiRouter = new RouteGroup('/api/v1', Router());
 apiRouter.group('/accounts', router => {
     router.group('/:accountId', router => {
         router.get('/personal-accounts', PersonalAccountController.getByAccountId);
-        // router.get('/personal-accounts', GroupController.getByAccountId);
+        router.get('/group-accounts', GroupController.getByAccountId);
         router.post('/defaults', PersonalAccountController.storeDefaults);
         router.get('/earnings', EarningController.getAccountEarnings);
         router.post('/earnings/withdraw', validate(EarningRequest.withdraw), EarningController.withdraw);
