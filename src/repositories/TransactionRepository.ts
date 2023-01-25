@@ -115,8 +115,10 @@ export const TransactionRepository = {
         });
     },
 
-    getAllGroupTransactions: async (group_id, withGroup = null) => {
-        return await GroupAccountTransaction.find({
+    getAllGroupTransactions: async (group_id, withRelations?: string) => {
+        const relations = withRelations.split(',');
+
+        return GroupAccountTransaction.find({
             where: { group_account: { group_id } },
             select: {
                 id: true,
@@ -124,10 +126,26 @@ export const TransactionRepository = {
                 description: true,
                 amount: true,
                 status: true,
-                group_account: { id: true, balance: true, account_id: true, group_id: true }
+                created_at: true,
+                group_account: { id: true, balance: true, account_id: true, group_id: true, group: { name: true } }
             },
             order: { id: 'DESC' },
-            relations: { group_account: Boolean(withGroup) }
+            relations: {
+                group_account: {
+                    group: relations.includes('group_account') || relations.includes('account') || relations.includes('group')
+                }
+            }
+        }).then(async transactions => {
+            let res: any = transactions;
+
+            if (withRelations.split(',').includes('account')) {
+                const accounts = await SidoohAccounts.findAll();
+                res = transactions.map(i => ({
+                    ...i, account: accounts.find(a => String(a.id) === i.group_account.account_id)
+                }));
+            }
+
+            return res;
         });
     },
 
