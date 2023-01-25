@@ -63,7 +63,9 @@ export const GroupRepository = {
                 settings: { min_frequency_amount },
                 group_accounts: [{ account_id }]
             });
+
             await Group.insert(group)
+            await GroupAccount.insert({ group_id: group.id, account_id })
         }
 
         return group;
