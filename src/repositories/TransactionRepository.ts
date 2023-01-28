@@ -310,6 +310,7 @@ export const TransactionRepository = {
                     description: Description.ACCOUNT_WITHDRAWAL_REFUND,
                     personal_account_id: personalAccount.id,
                     type: TransactionType.CREDIT,
+                    status: Status.COMPLETED,
                     extra: {
                         transaction: payment.transaction.id,
                     }
