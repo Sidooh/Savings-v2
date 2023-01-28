@@ -47,7 +47,7 @@ export default class SidoohService {
             const response = await http[method.toLowerCase()](url, data).then(({ data }) => data);
             const latency = Math.round(performance.now() - t)
 
-            log.info('...[SRV - SIDOOH]: RES... ' + latency + 'ms', response);
+            log.info('...[SRV - SIDOOH]: RES... ' + latency + 'ms');
 
             return response
         } catch (e) {

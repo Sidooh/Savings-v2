@@ -1,6 +1,6 @@
 import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
 import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
-import { Description, Status, TransactionType } from "../utils/enums";
+import { DefaultAccount, Description, Status, TransactionType } from "../utils/enums";
 import log from "../utils/logger";
 import { LessThan } from "typeorm";
 import SidoohPayments from "../services/SidoohPayments";
@@ -9,6 +9,7 @@ import { Payment } from "../entities/models/Payment";
 import { NotFoundError } from '../exceptions/not-found.err';
 import { env } from "../utils/validate.env";
 import SidoohService from "../services/SidoohService";
+import { PersonalAccount } from "../entities/models/PersonalAccount";
 
 export const TransactionRepository = {
     getPersonalTransactionById: async (id, withRelations?: string) => {
@@ -248,15 +249,14 @@ export const TransactionRepository = {
                         destination_account
                     }).then(async ({ data }) => {
                         await Payment.save({
-                            ...data,
                             payment_id: data.id,
-                            // type: data.type,
-                            // subtype: data.subtype,
-                            // description: data.description,
-                            // amount: data.amount,
-                            // status: data.status,
-                            // reference: data.reference,
-                            // destination: res.destination,
+                            type: data.type,
+                            subtype: data.subtype,
+                            description: data.description,
+                            amount: data.amount,
+                            status: data.status,
+                            reference: data.reference,
+                            destination: data.destination,
                             transaction: t,
                         });
 
@@ -292,7 +292,7 @@ export const TransactionRepository = {
 
         const payment = await Payment.findOne({
             where: {
-                reference: data.id
+                payment_id: data.id
             },
             relations: { transaction: true }
         });
@@ -315,6 +315,30 @@ export const TransactionRepository = {
 
             payment.transaction.status = Status.FAILED;
             await payment.transaction.save();
+
+            try {
+                // Perform refund // TODO: what happens to group transactions?
+                const personalAccount = await PersonalAccount.findOneBy({
+                    account_id: payment.transaction.personal_account_id,
+                    type: DefaultAccount.CURRENT
+                });
+
+                await PersonalAccountTransaction.save({
+                    amount: payment.transaction.amount,
+                    description: Description.ACCOUNT_WITHDRAWAL_REFUND,
+                    personal_account_id: personalAccount.id,
+                    type: TransactionType.CREDIT,
+                    status: Status.COMPLETED,
+                    extra: {
+                        transaction: payment.transaction.id,
+                    }
+                });
+
+                personalAccount.balance += payment.transaction.amount;
+                await personalAccount.save();
+            } catch (e) {
+                log.error("failed to perform refund", e)
+            }
 
             // Notify user
         }
