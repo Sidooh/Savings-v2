@@ -231,15 +231,14 @@ export const TransactionRepository = {
                         destination_account
                     }).then(async ({ data }) => {
                         await Payment.save({
-                            ...data,
                             payment_id: data.id,
-                            // type: data.type,
-                            // subtype: data.subtype,
-                            // description: data.description,
-                            // amount: data.amount,
-                            // status: data.status,
-                            // reference: data.reference,
-                            // destination: res.destination,
+                            type: data.type,
+                            subtype: data.subtype,
+                            description: data.description,
+                            amount: data.amount,
+                            status: data.status,
+                            reference: data.reference,
+                            destination: data.destination,
                             transaction: t,
                         });
 
@@ -275,7 +274,7 @@ export const TransactionRepository = {
 
         const payment = await Payment.findOne({
             where: {
-                reference: data.id
+                payment_id: data.id
             },
             relations: { transaction: true }
         });
