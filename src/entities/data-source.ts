@@ -21,7 +21,7 @@ export const AppDataSource = new DataSource({
     password: env.DB_PASSWORD,
     database: env.DB_DATABASE,
     socketPath: env.DB_SOCKET,
-    // synchronize: env.NODE_ENV !== 'production',
+    synchronize: env.SYNCHRONIZE_DB,
     // logging    : true, // TODO: Add logging to debug queries and optimize
     // dropSchema: true,
     entities: [
