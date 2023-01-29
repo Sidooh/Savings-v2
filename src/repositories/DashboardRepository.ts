@@ -78,11 +78,13 @@ export const DashboardRepository = {
             order: { id: 'DESC' },
             relations: { personal_account: true },
         }).then(async transactions => {
-            const accounts = await SidoohAccounts.findAll();
+            if(transactions.length > 0) {
+                const accounts = await SidoohAccounts.findAll();
 
-            return transactions.map(i => ({
-                ...i, account: accounts.find(a => String(a.id) === i.personal_account.account_id)
-            }));
+                return transactions.map(i => ({
+                    ...i, account: accounts?.find(a => String(a.id) === i.personal_account.account_id)
+                }));
+            }
         });
     },
 
