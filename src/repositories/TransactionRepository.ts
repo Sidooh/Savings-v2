@@ -262,9 +262,9 @@ export const TransactionRepository = {
 
                         results[t.id] = "Payment requested"
                     }, (e) => {
+                        console.error("ERRORRRR:", e);
                         results[t.id] = "Failed to process payment"
                     });
-
                 }
 
                 // Mark transaction complete?
@@ -288,7 +288,7 @@ export const TransactionRepository = {
 
 
     processPaymentCallback: async (data: any) => {
-        log.info('processPaymentCallback', { data });
+        log.info('[REPO - TRANSACTION] processPaymentCallback...', { data });
 
         const payment = await Payment.findOne({
             where: {

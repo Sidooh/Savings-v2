@@ -19,6 +19,8 @@ export const env = cleanEnv(process.env, {
     DB_SOCKET: str({ default: '' }),
     DB_HOST: str({ default: '127.0.0.7' }),
 
+    SYNCHRONIZE_DB: bool({ default: false }),
+
     LOG_LEVEL: str({
         //  In order of priority - highest to lowest
         choices: ['emerg', 'alert', 'crit', 'error', 'warn', 'notice', 'info', 'debug'],
