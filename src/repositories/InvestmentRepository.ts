@@ -285,9 +285,7 @@ export default class InvestmentRepository {
                         status: Status.COMPLETED
                     }));
 
-                    a.interest = 0;
-
-                    await PersonalAccount.update({ id: a.id }, { interest: 0 })
+                    await PersonalAccount.update({ id: a.id }, { interest: 0, balance: a.balance })
 
                     accountsCount++
                 }
