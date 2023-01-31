@@ -273,29 +273,32 @@ export default class InvestmentRepository {
 
         const pA = await PersonalAccount.find({ select: ['id', 'balance', 'interest'] }).then(accounts => {
             let accountsCount = 0;
-            accounts.forEach(async a => {
+            accounts.forEach(a => {
                 if (a.interest > 0) {
                     a.balance += a.interest;
 
-                    await PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
+                    PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
                         amount: a.interest,
                         type: TransactionType.CREDIT,
                         description: Description.MONTHLY_INTEREST_ALLOCATION,
                         personal_account_id: a.id,
                         status: Status.COMPLETED
-                    }));
-
-                    await PersonalAccount.update({ id: a.id }, { interest: 0, balance: a.balance })
+                    })).then(async () => await PersonalAccount.update({ id: a.id }, {
+                        interest: 0,
+                        balance: a.balance
+                    }))
 
                     accountsCount++
                 }
             });
 
-            return accountsCount;
+            return accountsCount
         });
 
         log.info("...Completed Monthly Interest Allocation...");
 
+        return console.log(`STATUS:INVESTMENT\nAllocated Interest. 
+            \n\n${0} Group Accounts and ${pA} Personal Accounts updated.`)
         await SidoohNotify.notify(
             env.ADMIN_CONTACTS.split(','),
             `STATUS:INVESTMENT\nAllocated Interest. 
