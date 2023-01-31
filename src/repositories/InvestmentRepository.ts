@@ -297,8 +297,6 @@ export default class InvestmentRepository {
 
         log.info("...Completed Monthly Interest Allocation...");
 
-        return console.log(`STATUS:INVESTMENT\nAllocated Interest. 
-            \n\n${0} Group Accounts and ${pA} Personal Accounts updated.`)
         await SidoohNotify.notify(
             env.ADMIN_CONTACTS.split(','),
             `STATUS:INVESTMENT\nAllocated Interest. 
