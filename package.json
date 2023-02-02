@@ -1,6 +1,6 @@
 {
   "name": "savings.sidooh",
-  "packageManager": "yarn@3.3.1",
+  "packageManager": "yarn@3.4.1",
   "version": "0.0.1",
   "description": "Sidooh savings service developed with TypeORM",
   "repository": "https://github.com/Sidooh/Savings",
