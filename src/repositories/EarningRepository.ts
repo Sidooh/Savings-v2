@@ -48,8 +48,9 @@ export const EarningRepository = {
 
                     await PersonalAccount.insert(currentAcc)
                 } else {
-                    currentAcc.balance += record.current_amount;
-                    await currentAcc.save();
+                    await PersonalAccount.update({ id: currentAcc.id }, {
+                        balance: currentAcc.balance + record.current_amount
+                    })
                 }
 
                 if (!lockedAcc) {

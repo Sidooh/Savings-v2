@@ -47,9 +47,9 @@ export default class SidoohAccounts extends SidoohService {
         const url = `${CONFIG.sidooh.services.accounts.url}/accounts?with_user=true`;
 
         return await this.fetch(url).then(({ data }: { data: Account[] }) => {
-            log.info('...[SRV - ACCOUNTS]: RES - ', { retrieved: data.length });
+            log.info('...[SRV - ACCOUNTS]: RES - ', { retrieved: data?.length });
 
-            data.forEach(acc => Cache.set(acc.id, acc, moment().add(1, 'd').diff(moment(), 's')));
+            data?.forEach(acc => Cache.set(acc.id, acc, moment().add(1, 'd').diff(moment(), 's')));
 
             return data;
         });

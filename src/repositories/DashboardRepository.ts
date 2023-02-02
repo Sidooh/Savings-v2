@@ -21,11 +21,11 @@ export const DashboardRepository = {
         const fetch = async (whereBetween, freq = 24) => {
             const personalTransactions = await PersonalAccountTransaction.createQueryBuilder('transaction')
                 .select('HOUR(created_at) as hour',)
-                .addSelect('SUM(amount)', 'amount').where({created_at: whereBetween, type: TransactionType.CREDIT})
+                .addSelect('SUM(amount)', 'amount').where({ created_at: whereBetween, type: TransactionType.CREDIT })
                 .groupBy('hour').getRawMany();
             const groupTransactions = await GroupAccountTransaction.createQueryBuilder('transaction')
                 .select('HOUR(created_at) as hour',)
-                .addSelect('SUM(amount)', 'amount').where({created_at: whereBetween, type: TransactionType.CREDIT})
+                .addSelect('SUM(amount)', 'amount').where({ created_at: whereBetween, type: TransactionType.CREDIT })
                 .groupBy('hour').getRawMany();
 
             return {
@@ -36,7 +36,7 @@ export const DashboardRepository = {
 
         const todayHrs = moment().diff(moment().startOf('day'), 'h');
 
-        return {today: await fetch(whereToday, todayHrs + 1), yesterday: await fetch(whereYesterday)};
+        return { today: await fetch(whereToday, todayHrs + 1), yesterday: await fetch(whereYesterday) };
     },
 
     getSummaries: async () => {
@@ -46,20 +46,20 @@ export const DashboardRepository = {
 
         return {
             count_personal_accounts: await PersonalAccount.count(),
-            count_personal_accounts_today: await PersonalAccount.countBy({created_at: whereToday}),
+            count_personal_accounts_today: await PersonalAccount.countBy({ created_at: whereToday }),
 
             count_group_accounts: await GroupAccount.count(),
-            count_group_accounts_today: await GroupAccount.countBy({created_at: whereToday}),
+            count_group_accounts_today: await GroupAccount.countBy({ created_at: whereToday }),
 
             amount_personal_accounts: await PersonalAccount.createQueryBuilder().select('SUM(balance)', 'balance')
                 .getRawOne().then(res => res.balance),
             amount_personal_accounts_today: await PersonalAccount.createQueryBuilder().select('SUM(balance)', 'balance')
-                .where({created_at: whereToday}).getRawOne().then(res => res.balance),
+                .where({ created_at: whereToday }).getRawOne().then(res => res.balance),
 
             amount_group_accounts: await GroupAccount.createQueryBuilder().select('SUM(balance)', 'balance')
                 .getRawOne().then(res => res.balance),
             amount_group_accounts_today: await GroupAccount.createQueryBuilder().select('SUM(balance)', 'balance')
-                .where({created_at: whereToday}).getRawOne().then(res => res.balance),
+                .where({ created_at: whereToday }).getRawOne().then(res => res.balance),
         };
     },
 
@@ -72,16 +72,16 @@ export const DashboardRepository = {
                 amount: true,
                 status: true,
                 created_at: true,
-                personal_account: {id: true, type: true, account_id: true}
+                personal_account: { id: true, type: true, account_id: true }
             },
             take: 100,
-            order: {id: 'DESC'},
-            relations: {personal_account: true},
+            order: { id: 'DESC' },
+            relations: { personal_account: true },
         }).then(async transactions => {
             const accounts = await SidoohAccounts.findAll();
 
             return transactions.map(i => ({
-                ...i, account: accounts.find(a => String(a.id) === i.personal_account.account_id)
+                ...i, account: accounts?.find(a => String(a.id) === i.personal_account.account_id)
             }));
         });
     },
@@ -98,7 +98,7 @@ export const DashboardRepository = {
                 created_at: true,
             },
             take: 7,
-            order: {id: 'DESC'},
+            order: { id: 'DESC' },
         });
     }
 };

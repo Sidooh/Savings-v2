@@ -11,8 +11,8 @@ export default class SidoohPayments extends SidoohService {
         return await this.fetch(url, 'POST', transaction)
     }
 
-    static async queryPayment(id: number) {
-        log.info('...[SRV - PAYMENTS]: Querying Payment...', { id });
+    static async findById(id: number) {
+        log.info('...[SRV - PAYMENTS]: Find By ID...', { id });
 
         const url = `${CONFIG.sidooh.services.payments.url}/payments/${id}`;
 
