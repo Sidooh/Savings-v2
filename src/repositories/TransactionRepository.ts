@@ -217,13 +217,6 @@ export const TransactionRepository = {
                                 results[t.id] = t.status
                             }, () => results[t.id] = "Payment requested");
                 } else {
-                    if (t.personal_account.balance - 50 < t.amount) {
-                        throw new Error('Account Balance is insufficient');
-                    }
-
-                    t.personal_account.balance -= t.amount;
-                    await t.save();
-
                     const { destination, destination_account }: { [key: string]: any } = t.extra
 
                     // Request Payment
