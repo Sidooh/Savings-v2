@@ -32,46 +32,46 @@ const log = createLogger({
     transports: [
         new transports.File({ filename: 'logs/savings.log', level: env.LOG_LEVEL }),
         new transports.Console({ level: env.LOG_LEVEL }),
-        // new SlackHook({
-        //     level: 'error',
-        //     webhookUrl: String(env.SLACK_HOOK_URL),
-        //     formatter: info => {
-        //         const {timestamp, level, message, ...args} = info;
-        //         const stack = Object.keys(args).length ? JSON.stringify(args, circularReplacer(), 2) : '';
-        //
-        //         return {
-        //             blocks: [
-        //                 {
-        //                     type: 'header',
-        //                     text: {
-        //                         type: 'plain_text',
-        //                         text: `Error Alert!`
-        //                     }
-        //                 },
-        //                 {
-        //                     'type': 'divider'
-        //                 },
-        //                 {
-        //                     'type': 'section',
-        //                     'text': {
-        //                         'type': 'mrkdwn',
-        //                         'text': `*MESSAGE:* \n${message}\n${stack}`
-        //                     }
-        //                 },
-        //                 {
-        //                     'type': 'divider'
-        //                 },
-        //                 {
-        //                     'type': 'section',
-        //                     'text': {
-        //                         'type': 'mrkdwn',
-        //                         'text': `*LEVEL*: ${level.toUpperCase().padEnd(5)}`
-        //                     }
-        //                 }
-        //             ]
-        //         };
-        //     }
-        // })
+        new SlackHook({
+            level: 'error',
+            webhookUrl: String(env.SLACK_HOOK_URL),
+            formatter: info => {
+                const {timestamp, level, message, ...args} = info;
+                const stack = Object.keys(args).length ? JSON.stringify(args, circularReplacer(), 2) : '';
+
+                return {
+                    blocks: [
+                        {
+                            type: 'header',
+                            text: {
+                                type: 'plain_text',
+                                text: `Error Alert!`
+                            }
+                        },
+                        {
+                            'type': 'divider'
+                        },
+                        {
+                            'type': 'section',
+                            'text': {
+                                'type': 'mrkdwn',
+                                'text': `*MESSAGE:* \n${message}\n${stack}`
+                            }
+                        },
+                        {
+                            'type': 'divider'
+                        },
+                        {
+                            'type': 'section',
+                            'text': {
+                                'type': 'mrkdwn',
+                                'text': `*LEVEL*: ${level.toUpperCase().padEnd(5)}`
+                            }
+                        }
+                    ]
+                };
+            }
+        })
     ],
     exitOnError: false
 });
