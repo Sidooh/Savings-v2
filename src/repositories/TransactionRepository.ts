@@ -2,7 +2,7 @@ import { ColumnExtra, PersonalAccountTransaction } from '../entities/models/Pers
 import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
 import { Description, Status, TransactionType } from "../utils/enums";
 import log from "../utils/logger";
-import { LessThan } from "typeorm";
+import { In, LessThan } from "typeorm";
 import SidoohPayments from "../services/SidoohPayments";
 import SidoohAccounts from "../services/SidoohAccounts";
 import { Payment } from "../entities/models/Payment";
@@ -10,6 +10,7 @@ import { NotFoundError } from '../exceptions/not-found.err';
 import { env } from "../utils/validate.env";
 import SidoohService from "../services/SidoohService";
 import { PersonalAccount } from "../entities/models/PersonalAccount";
+import { BadRequestError } from "../exceptions/bad-request.err";
 
 export const TransactionRepository = {
     getPersonalTransactionById: async (id, withRelations?: string) => {
@@ -179,47 +180,10 @@ export const TransactionRepository = {
                     // If payment exists, just query the status and update accordingly
                     await SidoohPayments.findById(t.payment.payment_id)
                         .then(async ({ data }) => {
-                            if (data && data.status === Status.COMPLETED) {
-                                await Payment.update({ id: t.payment.id }, { status: Status.COMPLETED })
-                                await PersonalAccountTransaction.update({ id: t.id }, {
-                                    status: Status.COMPLETED
-                                })
-                                await PersonalAccountTransaction.update({ id: chargeTransaction.id }, {
-                                    status: Status.COMPLETED
-                                })
+                            t.payment.transaction = t
 
-                                results[t.id] = t;
+                            await TransactionRepository.handleWithdrawal(t.payment, data)
 
-                                // TODO: Notify user
-                                SidoohService.callback({
-                                    ...t,
-                                    personal_account: undefined,
-                                    payment: undefined,
-                                    deleted_at: undefined
-                                })
-                            }
-
-                            if (data && data.status == Status.FAILED) {
-                                await Payment.update({ id: t.payment.id }, { status: Status.FAILED })
-                                await PersonalAccountTransaction.update({ id: t.id }, {
-                                    status: Status.FAILED
-                                })
-                                await PersonalAccountTransaction.update({ id: chargeTransaction.id }, {
-                                    status: Status.FAILED
-                                })
-
-                                results[t.id] = t;
-
-                                // Notify user
-                                SidoohService.callback({
-                                    ...t,
-                                    personal_account: undefined,
-                                    payment: undefined,
-                                    deleted_at: undefined
-                                })
-                            }
-
-                            // TODO: Handle for other status or non-existent (undefined res)
                             results[t.id] = t.status
                         }, () => results[t.id] = "Payment requested");
                 } else {
@@ -275,54 +239,57 @@ export const TransactionRepository = {
             relations: { transaction: true }
         });
 
-        log.info('Payment: ', payment);
+        await TransactionRepository.handleWithdrawal(payment, data)
+    },
+
+    handleWithdrawal: async (payment, data) => {
+        if (!payment) throw new NotFoundError("Payment not found.");
+        if (payment.status !== Status.PENDING) throw new BadRequestError("Payment not pending.");
+        if (payment.transaction.status !== Status.PENDING) throw new BadRequestError("Transaction not pending.");
+
+        const chargeTransaction = await PersonalAccountTransaction.findOneBy({ id: payment.transaction.extra.charge_transaction_id })
 
         if (data.status === Status.COMPLETED) {
+            //  TODO: Put in DB Transaction
             await Payment.update({ id: payment.id }, { status: Status.COMPLETED })
-
-            payment.transaction.status = Status.COMPLETED;
-            await payment.transaction.save();
-
-            // TODO: Notify user
+            await PersonalAccountTransaction.update({
+                id: In([chargeTransaction.id, payment.transaction_id])
+            }, { status: Status.COMPLETED })
         }
 
         if (data.status == Status.FAILED) {
             await Payment.update({ id: payment.id }, { status: Status.FAILED })
-
-            const chargeTransaction = await PersonalAccountTransaction.findOneBy({
-                id: payment.transaction.extra.charge_transaction_id
-            })
-
-            payment.transaction.status = Status.FAILED;
-            await payment.transaction.save();
+            await PersonalAccountTransaction.update({
+                id: In([chargeTransaction.id, payment.transaction_id])
+            }, { status: Status.FAILED })
 
             try {
                 // Perform refund // TODO: what happens to group transactions?
-                const personalAccount = await PersonalAccount.findOneBy({
-                    id: payment.transaction.personal_account_id
-                });
 
+                //  TODO: Put in DB TX
                 await PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
-                    amount: payment.transaction.amount + chargeTransaction,
+                    amount: payment.transaction.amount + chargeTransaction.amount,
                     description: Description.ACCOUNT_WITHDRAWAL_REFUND,
-                    personal_account_id: personalAccount.id,
+                    personal_account_id: payment.transaction.personal_account_id,
                     type: TransactionType.CREDIT,
                     status: Status.COMPLETED,
-                    extra: {
-                        transaction: payment.transaction.id,
-                    }
+                    extra: { transaction: payment.transaction.id, }
                 }))
 
-                await PersonalAccount.update({ id: personalAccount.id }, {
-                    balance: personalAccount.balance += payment.transaction.amount + Number(chargeTransaction)
+                await PersonalAccount.update({ id: payment.transaction.personal_account_id }, {
+                    balance: payment.transaction.personal_account.balance + payment.transaction.amount + chargeTransaction.amount
                 })
             } catch (e) {
                 log.error("failed to perform refund", e)
             }
-
-            // TODO: Notify user
         }
 
-        SidoohService.callback(payment.transaction)
+        //  TODO: Update to return only what is required.
+        SidoohService.callback({
+            ...payment.transaction,
+            personal_account: undefined,
+            payment: undefined,
+            deleted_at: undefined
+        })
     }
 }
