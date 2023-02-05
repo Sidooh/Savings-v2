@@ -6,6 +6,7 @@ import { NotFoundError } from '../exceptions/not-found.err';
 import { PersonalAccountTransaction } from "../entities/models/PersonalAccountTransaction";
 import { BadRequestError } from "../exceptions/bad-request.err";
 import SidoohPayments from "../services/SidoohPayments";
+import { TransactionRepository } from "./TransactionRepository";
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
@@ -138,6 +139,8 @@ export const EarningRepository = {
             balance: personalAccount.balance - (body.amount + charge)
         })
         await withdrawalTransaction.reload()
+
+        TransactionRepository.processPersonalWithdrawals()
 
         return withdrawalTransaction;
     }
