@@ -61,12 +61,10 @@ export default class SidoohService {
         }
     };
 
-    static callback(transaction: { [key: string]: any }) {
-        log.info('--- ...[SRV - SIDOOH]: CB... ---', transaction)
+    static callback({ url, method = 'POST', data = {} }: { url: string, method?: Method, data: any }) {
+        log.info('--- ...[SRV - SIDOOH]: CB... ---', data)
 
-        const { extra: { ipn } } = transaction;
-
-        this.fetch(ipn, 'POST', transaction).catch(err => {
+        this.fetch(url, method, data).catch(err => {
             log.error('...[SRV - SIDOOH]: ERR - ', err)
         })
     }
