@@ -237,7 +237,7 @@ export const TransactionRepository = {
 
         const payment = await Payment.findOne({
             where: { payment_id: data.id },
-            relations: { transaction: true }
+            relations: ['transaction', 'transaction.personal_account']
         });
 
         await TransactionRepository.handleWithdrawal(payment, data)
