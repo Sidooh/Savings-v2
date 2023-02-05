@@ -266,25 +266,21 @@ export const TransactionRepository = {
                     id: In([chargeTransaction.id, payment.transaction_id])
                 }, { status: Status.FAILED })
 
-                try {
-                    // TODO: what happens to group transactions?
+                // TODO: what happens to group transactions?
 
-                    // Perform refund
-                    await PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
-                        amount: payment.transaction.amount + chargeTransaction.amount,
-                        description: Description.ACCOUNT_WITHDRAWAL_REFUND,
-                        personal_account_id: payment.transaction.personal_account_id,
-                        type: TransactionType.CREDIT,
-                        status: Status.COMPLETED,
-                        extra: { transaction: payment.transaction.id, }
-                    }))
+                // Perform refund
+                await PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
+                    amount: payment.transaction.amount + chargeTransaction.amount,
+                    description: Description.ACCOUNT_WITHDRAWAL_REFUND,
+                    personal_account_id: payment.transaction.personal_account_id,
+                    type: TransactionType.CREDIT,
+                    status: Status.COMPLETED,
+                    extra: { transaction: payment.transaction.id, }
+                }))
 
-                    await PersonalAccount.update({ id: payment.transaction.personal_account_id }, {
-                        balance: payment.transaction.personal_account.balance + payment.transaction.amount + chargeTransaction.amount
-                    })
-                } catch (e) {
-                    log.error("failed to perform refund", e)
-                }
+                await PersonalAccount.update({ id: payment.transaction.personal_account_id }, {
+                    balance: payment.transaction.personal_account.balance + payment.transaction.amount + chargeTransaction.amount
+                })
             })
         }
 
