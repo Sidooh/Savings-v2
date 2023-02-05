@@ -5,6 +5,7 @@ import SidoohAccounts from '../services/SidoohAccounts';
 import { NotFoundError } from '../exceptions/not-found.err';
 import { PersonalAccountTransaction } from "../entities/models/PersonalAccountTransaction";
 import { BadRequestError } from "../exceptions/bad-request.err";
+import SidoohPayments from "../services/SidoohPayments";
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
@@ -99,9 +100,12 @@ export const EarningRepository = {
 
         if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
 
-        if (personalAccount.balance - 50 <= body.amount) throw new BadRequestError("Insufficient balance!");
+        const charge = await SidoohPayments.getWithdrawalCharge(body.amount)
+        if (!charge) throw new BadRequestError('Unable to fetch withdrawal charge!')
 
-        const transaction = await PersonalAccountTransaction.save({
+        if (personalAccount.balance - charge <= body.amount) throw new BadRequestError("Insufficient balance!");
+
+        let withdrawalTransaction = PersonalAccountTransaction.create({
             amount: body.amount,
             description: Description.ACCOUNT_WITHDRAWAL,
             personal_account_id: personalAccount.id,
@@ -112,11 +116,30 @@ export const EarningRepository = {
                 reference: body.reference,
                 ipn: body.ipn
             }
-        });
+        })
 
-        personalAccount.balance -= body.amount;
-        await personalAccount.save();
+        const chargeTransaction = PersonalAccountTransaction.create({
+            amount: charge,
+            description: Description.ACCOUNT_WITHDRAWAL_CHARGE,
+            personal_account_id: personalAccount.id,
+            type: TransactionType.CHARGE,
+        })
 
-        return transaction;
+        await PersonalAccountTransaction.insert([withdrawalTransaction, chargeTransaction]);
+        // await PersonalAccountTransaction.insert(chargeTransaction)
+
+        await PersonalAccountTransaction.update({ id: withdrawalTransaction.id }, {
+            extra: {
+                ...withdrawalTransaction.extra,
+                charge_transaction_id: chargeTransaction.id
+            }
+        })
+
+        await PersonalAccount.update({ id: personalAccount.id }, {
+            balance: personalAccount.balance - (body.amount + charge)
+        })
+        await withdrawalTransaction.reload()
+
+        return withdrawalTransaction;
     }
 };

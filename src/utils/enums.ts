@@ -49,12 +49,14 @@ export enum PersonalAccountType {
 export enum TransactionType {
     CREDIT = 'CREDIT',
     DEBIT = 'DEBIT',
+    CHARGE = 'CHARGE',
 }
 
 export enum Description {
     ACCOUNT_DEPOSIT = 'Account Deposit',
     ACCOUNT_WITHDRAWAL = 'Account Withdrawal',
     ACCOUNT_WITHDRAWAL_REFUND = 'Account Withdrawal Refund',
+    ACCOUNT_WITHDRAWAL_CHARGE = 'Account Withdrawal Charge',
     MONTHLY_INTEREST_ALLOCATION = 'Interest Allocation',
 }
 
