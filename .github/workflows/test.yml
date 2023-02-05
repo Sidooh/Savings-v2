@@ -1,4 +1,4 @@
-name: test-notify
+name: test-savings
 
 on:
   push:
