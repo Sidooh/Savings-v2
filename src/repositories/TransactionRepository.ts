@@ -288,6 +288,8 @@ export const TransactionRepository = {
             })
         }
 
+        await payment.reload()
+
         SidoohService.callback({
             url: payment.transaction.extra.ipn,
             data: {
