@@ -32,7 +32,7 @@ const log = createLogger({
     transports: [
         new transports.File({ filename: 'logs/savings.log', level: env.LOG_LEVEL }),
         new transports.Console({ level: env.LOG_LEVEL }),
-        new SlackHook({
+        /*new SlackHook({
             level: 'error',
             webhookUrl: String(env.SLACK_HOOK_URL),
             formatter: info => {
@@ -71,7 +71,7 @@ const log = createLogger({
                     ]
                 };
             }
-        })
+        })*/
     ],
     exitOnError: false
 });
