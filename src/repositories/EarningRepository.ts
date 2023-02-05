@@ -126,7 +126,6 @@ export const EarningRepository = {
         })
 
         await PersonalAccountTransaction.insert([withdrawalTransaction, chargeTransaction]);
-        // await PersonalAccountTransaction.insert(chargeTransaction)
 
         await PersonalAccountTransaction.update({ id: withdrawalTransaction.id }, {
             extra: {

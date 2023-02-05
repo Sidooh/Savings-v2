@@ -11,6 +11,7 @@ import { env } from "../utils/validate.env";
 import SidoohService from "../services/SidoohService";
 import { PersonalAccount } from "../entities/models/PersonalAccount";
 import { BadRequestError } from "../exceptions/bad-request.err";
+import { AppDataSource } from "../entities/data-source";
 
 export const TransactionRepository = {
     getPersonalTransactionById: async (id, withRelations?: string) => {
@@ -196,7 +197,7 @@ export const TransactionRepository = {
                         description: Description.ACCOUNT_WITHDRAWAL,
                         reference: t.id,
                         source: 'FLOAT',
-                        source_account: 1,
+                        source_account: 2,
                         ipn: env.APP_URL + "/payments/callback",
                         destination,
                         destination_account
@@ -250,11 +251,12 @@ export const TransactionRepository = {
         const chargeTransaction = await PersonalAccountTransaction.findOneBy({ id: payment.transaction.extra.charge_transaction_id })
 
         if (data.status === Status.COMPLETED) {
-            //  TODO: Put in DB Transaction
-            await Payment.update({ id: payment.id }, { status: Status.COMPLETED })
-            await PersonalAccountTransaction.update({
-                id: In([chargeTransaction.id, payment.transaction_id])
-            }, { status: Status.COMPLETED })
+            await AppDataSource.transaction(async () => {
+                await Payment.update({ id: payment.id }, { status: Status.COMPLETED })
+                await PersonalAccountTransaction.update({
+                    id: In([chargeTransaction.id, payment.transaction_id])
+                }, { status: Status.COMPLETED })
+            })
         }
 
         if (data.status == Status.FAILED) {
@@ -264,32 +266,34 @@ export const TransactionRepository = {
             }, { status: Status.FAILED })
 
             try {
-                // Perform refund // TODO: what happens to group transactions?
+                // TODO: what happens to group transactions?
 
-                //  TODO: Put in DB TX
-                await PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
-                    amount: payment.transaction.amount + chargeTransaction.amount,
-                    description: Description.ACCOUNT_WITHDRAWAL_REFUND,
-                    personal_account_id: payment.transaction.personal_account_id,
-                    type: TransactionType.CREDIT,
-                    status: Status.COMPLETED,
-                    extra: { transaction: payment.transaction.id, }
-                }))
+                // Perform refund
+                await AppDataSource.transaction(async () => {
+                    await PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
+                        amount: payment.transaction.amount + chargeTransaction.amount,
+                        description: Description.ACCOUNT_WITHDRAWAL_REFUND,
+                        personal_account_id: payment.transaction.personal_account_id,
+                        type: TransactionType.CREDIT,
+                        status: Status.COMPLETED,
+                        extra: { transaction: payment.transaction.id, }
+                    }))
 
-                await PersonalAccount.update({ id: payment.transaction.personal_account_id }, {
-                    balance: payment.transaction.personal_account.balance + payment.transaction.amount + chargeTransaction.amount
+                    await PersonalAccount.update({ id: payment.transaction.personal_account_id }, {
+                        balance: payment.transaction.personal_account.balance + payment.transaction.amount + chargeTransaction.amount
+                    })
                 })
             } catch (e) {
                 log.error("failed to perform refund", e)
             }
         }
 
-        //  TODO: Update to return only what is required.
         SidoohService.callback({
-            ...payment.transaction,
-            personal_account: undefined,
-            payment: undefined,
-            deleted_at: undefined
+            url: payment.transaction.extra.ipn,
+            data: {
+                id: payment.transaction.id,
+                status: payment.transaction.status
+            }
         })
     }
 }
