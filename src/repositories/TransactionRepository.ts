@@ -243,7 +243,7 @@ export const TransactionRepository = {
         await TransactionRepository.handleWithdrawal(payment, data)
     },
 
-    handleWithdrawal: async (payment, data) => {
+    handleWithdrawal: async (payment: Payment, data) => {
         if (!payment) throw new NotFoundError("Payment not found.");
         if (payment.status !== Status.PENDING) throw new BadRequestError("Payment not pending.");
         if (payment.transaction.status !== Status.PENDING) throw new BadRequestError("Transaction not pending.");
@@ -260,16 +260,16 @@ export const TransactionRepository = {
         }
 
         if (data.status == Status.FAILED) {
-            await Payment.update({ id: payment.id }, { status: Status.FAILED })
-            await PersonalAccountTransaction.update({
-                id: In([chargeTransaction.id, payment.transaction_id])
-            }, { status: Status.FAILED })
+            await AppDataSource.transaction(async () => {
+                await Payment.update({ id: payment.id }, { status: Status.FAILED })
+                await PersonalAccountTransaction.update({
+                    id: In([chargeTransaction.id, payment.transaction_id])
+                }, { status: Status.FAILED })
 
-            try {
-                // TODO: what happens to group transactions?
+                try {
+                    // TODO: what happens to group transactions?
 
-                // Perform refund
-                await AppDataSource.transaction(async () => {
+                    // Perform refund
                     await PersonalAccountTransaction.insert(PersonalAccountTransaction.create({
                         amount: payment.transaction.amount + chargeTransaction.amount,
                         description: Description.ACCOUNT_WITHDRAWAL_REFUND,
@@ -282,10 +282,10 @@ export const TransactionRepository = {
                     await PersonalAccount.update({ id: payment.transaction.personal_account_id }, {
                         balance: payment.transaction.personal_account.balance + payment.transaction.amount + chargeTransaction.amount
                     })
-                })
-            } catch (e) {
-                log.error("failed to perform refund", e)
-            }
+                } catch (e) {
+                    log.error("failed to perform refund", e)
+                }
+            })
         }
 
         SidoohService.callback({
