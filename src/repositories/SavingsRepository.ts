@@ -3,9 +3,17 @@ import { PersonalCollectiveInvestment } from "../entities/models/PersonalCollect
 
 export const SavingsRepository = {
     getCumulativeSavings: async () => {
-        const personal = await PersonalCollectiveInvestment.findOne({ order: { id: 'DESC' } })
-        const group = await GroupCollectiveInvestment.findOne({ order: { id: 'DESC' } })
+        const personal = await PersonalCollectiveInvestment.findOne({
+            select: ['id', 'amount'],
+            where: {},
+            order: { id: 'DESC' }
+        })
+        const group = await GroupCollectiveInvestment.findOne({
+            select: ['id', 'amount'],
+            where: {},
+            order: { id: 'DESC' }
+        })
 
-        return personal.amount + group.amount
+        return (personal?.amount ?? 0) + (group?.amount ?? 0)
     }
 }
