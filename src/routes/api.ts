@@ -13,6 +13,7 @@ import GroupTransactionController from "../http/controllers/GroupTransactionCont
 import { GroupRequest } from "../http/requests/Group.request";
 import GroupController from "../http/controllers/GroupController";
 import { GroupAccountRequest } from "../http/requests/GroupAccount.request";
+import SavingsController from "../http/controllers/SavingsController";
 
 const apiRouter = new RouteGroup('/api/v1', Router());
 
@@ -74,6 +75,10 @@ apiRouter.group('/groups', router => {
         });
     });
 });
+
+apiRouter.group('/', router =>{
+    router.get('/cumulative-savings', SavingsController.getCumulativeSavings)
+})
 
 apiRouter.group('/dashboard', router => {
     router.get('/chart', DashboardController.chartData);
