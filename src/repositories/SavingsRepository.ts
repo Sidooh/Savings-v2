@@ -32,6 +32,8 @@ export const SavingsRepository = {
         }
 
         if (message.includes('-')) {
+            message += `\n#SRV:Savings`;
+
             await SidoohNotify.notify(env.ADMIN_CONTACTS.split(','), message, EventType.STATUS_UPDATE);
         }
     }
