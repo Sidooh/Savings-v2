@@ -43,5 +43,7 @@ export const env = cleanEnv(process.env, {
 
     INTEREST_RATE: num({ default: 9 }),
 
-    ADMIN_CONTACTS: str({ default: '254110039317,254714611696,254711414987' })
+    ADMIN_CONTACTS: str({ default: '254110039317,254714611696,254711414987' }),
+
+    SAVINGS_FLOAT_THRESHOLD_PERCENTAGE: num({ default: 10 })
 });
