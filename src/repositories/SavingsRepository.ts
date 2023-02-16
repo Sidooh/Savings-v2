@@ -4,10 +4,15 @@ import SidoohPayments from "../services/SidoohPayments";
 import { env } from "../utils/validate.env";
 import SidoohNotify from "../services/SidoohNotify";
 import { EventType } from "../utils/enums";
+import { BadRequestError } from "../exceptions/bad-request.err";
 
 export const SavingsRepository = {
     checkServiceBalances: async () => {
         const savingsFloatAccount = await SidoohPayments.getFloatAccount(2);
+        if (!savingsFloatAccount) {
+            throw new BadRequestError('Unable to fetch savings float account!')
+        }
+
         const personal = await PersonalCollectiveInvestment.findOne({
             select: ['id', 'amount'],
             where: {},
