@@ -17,7 +17,7 @@ router.group('/jobs', router => {
 
     router.post('/withdrawals/personal', JobController.processPersonalWithdrawals);
 
-    router.get('/providers/check-balances', JobController.checkServiceBalances)
+    router.post('/providers/check-balances', JobController.checkServiceBalances)
 });
 
 const routes = router.export()
