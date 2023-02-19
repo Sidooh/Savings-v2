@@ -16,6 +16,8 @@ router.group('/jobs', router => {
     router.post('/interest/allocation', InvestmentController.allocateInterest);
 
     router.post('/withdrawals/personal', JobController.processPersonalWithdrawals);
+
+    router.get('/providers/check-balances', JobController.checkServiceBalances)
 });
 
 const routes = router.export()
