@@ -26,7 +26,7 @@ export const SavingsRepository = {
 
         const cumulativeSavings = (personal?.amount ?? 0) + (group?.amount ?? 0)
 
-        let message = `! System Balances Below Threshold:\n`;
+        let message = `Provider Balances:\n`;
         if (savingsFloatAccount.balance <= (env.SAVINGS_FLOAT_THRESHOLD_PERCENTAGE / 100) * cumulativeSavings) {
             message += `\t - Savings Float: ${savingsFloatAccount.balance}\n`;
         }
