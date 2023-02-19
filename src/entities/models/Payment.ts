@@ -29,6 +29,9 @@ export class Payment extends BaseEntity {
     @Column({ type: jsonColumnType, nullable: true })
     destination: {};
 
+    @Column({ type: 'bigint', unsigned: true })
+    transaction_id;
+
     @OneToOne(() => PersonalAccountTransaction, (personalAccountTransaction) => personalAccountTransaction.payment)
     @JoinColumn()
     transaction;

@@ -4,6 +4,8 @@ import { Status, TransactionType } from '../../utils/enums';
 import { PersonalAccount } from './PersonalAccount';
 import { Payment } from "./Payment";
 
+export type ColumnExtra = { [key: string]: any }
+
 @Entity('personal_account_transactions')
 export class PersonalAccountTransaction extends BaseEntity {
     @Column({ length: 20 })

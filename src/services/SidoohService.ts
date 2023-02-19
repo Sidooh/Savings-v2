@@ -51,21 +51,20 @@ export default class SidoohService {
 
             return response
         } catch (e) {
+            console.log(e?.response)
             const latency = Math.round(performance.now() - t)
 
             const message = e.isAxiosError ? e.message : e?.response?.data || e?.response?.message
-            log.error('...[SRV - SIDOOH]: ERR... ' + latency + 'ms', { message });
+            log.error('...[SRV - SIDOOH]: ERR... ' + latency + 'ms', { message, response: e?.response?.data });
 
             throw new Error('Something went wrong, please try again later.');
         }
     };
 
-    static callback(transaction: { [key: string]: any }) {
-        log.info('--- ...[SRV - SIDOOH]: CB... ---', transaction)
+    static callback({ url, method = 'POST', data = {} }: { url: string, method?: Method, data: any }) {
+        log.info('--- ...[SRV - SIDOOH]: CB... ---', data)
 
-        const { extra: { ipn } } = transaction;
-
-        this.fetch(ipn, 'POST', transaction).catch(err => {
+        this.fetch(url, method, data).catch(err => {
             log.error('...[SRV - SIDOOH]: ERR - ', err)
         })
     }
