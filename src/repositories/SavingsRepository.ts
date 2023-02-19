@@ -29,9 +29,6 @@ export const SavingsRepository = {
         let message = `Provider Balances:\n`;
         if (savingsFloatAccount.balance <= (env.SAVINGS_FLOAT_THRESHOLD_PERCENTAGE / 100) * cumulativeSavings) {
             message += `\t - Savings Float: ${savingsFloatAccount.balance}\n`;
-        }
-
-        if (message.includes('-')) {
             message += `\n#SRV:Savings`;
 
             await SidoohNotify.notify(env.ADMIN_CONTACTS.split(','), message, EventType.STATUS_UPDATE);
