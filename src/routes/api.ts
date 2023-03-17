@@ -13,6 +13,7 @@ import GroupTransactionController from "../http/controllers/GroupTransactionCont
 import { GroupRequest } from "../http/requests/Group.request";
 import GroupController from "../http/controllers/GroupController";
 import { GroupAccountRequest } from "../http/requests/GroupAccount.request";
+import ChargeController from 'http/controllers/ChargeController';
 
 const apiRouter = new RouteGroup('/api/v1', Router());
 
@@ -74,6 +75,10 @@ apiRouter.group('/groups', router => {
         });
     });
 });
+
+apiRouter.group('/charges', r => {
+    r.get('/withdrawal/:amount', ChargeController.getWithdrawalCharge)
+})
 
 apiRouter.group('/dashboard', router => {
     router.get('/chart', DashboardController.chartData);
