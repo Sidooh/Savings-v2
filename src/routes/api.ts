@@ -13,7 +13,7 @@ import GroupTransactionController from "../http/controllers/GroupTransactionCont
 import { GroupRequest } from "../http/requests/Group.request";
 import GroupController from "../http/controllers/GroupController";
 import { GroupAccountRequest } from "../http/requests/GroupAccount.request";
-import ChargeController from 'http/controllers/ChargeController';
+import ChargeController from '../http/controllers/ChargeController';
 
 const apiRouter = new RouteGroup('/api/v1', Router());
 
