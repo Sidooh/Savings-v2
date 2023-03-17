@@ -29,7 +29,7 @@ export default class SidoohPayments extends SidoohService {
         const url = `${CONFIG.sidooh.services.payments.url}/charges/withdrawal`;
         let res = await this.fetch(url)
 
-        Cache.set(`withdrawal_charges`, res.data, (24 * 60 * 60))
+        Cache.set(`withdrawal_charges`, res.data, (3600 * 24 * 90))
 
         return res.data
     }
@@ -43,7 +43,7 @@ export default class SidoohPayments extends SidoohService {
         const url = `${CONFIG.sidooh.services.payments.url}/charges/withdrawal/${amount}`;
         let res = await this.fetch(url)
 
-        Cache.set(`withdrawal_charge_${amount}`, res.data, (24 * 60 * 60))
+        Cache.set(`withdrawal_charge_${amount}`, res.data, (3600 * 24 * 90))
 
         return res.data
     }
