@@ -2,6 +2,7 @@ import log from '../utils/logger';
 import { CONFIG } from '../config';
 import SidoohService from './SidoohService';
 import { Cache } from "../utils/helpers";
+import { ChargeBand } from '../utils/types';
 
 export default class SidoohPayments extends SidoohService {
     static async requestPayment(transaction: {}) {
@@ -20,10 +21,10 @@ export default class SidoohPayments extends SidoohService {
         return await this.fetch(url)
     }
 
-    static async getWithdrawalCharges(): Promise<number> {
+    static async getWithdrawalCharges(): Promise<ChargeBand[]> {
         log.info('...[SRV - PAYMENTS]: Get Withdrawal Charges...');
 
-        let charges: number = Cache.get(`withdrawal_charges`)
+        let charges: ChargeBand[] = Cache.get(`withdrawal_charges`)
         if (charges) return charges
 
         const url = `${CONFIG.sidooh.services.payments.url}/charges/withdrawal`;
