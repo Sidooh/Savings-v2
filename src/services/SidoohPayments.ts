@@ -34,20 +34,6 @@ export default class SidoohPayments extends SidoohService {
         return res.data
     }
 
-    static async getWithdrawalCharge(amount: number): Promise<number> {
-        log.info('...[SRV - PAYMENTS]: Get Withdrawal Charge...', { amount });
-
-        let charge: number = Cache.get(`withdrawal_charge_${amount}`)
-        if (charge) return charge
-
-        const url = `${CONFIG.sidooh.services.payments.url}/charges/withdrawal/${amount}`;
-        let res = await this.fetch(url)
-
-        Cache.set(`withdrawal_charge_${amount}`, res.data, (3600 * 24 * 90))
-
-        return res.data
-    }
-
     static async getFloatAccount(id: number) {
         log.info('...[SRV - PAYMENTS]: Get Float Account...');
 
