@@ -78,7 +78,6 @@ apiRouter.group('/groups', router => {
 
 apiRouter.group('/charges', r => {
     r.get('/withdrawal', ChargeController.getWithdrawalCharges)
-    r.get('/withdrawal/:amount', ChargeController.getWithdrawalCharge)
 })
 
 apiRouter.group('/dashboard', router => {

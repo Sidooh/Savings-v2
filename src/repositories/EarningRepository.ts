@@ -5,8 +5,8 @@ import SidoohAccounts from '../services/SidoohAccounts';
 import { NotFoundError } from '../exceptions/not-found.err';
 import { PersonalAccountTransaction } from "../entities/models/PersonalAccountTransaction";
 import { BadRequestError } from "../exceptions/bad-request.err";
-import SidoohPayments from "../services/SidoohPayments";
 import { TransactionRepository } from "./TransactionRepository";
+import { withdrawalCharge } from "../utils/helpers";
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
@@ -101,8 +101,7 @@ export const EarningRepository = {
 
         if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
 
-        const charge = await SidoohPayments.getWithdrawalCharge(body.amount)
-        if (!charge) throw new BadRequestError('Unable to fetch withdrawal charge!')
+        const charge = await withdrawalCharge(body.amount)
 
         if (personalAccount.balance - charge <= body.amount) throw new BadRequestError("Insufficient balance!");
 

@@ -8,9 +8,4 @@ export default class ChargeController extends Controller {
 
         res.send(this.successResponse({ data: charges }))
     };
-    static getWithdrawalCharge = async ({ params }: Request, res: Response) => {
-        const charge = await SidoohPayments.getWithdrawalCharge(Number(params.amount))
-
-        res.send(this.successResponse({ data: charge }))
-    };
 }

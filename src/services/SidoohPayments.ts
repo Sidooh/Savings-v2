@@ -2,6 +2,7 @@ import log from '../utils/logger';
 import { CONFIG } from '../config';
 import SidoohService from './SidoohService';
 import { Cache } from "../utils/helpers";
+import { ChargeBand } from '../utils/types';
 
 export default class SidoohPayments extends SidoohService {
     static async requestPayment(transaction: {}) {
@@ -20,30 +21,16 @@ export default class SidoohPayments extends SidoohService {
         return await this.fetch(url)
     }
 
-    static async getWithdrawalCharges(): Promise<number> {
+    static async getWithdrawalCharges(): Promise<ChargeBand[]> {
         log.info('...[SRV - PAYMENTS]: Get Withdrawal Charges...');
 
-        let charges: number = Cache.get(`withdrawal_charges`)
+        let charges: ChargeBand[] = Cache.get(`withdrawal_charges`)
         if (charges) return charges
 
         const url = `${CONFIG.sidooh.services.payments.url}/charges/withdrawal`;
         let res = await this.fetch(url)
 
         Cache.set(`withdrawal_charges`, res.data, (3600 * 24 * 90))
-
-        return res.data
-    }
-
-    static async getWithdrawalCharge(amount: number): Promise<number> {
-        log.info('...[SRV - PAYMENTS]: Get Withdrawal Charge...', { amount });
-
-        let charge: number = Cache.get(`withdrawal_charge_${amount}`)
-        if (charge) return charge
-
-        const url = `${CONFIG.sidooh.services.payments.url}/charges/withdrawal/${amount}`;
-        let res = await this.fetch(url)
-
-        Cache.set(`withdrawal_charge_${amount}`, res.data, (3600 * 24 * 90))
 
         return res.data
     }
