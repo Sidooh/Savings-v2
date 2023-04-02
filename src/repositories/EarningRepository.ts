@@ -23,7 +23,7 @@ export const EarningRepository = {
     },
 
     deposit: async body => {
-        const transactions = {
+        const deposits = {
             completed: {},
             failed: {}
         };
@@ -42,76 +42,91 @@ export const EarningRepository = {
                     lockedAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.LOCKED),
                     merchantAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.MERCHANT);
 
-                if (!currentAcc) {
-                    currentAcc = PersonalAccount.create({
-                        type: DefaultAccount.CURRENT,
-                        account_id: record.account_id,
-                        balance: record.current_amount
+                deposits.completed[record.account_id] = []
+
+                // TODO: simplify this repetition
+                if (record.current_amount > 0) {
+                    // TODO: refactor common code
+                    if (!currentAcc) {
+                        currentAcc = PersonalAccount.create({
+                            type: DefaultAccount.CURRENT,
+                            account_id: record.account_id,
+                            balance: record.current_amount
+                        });
+
+                        await PersonalAccount.insert(currentAcc)
+                    } else {
+                        await PersonalAccount.update({ id: currentAcc.id }, {
+                            balance: currentAcc.balance + record.current_amount
+                        })
+                    }
+
+                    const transaction = await PersonalAccountTransaction.save({
+                        amount: record.current_amount,
+                        description: Description.ACCOUNT_DEPOSIT,
+                        personal_account_id: currentAcc.id,
+                        type: TransactionType.CREDIT,
+                        status: Status.COMPLETED
                     });
 
-                    await PersonalAccount.insert(currentAcc)
-                } else {
-                    await PersonalAccount.update({ id: currentAcc.id }, {
-                        balance: currentAcc.balance + record.current_amount
-                    })
+                    deposits.completed[record.account_id].push(transaction)
                 }
 
-                if (!lockedAcc) {
-                    lockedAcc = await PersonalAccount.create({
-                        type: DefaultAccount.LOCKED,
-                        account_id: record.account_id,
-                        balance: record.locked_amount
+                if (record.locked_amount > 0) {
+                    if (!lockedAcc) {
+                        lockedAcc = await PersonalAccount.create({
+                            type: DefaultAccount.LOCKED,
+                            account_id: record.account_id,
+                            balance: record.locked_amount
+                        });
+                        await PersonalAccount.insert(lockedAcc)
+                    } else {
+                        await PersonalAccount.update({ id: lockedAcc.id }, {
+                            balance: lockedAcc.balance + record.locked_amount
+                        })
+                    }
+
+                    const transaction = await PersonalAccountTransaction.save({
+                        amount: record.locked_amount,
+                        description: Description.ACCOUNT_DEPOSIT,
+                        personal_account_id: lockedAcc.id,
+                        type: TransactionType.CREDIT,
+                        status: Status.COMPLETED
                     });
-                    await PersonalAccount.insert(lockedAcc)
-                } else {
-                    await PersonalAccount.update({ id: lockedAcc.id }, {
-                        balance: lockedAcc.balance + record.locked_amount
-                    })
+
+                    deposits.completed[record.account_id].push(transaction)
                 }
 
-                if (!merchantAcc) {
-                    merchantAcc = await PersonalAccount.create({
-                        type: DefaultAccount.MERCHANT,
-                        account_id: record.account_id,
-                        balance: record.locked_amount
+                if (record.merchant_amount > 0) {
+                    if (!merchantAcc) {
+                        merchantAcc = await PersonalAccount.create({
+                            type: DefaultAccount.MERCHANT,
+                            account_id: record.account_id,
+                            balance: record.merchant_amount
+                        });
+                        await PersonalAccount.insert(merchantAcc)
+                    } else {
+                        await PersonalAccount.update({ id: merchantAcc.id }, {
+                            balance: merchantAcc.balance + record.merchant_amount
+                        })
+                    }
+
+                    const transaction = await PersonalAccountTransaction.save({
+                        amount: record.merchant_amount,
+                        description: Description.ACCOUNT_DEPOSIT,
+                        personal_account_id: merchantAcc.id,
+                        type: TransactionType.CREDIT,
+                        status: Status.COMPLETED
                     });
-                    await PersonalAccount.insert(merchantAcc)
-                } else {
-                    await PersonalAccount.update({ id: merchantAcc.id }, {
-                        balance: merchantAcc.balance + record.locked_amount
-                    })
+
+                    deposits.completed[record.account_id].push(transaction)
                 }
-
-                const cTransaction = await PersonalAccountTransaction.save({
-                    amount: record.current_amount,
-                    description: Description.ACCOUNT_DEPOSIT,
-                    personal_account_id: currentAcc.id,
-                    type: TransactionType.CREDIT,
-                    status: Status.COMPLETED
-                });
-                const lTransaction = await PersonalAccountTransaction.save({
-                    amount: record.locked_amount,
-                    description: Description.ACCOUNT_DEPOSIT,
-                    personal_account_id: lockedAcc.id,
-                    type: TransactionType.CREDIT,
-                    status: Status.COMPLETED
-                });
-                const mTransaction = await PersonalAccountTransaction.save({
-                    amount: record.merchant_amount,
-                    description: Description.ACCOUNT_DEPOSIT,
-                    personal_account_id: merchantAcc.id,
-                    type: TransactionType.CREDIT,
-                    status: Status.COMPLETED
-                });
-
-                transactions.completed[record.account_id] = [cTransaction, lTransaction, mTransaction];
-
             } catch (e) {
-                transactions.failed[record.account_id] = e.message;
+                deposits.failed[record.account_id] = e.message;
             }
         }
 
-        return transactions;
+        return deposits;
     },
 
     withdraw: async (id, body) => {
