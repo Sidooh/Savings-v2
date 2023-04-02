@@ -7,6 +7,7 @@ export const EarningRequest = {
             account_id: Joi.number().integer().required(), // TODO: add Sidooh account validation
             current_amount: Joi.number().required(),
             locked_amount: Joi.number().required(),
+            merchant_amount: Joi.number().required(),
         })
     ),
 

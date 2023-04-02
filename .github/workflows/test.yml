@@ -1,6 +1,7 @@
 name: test-savings
 
 on:
+  pull_request: {}
   push:
     branches: [ red.dev ]
 

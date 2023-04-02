@@ -94,7 +94,10 @@ export default class InvestmentRepository {
 
 
     getDailyRate = (rate: number) => {
-        return (Math.pow(((rate / 100) + 1), (1 / 365)) - 1) * 100;
+        // return (Math.pow(((rate / 100) + 1), (1 / 365)) - 1) * 100;
+        // Updated on 2/4/23
+
+        return (rate / 100) / 365;
     };
 
     dailyInterestCalculation = async () => {
@@ -168,8 +171,8 @@ export default class InvestmentRepository {
 
         const dayRate = this.getDailyRate(rate);
 
-        // const groupsCredited = await this.calculateInterestForGroups(rate, dayRate);
-        const personalAccountsCredited = await this.calculateInterestForPersonal(rate, dayRate);
+        // const groupsCredited = await this.calculateInterestForGroups(dayRate);
+        const personalAccountsCredited = await this.calculateInterestForPersonal(dayRate);
 
         return {
             groups: 0,
@@ -177,10 +180,8 @@ export default class InvestmentRepository {
         };
     };
 
-    calculateInterestForGroups = async (rate: number, dayRate?: number) => {
+    calculateInterestForGroups = async (dayRate: number) => {
         log.info("...Calculating interest - personal-accounts...");
-
-        if (!dayRate) dayRate = this.getDailyRate(rate);
 
         const investment = await GroupCollectiveInvestment.findOne({
             where: { interest_rate: IsNull() },
@@ -194,12 +195,12 @@ export default class InvestmentRepository {
             return 0;
         }
 
-        investment.interest_rate = rate;
-        investment.interest = investment.amount * (dayRate / 100);
+        investment.interest_rate = dayRate;
+        investment.interest = investment.amount * dayRate;
         investment.maturity_date = moment().add(1, 'month').toDate();
 
         for (const subInvestment of investment.group_sub_investments) {
-            const interest = subInvestment.amount * (dayRate / 100);
+            const interest = subInvestment.amount * dayRate;
 
             subInvestment.interest = interest;
             await Group.getRepository().increment({ id: subInvestment.group_id }, 'interest', interest);
@@ -212,10 +213,8 @@ export default class InvestmentRepository {
         return investment.group_sub_investments.length;
     };
 
-    calculateInterestForPersonal = async (rate: number, dayRate?: number) => {
+    calculateInterestForPersonal = async (dayRate: number) => {
         log.info("...Calculating interest - personals...");
-
-        if (!dayRate) dayRate = this.getDailyRate(rate);
 
         const investment = await PersonalCollectiveInvestment.findOne({
             where: { interest_rate: IsNull() },
@@ -229,12 +228,13 @@ export default class InvestmentRepository {
             return 0;
         }
 
-        investment.interest_rate = rate;
-        investment.interest = investment.amount * (dayRate / 100);
+        investment.interest_rate = dayRate;
+        investment.interest = investment.amount * dayRate;
         investment.maturity_date = moment().add(1, 'month').toDate();
 
+        // TODO: Refactor to do bulk update
         for (const subInvestment of investment.personal_sub_investments) {
-            const interest = subInvestment.amount * (dayRate / 100);
+            const interest = subInvestment.amount * dayRate;
 
             subInvestment.interest = interest;
             await PersonalAccount.getRepository()

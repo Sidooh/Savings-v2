@@ -8,6 +8,7 @@ import { GroupAccount } from '../entities/models/GroupAccount';
 import ChartAid from '../utils/ChartAid';
 import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
 import { TransactionType } from '../utils/enums';
+import SidoohPayments from "../services/SidoohPayments";
 
 export const DashboardRepository = {
     chartData: async () => {
@@ -41,25 +42,29 @@ export const DashboardRepository = {
 
     getSummaries: async () => {
         const startOfDay = moment().startOf('day').toDate();
-        const endOfDay = moment().endOf('day').toDate(),
-            whereToday = Between(startOfDay, endOfDay);
+
+        const pa = await PersonalAccount.find({ select: ['balance', 'created_at'] })
+        const ga = await GroupAccount.find({ select: ['balance', 'created_at'] })
+
+        const paToday = pa.filter(a => moment(a.created_at).isSameOrAfter(startOfDay))
+        const gaToday = ga.filter(a => moment(a.created_at).isSameOrAfter(startOfDay))
+
+        const savingsFloatAccount = await SidoohPayments.getFloatAccount(2);
 
         return {
-            count_personal_accounts: await PersonalAccount.count(),
-            count_personal_accounts_today: await PersonalAccount.countBy({ created_at: whereToday }),
+            count_personal_accounts: pa.length,
+            count_personal_accounts_today: paToday.length,
 
-            count_group_accounts: await GroupAccount.count(),
-            count_group_accounts_today: await GroupAccount.countBy({ created_at: whereToday }),
+            count_group_accounts: ga.length,
+            count_group_accounts_today: gaToday.length,
 
-            amount_personal_accounts: await PersonalAccount.createQueryBuilder().select('SUM(balance)', 'balance')
-                .getRawOne().then(res => res.balance),
-            amount_personal_accounts_today: await PersonalAccount.createQueryBuilder().select('SUM(balance)', 'balance')
-                .where({ created_at: whereToday }).getRawOne().then(res => res.balance),
+            amount_personal_accounts: pa.reduce((prev, curr) => prev + curr.balance, 0),
+            amount_personal_accounts_today: paToday.reduce((prev, curr) => prev + curr.balance, 0),
 
-            amount_group_accounts: await GroupAccount.createQueryBuilder().select('SUM(balance)', 'balance')
-                .getRawOne().then(res => res.balance),
-            amount_group_accounts_today: await GroupAccount.createQueryBuilder().select('SUM(balance)', 'balance')
-                .where({ created_at: whereToday }).getRawOne().then(res => res.balance),
+            amount_group_accounts: ga.reduce((prev, curr) => prev + curr.balance, 0),
+            amount_group_accounts_today: gaToday.reduce((prev, curr) => prev + curr.balance, 0),
+
+            savings_float_balance: savingsFloatAccount ? savingsFloatAccount.balance : null
         };
     },
 
