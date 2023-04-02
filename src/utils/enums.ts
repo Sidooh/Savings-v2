@@ -37,6 +37,7 @@ export enum GroupType {
 export enum DefaultAccount {
     CURRENT = 'CURRENT',
     LOCKED = 'LOCKED',
+    MERCHANT = 'MERCHANT',
 }
 
 export enum PersonalAccountType {

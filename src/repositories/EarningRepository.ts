@@ -34,12 +34,13 @@ export const EarningRepository = {
                 await SidoohAccounts.find(record.account_id);
 
                 const accounts = await PersonalAccount.findBy({
-                    type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT]),
+                    type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT, DefaultAccount.MERCHANT]),
                     account_id: record.account_id
                 });
 
                 let currentAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.CURRENT),
-                    lockedAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.LOCKED);
+                    lockedAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.LOCKED),
+                    merchantAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.MERCHANT);
 
                 if (!currentAcc) {
                     currentAcc = PersonalAccount.create({
@@ -68,6 +69,19 @@ export const EarningRepository = {
                     })
                 }
 
+                if (!merchantAcc) {
+                    merchantAcc = await PersonalAccount.create({
+                        type: DefaultAccount.MERCHANT,
+                        account_id: record.account_id,
+                        balance: record.locked_amount
+                    });
+                    await PersonalAccount.insert(merchantAcc)
+                } else {
+                    await PersonalAccount.update({ id: merchantAcc.id }, {
+                        balance: merchantAcc.balance + record.locked_amount
+                    })
+                }
+
                 const cTransaction = await PersonalAccountTransaction.save({
                     amount: record.current_amount,
                     description: Description.ACCOUNT_DEPOSIT,
@@ -82,8 +96,15 @@ export const EarningRepository = {
                     type: TransactionType.CREDIT,
                     status: Status.COMPLETED
                 });
+                const mTransaction = await PersonalAccountTransaction.save({
+                    amount: record.merchant_amount,
+                    description: Description.ACCOUNT_DEPOSIT,
+                    personal_account_id: merchantAcc.id,
+                    type: TransactionType.CREDIT,
+                    status: Status.COMPLETED
+                });
 
-                transactions.completed[record.account_id] = [cTransaction, lTransaction];
+                transactions.completed[record.account_id] = [cTransaction, lTransaction, mTransaction];
 
             } catch (e) {
                 transactions.failed[record.account_id] = e.message;
