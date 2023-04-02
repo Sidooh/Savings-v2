@@ -41,7 +41,7 @@ export const env = cleanEnv(process.env, {
     SENTRY_DSN: url({ default: null }),
     SENTRY_TRACES_SAMPLE_RATE: num({ default: 0.0 }),
 
-    INTEREST_RATE: num({ default: 9 }),
+    INTEREST_RATE: num({ default: 9.00 }),
 
     ADMIN_CONTACTS: str({ default: '254110039317,254714611696,254711414987' }),
 
