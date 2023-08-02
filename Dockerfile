@@ -5,7 +5,7 @@ FROM node:16.15.0-alpine as builder
 
 WORKDIR /app
 
-RUN ["yarn", "set", "version", "berry"]
+RUN ["yarn", "set", "version", "3.6.1"]
 RUN ["yarn", "plugin", "import", "typescript"]
 
 COPY ["package.json", "yarn.lock", "./"]
