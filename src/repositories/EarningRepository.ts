@@ -5,8 +5,8 @@ import SidoohAccounts from '../services/SidoohAccounts';
 import { NotFoundError } from '../exceptions/not-found.err';
 import { PersonalAccountTransaction } from "../entities/models/PersonalAccountTransaction";
 import { BadRequestError } from "../exceptions/bad-request.err";
-import SidoohPayments from "../services/SidoohPayments";
 import { TransactionRepository } from "./TransactionRepository";
+import { withdrawalCharge } from "../utils/helpers";
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
@@ -16,14 +16,14 @@ export const EarningRepository = {
                 'status', 'account_id', 'created_at'
             ],
             where: {
-                type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT]),
+                type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT, DefaultAccount.MERCHANT]),
                 account_id
             }
         });
     },
 
     deposit: async body => {
-        const transactions = {
+        const deposits = {
             completed: {},
             failed: {}
         };
@@ -34,63 +34,99 @@ export const EarningRepository = {
                 await SidoohAccounts.find(record.account_id);
 
                 const accounts = await PersonalAccount.findBy({
-                    type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT]),
+                    type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT, DefaultAccount.MERCHANT]),
                     account_id: record.account_id
                 });
 
                 let currentAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.CURRENT),
-                    lockedAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.LOCKED);
+                    lockedAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.LOCKED),
+                    merchantAcc: PersonalAccount = accounts?.find(a => a.type === DefaultAccount.MERCHANT);
 
-                if (!currentAcc) {
-                    currentAcc = PersonalAccount.create({
-                        type: DefaultAccount.CURRENT,
-                        account_id: record.account_id,
-                        balance: record.current_amount
+                deposits.completed[record.account_id] = []
+
+                // TODO: simplify this repetition
+                if (record.current_amount > 0) {
+                    // TODO: refactor common code
+                    if (!currentAcc) {
+                        currentAcc = PersonalAccount.create({
+                            type: DefaultAccount.CURRENT,
+                            account_id: record.account_id,
+                            balance: record.current_amount
+                        });
+
+                        await PersonalAccount.insert(currentAcc)
+                    } else {
+                        await PersonalAccount.update({ id: currentAcc.id }, {
+                            balance: currentAcc.balance + record.current_amount
+                        })
+                    }
+
+                    const transaction = await PersonalAccountTransaction.save({
+                        amount: record.current_amount,
+                        description: Description.ACCOUNT_DEPOSIT,
+                        personal_account_id: currentAcc.id,
+                        type: TransactionType.CREDIT,
+                        status: Status.COMPLETED
                     });
 
-                    await PersonalAccount.insert(currentAcc)
-                } else {
-                    await PersonalAccount.update({ id: currentAcc.id }, {
-                        balance: currentAcc.balance + record.current_amount
-                    })
+                    deposits.completed[record.account_id].push(transaction)
                 }
 
-                if (!lockedAcc) {
-                    lockedAcc = await PersonalAccount.create({
-                        type: DefaultAccount.LOCKED,
-                        account_id: record.account_id,
-                        balance: record.locked_amount
+                if (record.locked_amount > 0) {
+                    if (!lockedAcc) {
+                        lockedAcc = await PersonalAccount.create({
+                            type: DefaultAccount.LOCKED,
+                            account_id: record.account_id,
+                            balance: record.locked_amount
+                        });
+                        await PersonalAccount.insert(lockedAcc)
+                    } else {
+                        await PersonalAccount.update({ id: lockedAcc.id }, {
+                            balance: lockedAcc.balance + record.locked_amount
+                        })
+                    }
+
+                    const transaction = await PersonalAccountTransaction.save({
+                        amount: record.locked_amount,
+                        description: Description.ACCOUNT_DEPOSIT,
+                        personal_account_id: lockedAcc.id,
+                        type: TransactionType.CREDIT,
+                        status: Status.COMPLETED
                     });
-                    await PersonalAccount.insert(lockedAcc)
-                } else {
-                    await PersonalAccount.update({ id: lockedAcc.id }, {
-                        balance: lockedAcc.balance + record.locked_amount
-                    })
+
+                    deposits.completed[record.account_id].push(transaction)
                 }
 
-                const cTransaction = await PersonalAccountTransaction.save({
-                    amount: record.current_amount,
-                    description: Description.ACCOUNT_DEPOSIT,
-                    personal_account_id: currentAcc.id,
-                    type: TransactionType.CREDIT,
-                    status: Status.COMPLETED
-                });
-                const lTransaction = await PersonalAccountTransaction.save({
-                    amount: record.locked_amount,
-                    description: Description.ACCOUNT_DEPOSIT,
-                    personal_account_id: lockedAcc.id,
-                    type: TransactionType.CREDIT,
-                    status: Status.COMPLETED
-                });
+                if (record.merchant_amount > 0) {
+                    if (!merchantAcc) {
+                        merchantAcc = await PersonalAccount.create({
+                            type: DefaultAccount.MERCHANT,
+                            account_id: record.account_id,
+                            balance: record.merchant_amount
+                        });
+                        await PersonalAccount.insert(merchantAcc)
+                    } else {
+                        await PersonalAccount.update({ id: merchantAcc.id }, {
+                            balance: merchantAcc.balance + record.merchant_amount
+                        })
+                    }
 
-                transactions.completed[record.account_id] = [cTransaction, lTransaction];
+                    const transaction = await PersonalAccountTransaction.save({
+                        amount: record.merchant_amount,
+                        description: Description.ACCOUNT_DEPOSIT,
+                        personal_account_id: merchantAcc.id,
+                        type: TransactionType.CREDIT,
+                        status: Status.COMPLETED
+                    });
 
+                    deposits.completed[record.account_id].push(transaction)
+                }
             } catch (e) {
-                transactions.failed[record.account_id] = e.message;
+                deposits.failed[record.account_id] = e.message;
             }
         }
 
-        return transactions;
+        return deposits;
     },
 
     withdraw: async (id, body) => {
@@ -101,8 +137,7 @@ export const EarningRepository = {
 
         if (!personalAccount) throw new NotFoundError("Current Personal Account Not Found!");
 
-        const charge = await SidoohPayments.getWithdrawalCharge(body.amount)
-        if (!charge) throw new BadRequestError('Unable to fetch withdrawal charge!')
+        const charge = await withdrawalCharge(body.amount)
 
         if (personalAccount.balance - charge <= body.amount) throw new BadRequestError("Insufficient balance!");
 
