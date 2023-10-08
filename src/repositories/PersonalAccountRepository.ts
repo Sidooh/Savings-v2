@@ -1,6 +1,6 @@
 import { PersonalAccount } from '../entities/models/PersonalAccount';
 import { NotFoundError } from '../exceptions/not-found.err';
-import { DefaultAccount, Description, TransactionType } from '../utils/enums';
+import { DefaultAccount, Description, Status, TransactionType } from '../utils/enums';
 import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
 import { DeepPartial, In } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
@@ -83,7 +83,7 @@ export const PersonalAccountRepository = {
         return personalAccount;
     },
 
-    storeDefaults: async account_id => {
+    storeDefaults: async (account_id: any) => {
         await SidoohAccounts.find(account_id);
 
         const accs = await PersonalAccount.findBy({
@@ -108,7 +108,7 @@ export const PersonalAccountRepository = {
         return [current, locked];
     },
 
-    deposit: async (amount: number, personalAccId) => {
+    deposit: async (amount: number, personalAccId: any) => {
         const personalAcc = await PersonalAccount.findOneBy({ id: personalAccId });
 
         if (!personalAcc) throw new NotFoundError("Personal Account Not Found!");
@@ -117,7 +117,8 @@ export const PersonalAccountRepository = {
             amount,
             description: Description.ACCOUNT_DEPOSIT,
             personal_account_id: personalAccId,
-            type: TransactionType.CREDIT
+            type: TransactionType.CREDIT,
+            status: Status.COMPLETED
         });
 
         personalAcc.balance += amount
@@ -126,7 +127,7 @@ export const PersonalAccountRepository = {
         return transaction;
     },
 
-    withdraw: async (amount: number, personalAccId) => {
+    withdraw: async (amount: number, personalAccId: any) => {
         const personalAcc = await PersonalAccount.findOneBy({ id: personalAccId });
 
         if (!personalAcc) throw new NotFoundError("Personal Account Not Found!");

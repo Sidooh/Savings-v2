@@ -40,6 +40,11 @@ export enum DefaultAccount {
     MERCHANT = 'MERCHANT',
 }
 
+export enum MerchantDefaultAccount {
+    MERCHANT_CASHBACK = 'MERCHANT_CASHBACK',
+    MERCHANT_COMMISSION = 'MERCHANT_COMMISSION',
+}
+
 export enum PersonalAccountType {
     GOAL = 'GOAL',
     EMERGENCY = 'EMERGENCY',

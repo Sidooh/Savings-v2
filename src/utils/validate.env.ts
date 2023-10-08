@@ -28,7 +28,7 @@ export const env = cleanEnv(process.env, {
     }),
 
     SLACK_HOOK_URL: url({ default: '' }),
-    ENABLE_SLACK_LOGGING: bool({ default: true }),
+    ENABLE_SLACK_LOGGING: bool({ default: false }),
 
     SIDOOH_ACCOUNTS_API_URL: url({ default: 'http://localhost:8000/api/v1' }),
     SIDOOH_NOTIFY_API_URL: url({ default: 'http://localhost:8003/api/v1' }),

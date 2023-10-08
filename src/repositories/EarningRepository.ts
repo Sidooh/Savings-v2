@@ -1,5 +1,5 @@
 import { PersonalAccount } from '../entities/models/PersonalAccount';
-import { DefaultAccount, Description, Status, TransactionType } from '../utils/enums';
+import { DefaultAccount, Description, MerchantDefaultAccount, Status, TransactionType } from '../utils/enums';
 import { In } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
 import { NotFoundError } from '../exceptions/not-found.err';
@@ -7,6 +7,7 @@ import { PersonalAccountTransaction } from "../entities/models/PersonalAccountTr
 import { BadRequestError } from "../exceptions/bad-request.err";
 import { TransactionRepository } from "./TransactionRepository";
 import { withdrawalCharge } from "../utils/helpers";
+import { PersonalAccountRepository } from "./PersonalAccountRepository";
 
 export const EarningRepository = {
     getAccountEarnings: async account_id => {
@@ -51,7 +52,8 @@ export const EarningRepository = {
                         currentAcc = PersonalAccount.create({
                             type: DefaultAccount.CURRENT,
                             account_id: record.account_id,
-                            balance: record.current_amount
+                            balance: record.current_amount,
+                            status: Status.ACTIVE,
                         });
 
                         await PersonalAccount.insert(currentAcc)
@@ -77,7 +79,8 @@ export const EarningRepository = {
                         lockedAcc = await PersonalAccount.create({
                             type: DefaultAccount.LOCKED,
                             account_id: record.account_id,
-                            balance: record.locked_amount
+                            balance: record.locked_amount,
+                            status: Status.ACTIVE,
                         });
                         await PersonalAccount.insert(lockedAcc)
                     } else {
@@ -102,7 +105,8 @@ export const EarningRepository = {
                         merchantAcc = await PersonalAccount.create({
                             type: DefaultAccount.MERCHANT,
                             account_id: record.account_id,
-                            balance: record.merchant_amount
+                            balance: record.merchant_amount,
+                            status: Status.ACTIVE,
                         });
                         await PersonalAccount.insert(merchantAcc)
                     } else {
@@ -178,5 +182,58 @@ export const EarningRepository = {
         TransactionRepository.processPersonalWithdrawals()
 
         return withdrawalTransaction;
-    }
+    },
+
+    merchantDeposit: async body => {
+        const deposits = {
+            completed: {},
+            failed: {}
+        };
+        // create map of accounts and expected amount keys
+
+        const accountMap = {
+            [MerchantDefaultAccount.MERCHANT_CASHBACK]: 'cashback_amount',
+            [MerchantDefaultAccount.MERCHANT_COMMISSION]: 'commission_amount'
+        }
+
+        // iterate, creating or updating as necessary
+
+        for (const record of body) {
+            try {
+                await SidoohAccounts.find(record.account_id);
+
+                const accounts = await PersonalAccount.findBy({
+                    type: In(Object.keys(accountMap)),
+                    account_id: record.account_id
+                });
+
+                deposits.completed[record.account_id] = []
+
+                for (const accountType in accountMap) {
+                    if (record[accountMap[accountType]] > 0) {
+                        let acc = accounts?.find(a => a.type === accountType)
+
+                        if (!acc) {
+                            acc = PersonalAccount.create({
+                                type: accountType,
+                                account_id: record.account_id,
+                                status: Status.ACTIVE,
+                            });
+
+                            acc = await PersonalAccount.save(acc)
+
+                        }
+                        const transaction = await PersonalAccountRepository.deposit(record[accountMap[accountType]], acc.id)
+
+                        deposits.completed[record.account_id].push(transaction)
+                    }
+                }
+
+            } catch (e) {
+                deposits.failed[record.account_id] = e.message;
+            }
+        }
+
+        return deposits;
+    },
 };

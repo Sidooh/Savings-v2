@@ -1,6 +1,13 @@
 import { Column, Entity, Index, OneToMany } from "typeorm";
 import { BaseEntity, NumericColumnTransformer } from './BaseEntity';
-import { DefaultAccount, Duration, Frequency, PersonalAccountType, Status } from '../../utils/enums';
+import {
+    DefaultAccount,
+    Duration,
+    Frequency,
+    MerchantDefaultAccount,
+    PersonalAccountType,
+    Status
+} from '../../utils/enums';
 import { PersonalAccountTransaction } from './PersonalAccountTransaction';
 import { PersonalSubInvestment } from './PersonalSubInvestment';
 
@@ -8,7 +15,7 @@ import { PersonalSubInvestment } from './PersonalSubInvestment';
 @Index(["type", "account_id", "description"], {unique: true})
 export class PersonalAccount extends BaseEntity {
     @Column({length: 20})
-    type: PersonalAccountType|DefaultAccount;
+    type: PersonalAccountType|DefaultAccount|MerchantDefaultAccount|string;
 
     @Column({nullable: true})
     description: string;
