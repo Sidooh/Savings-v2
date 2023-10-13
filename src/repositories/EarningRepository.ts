@@ -17,7 +17,7 @@ export const EarningRepository = {
                 'status', 'account_id', 'created_at'
             ],
             where: {
-                type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT, DefaultAccount.MERCHANT]),
+                type: In([DefaultAccount.LOCKED, DefaultAccount.CURRENT, DefaultAccount.MERCHANT, MerchantDefaultAccount.MERCHANT_CASHBACK, MerchantDefaultAccount.MERCHANT_COMMISSION]),
                 account_id
             }
         });
