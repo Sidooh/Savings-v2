@@ -17,6 +17,12 @@ export default class EarningController extends Controller {
         res.status(HttpStatusCode.Accepted).send(this.successResponse({ data: response }));
     };
 
+    static merchantDeposit = async ({ body }: Request, res: Response) => {
+        const response = await Repo.merchantDeposit(body);
+
+        res.status(HttpStatusCode.Accepted).send(this.successResponse({ data: response }));
+    };
+
     static withdraw = async ({ params, body }: Request, res: Response) => {
         await SidoohAccounts.find(Number(params.accountId));
 

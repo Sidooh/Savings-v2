@@ -14,6 +14,7 @@ import { GroupRequest } from "../http/requests/Group.request";
 import GroupController from "../http/controllers/GroupController";
 import { GroupAccountRequest } from "../http/requests/GroupAccount.request";
 import ChargeController from '../http/controllers/ChargeController';
+import { MerchantEarningRequest } from "../http/requests/MerchantEarning.request";
 
 const apiRouter = new RouteGroup('/api/v1', Router());
 
@@ -27,6 +28,9 @@ apiRouter.group('/accounts', router => {
     });
 
     router.post('/earnings', validate(EarningRequest.store), EarningController.deposit);
+    //TODO: merge into earnings and use one process flow
+    router.post('/merchant-earnings', validate(MerchantEarningRequest.store), EarningController.merchantDeposit);
+
 });
 
 // TODO: Restructure routing
