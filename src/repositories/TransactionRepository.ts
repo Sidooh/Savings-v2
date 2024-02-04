@@ -2,7 +2,7 @@ import { ColumnExtra, PersonalAccountTransaction } from '../entities/models/Pers
 import { GroupAccountTransaction } from '../entities/models/GroupAccountTransaction';
 import { Description, Status, TransactionType } from "../utils/enums";
 import log from "../utils/logger";
-import { In, LessThan } from "typeorm";
+import { In, LessThanOrEqual } from "typeorm";
 import SidoohPayments from "../services/SidoohPayments";
 import SidoohAccounts from "../services/SidoohAccounts";
 import { Payment } from "../entities/models/Payment";
@@ -161,7 +161,7 @@ export const TransactionRepository = {
             where: {
                 type: TransactionType.DEBIT,
                 status: Status.PENDING,
-                amount: LessThan(1000),
+                amount: LessThanOrEqual(1000),
             },
             relations: { personal_account: true, payment: true }
         });
