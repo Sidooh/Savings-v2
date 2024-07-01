@@ -49,8 +49,12 @@ export default class PersonalAccountController extends Controller {
     static withdraw = async ({ body, params }: Request, res: Response) => {
         const { personalAccountId } = params
 
-        const transaction = await Repo.withdraw(Number(personalAccountId), body)
+        try {
+            const transaction = await Repo.withdraw(Number(personalAccountId), body)
 
-        res.send(transaction)
+            res.status(200).send(this.successResponse({ data: transaction }));
+        } catch (e) {
+            res.status(400).send(this.errorResponse({ message: e.message, errors: [] }));
+        }
     };
 }
