@@ -6,6 +6,7 @@ import { DeepPartial, In } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
 import { withdrawalCharge } from "../utils/helpers";
 import { BadRequestError } from "../exceptions/bad-request.err";
+import { TransactionRepository } from "./TransactionRepository";
 
 export const PersonalAccountRepository = {
     index: async (withRelations?: string) => {
@@ -175,6 +176,8 @@ export const PersonalAccountRepository = {
             balance: personalAcc.balance - (body.amount + charge)
         })
         await transaction.reload()
+
+        TransactionRepository.processPersonalWithdrawals()
 
         return transaction;
     },

@@ -161,7 +161,7 @@ export const TransactionRepository = {
             where: {
                 type: TransactionType.DEBIT,
                 status: Status.PENDING,
-                amount: LessThanOrEqual(1000),
+                amount: LessThanOrEqual(10000),
             },
             relations: { personal_account: true, payment: true }
         });
