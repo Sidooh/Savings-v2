@@ -4,6 +4,8 @@ import { DefaultAccount, Description, Status, TransactionType } from '../utils/e
 import { PersonalAccountTransaction } from '../entities/models/PersonalAccountTransaction';
 import { DeepPartial, In } from 'typeorm';
 import SidoohAccounts from '../services/SidoohAccounts';
+import { withdrawalCharge } from "../utils/helpers";
+import { BadRequestError } from "../exceptions/bad-request.err";
 
 export const PersonalAccountRepository = {
     index: async (withRelations?: string) => {
@@ -127,23 +129,52 @@ export const PersonalAccountRepository = {
         return transaction;
     },
 
-    withdraw: async (amount: number, personalAccId: any) => {
+    withdraw: async (personalAccId: number, body: any) => {
         const personalAcc = await PersonalAccount.findOneBy({ id: personalAccId });
 
         if (!personalAcc) throw new NotFoundError("Personal Account Not Found!");
         if (personalAcc.type === DefaultAccount.LOCKED && personalAcc.balance <= 30000000)
             return { message: "Cannot Withdraw From Locked Account!" };
-        if (personalAcc.balance <= amount) return { message: "Insufficient balance!" };
+        if (personalAcc.balance <= body.amount) return { message: "Insufficient balance!" };
 
-        const transaction = await PersonalAccountTransaction.save({
-            amount,
+        const charge = await withdrawalCharge(body.amount);
+
+        if (personalAcc.balance - charge <= body.amount) throw new BadRequestError("Insufficient balance!");
+
+        const transaction = PersonalAccountTransaction.create({
+            amount: body.amount,
             description: Description.ACCOUNT_WITHDRAWAL,
             personal_account_id: personalAccId,
-            type: TransactionType.DEBIT
+            type: TransactionType.DEBIT,
+            extra: {
+                destination: body.destination,
+                destination_account: body.destination_account,
+                reference: body.reference,
+                ipn: body.ipn
+            }
         });
 
-        personalAcc.balance -= amount;
-        await personalAcc.save();
+        const chargeTransaction = PersonalAccountTransaction.create({
+            amount: charge,
+            description: Description.ACCOUNT_WITHDRAWAL_CHARGE,
+            personal_account_id: personalAcc.id,
+            type: TransactionType.CHARGE,
+        })
+
+
+        await PersonalAccountTransaction.insert([transaction, chargeTransaction]);
+
+        await PersonalAccountTransaction.update({ id: transaction.id }, {
+            extra: {
+                ...transaction.extra,
+                charge_transaction_id: chargeTransaction.id
+            }
+        })
+
+        await PersonalAccount.update({ id: personalAcc.id }, {
+            balance: personalAcc.balance - (body.amount + charge)
+        })
+        await transaction.reload()
 
         return transaction;
     },

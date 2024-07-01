@@ -22,5 +22,9 @@ export const PersonalAccountRequest = {
 
     withdraw: Joi.object({
         amount: Joi.number().integer().min(env.MIN_WITHDRAWAL_AMOUNT).required(),
+        reference: Joi.string().alphanum(),
+        destination: Joi.string().valid('MPESA'),
+        destination_account: [Joi.number(), Joi.string()], // TODO: add phone validation
+        ipn: Joi.string().uri()
     })
 };

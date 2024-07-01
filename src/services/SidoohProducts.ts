@@ -1,5 +1,5 @@
 import log from '../utils/logger';
-import {CONFIG} from '../config';
+import { CONFIG } from '../config';
 import SidoohService from './SidoohService';
 
 export default class SidoohProducts extends SidoohService {
