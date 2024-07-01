@@ -286,11 +286,16 @@ export const TransactionRepository = {
 
         await payment.transaction.reload()
 
+        const account = await PersonalAccount.findOneBy({ id: payment.transaction.personal_account_id })
+
+
         SidoohService.callback({
             url: payment.transaction.extra.ipn,
             data: {
                 id: payment.transaction.id,
-                status: payment.transaction.status
+                status: payment.transaction.status,
+                charge: chargeTransaction.amount,
+                balance: account.balance,
             }
         })
     }
